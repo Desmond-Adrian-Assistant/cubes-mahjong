@@ -3147,7 +3147,7 @@ class Renderer {
           const tileSpacing = wallLen / tilesPerSide;
           const offset = side.offsetStart + (i + 0.5) * tileSpacing;
           // After Math.PI flip, raise tiles well above table surface
-          const yPos = 0.15 + D + layer * (D + 0.06);
+          const yPos = 0.15 + D + layer * (D + 0.08);
 
           if (side.along === 'x') {
             mesh.position.set(side.baseX + offset, yPos, side.baseZ);
@@ -3161,7 +3161,7 @@ class Renderer {
           // No tilt — tiles lie perfectly flat like bricks in a wall
           mesh.rotation.x = Math.PI;
 
-          mesh.scale.set(0.88, 0.92, 0.88);
+          mesh.scale.set(0.78, 0.85, 0.78);
           this.scene.add(mesh);
           this.wallMeshes.push(mesh);
         }
