@@ -12,7 +12,7 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html, body {
   height: 100%; width: 100%;
-  background: linear-gradient(170deg, #f5e6c8 0%, #ede0cc 30%, #e8d5b0 70%, #ddc8a0 100%);
+  background: linear-gradient(170deg, #e8dcc8 0%, #ddd0ba 30%, #d5c5a8 70%, #cbb898 100%);
   font-family: 'ZCOOL XiaoWei', 'Ma Shan Zheng', serif;
   color: #3a3028;
   overflow: hidden;
@@ -1158,11 +1158,11 @@ class Renderer {
 
     // Base warm honey-brown wood tone
     const bgGrad = ctx.createLinearGradient(0, 0, 0, 1024);
-    bgGrad.addColorStop(0, '#8B6914');
-    bgGrad.addColorStop(0.2, '#9A7830');
-    bgGrad.addColorStop(0.5, '#A0784C');
-    bgGrad.addColorStop(0.8, '#8E6B28');
-    bgGrad.addColorStop(1, '#7A5C18');
+    bgGrad.addColorStop(0, '#c4a87a');
+    bgGrad.addColorStop(0.2, '#d0b88e');
+    bgGrad.addColorStop(0.5, '#c8ab80');
+    bgGrad.addColorStop(0.8, '#bfa070');
+    bgGrad.addColorStop(1, '#b09565');
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, 1024, 1024);
 
@@ -1172,8 +1172,8 @@ class Renderer {
       const alpha = Math.random() * 0.12 + 0.02;
       const dark = Math.random() > 0.5;
       ctx.strokeStyle = dark
-        ? `rgba(60,40,10,${alpha})`
-        : `rgba(180,150,90,${alpha * 0.6})`;
+        ? `rgba(120,95,60,${alpha})`
+        : `rgba(200,175,140,${alpha * 0.6})`;
       ctx.lineWidth = Math.random() * 1.5 + 0.3;
       ctx.beginPath();
       let y = 0;
@@ -1194,7 +1194,7 @@ class Renderer {
       const lighter = Math.random() > 0.5;
       ctx.fillStyle = lighter
         ? `rgba(190,160,100,${alpha})`
-        : `rgba(70,45,15,${alpha})`;
+        : `rgba(150,125,90,${alpha})`;
       ctx.fillRect(0, y, 1024, h);
     }
 
