@@ -24,6 +24,15 @@ canvas#game-canvas {
   z-index: 0;
 }
 
+/* Warm atmospheric vignette overlay */
+body::after {
+  content: '';
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(80,55,20,0.25) 100%);
+  pointer-events: none;
+  z-index: 5;
+}
+
 /* ========== UI OVERLAY ========== */
 #ui-overlay {
   position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -1180,7 +1189,7 @@ class Renderer {
     this.scene.fog = new THREE.Fog(0x9a7a55, 22, 45);
 
     // Warm ambient light - lantern glow feel (~3500K)
-    const ambient = new THREE.AmbientLight(0xffe8cc, 0.4);
+    const ambient = new THREE.AmbientLight(0xfff5e0, 0.45);
     this.scene.add(ambient);
 
     // Hemisphere light for natural sky/ground bounce
@@ -1188,7 +1197,7 @@ class Renderer {
     this.scene.add(hemiLight);
 
     // Main directional light — warm, from above-front like a lantern
-    const dirLight = new THREE.DirectionalLight(0xffeedd, 1.5);
+    const dirLight = new THREE.DirectionalLight(0xfff0d0, 1.5);
     dirLight.position.set(2, 9, 5);
     dirLight.castShadow = true;
     dirLight.shadow.mapSize.width = 2048;
@@ -1399,9 +1408,9 @@ class Renderer {
 
     // Base warm cream/parchment
     const baseGrad = tctx.createRadialGradient(512, 512, 0, 512, 512, 600);
-    baseGrad.addColorStop(0, '#f5eed6');
-    baseGrad.addColorStop(0.6, '#f0e8cc');
-    baseGrad.addColorStop(1, '#e8dfc0');
+    baseGrad.addColorStop(0, '#f7f0d4');
+    baseGrad.addColorStop(0.6, '#f2e8c6');
+    baseGrad.addColorStop(1, '#ecddb8');
     tctx.fillStyle = baseGrad;
     tctx.fillRect(0, 0, 1024, 1024);
 
