@@ -1,8 +1,8 @@
 {
-  "iteration": 5,
+  "iteration": 6,
   "maxIterations": 20,
   "startedAt": "2026-03-25T16:15:00-05:00",
-  "lastCompleted": "2026-03-25T16:44:00-05:00",
+  "lastCompleted": "2026-03-25T17:08:00-05:00",
   "changes": [
     {
       "iteration": 1,
@@ -28,8 +28,13 @@
       "iteration": 5,
       "fix": "Wall tile scale 0.78/0.82→0.68/0.75 for wider gaps; face-down side color 0x6b4f2a→0x5a3f1a (darker brown); face-down face color 0xfff8ec→0xf5ead0 (warmer cream)",
       "result": "Wall tiles now have clearly visible gaps between individual tiles; stronger two-tone contrast with darker sides and warmer cream tops; tiles stand out distinctly from table surface"
+    },
+    {
+      "iteration": 6,
+      "fix": "Discard tile scale 1.10→1.35, spacing 0.58→0.65, rowSpacing 0.70→0.80 for better face artwork visibility",
+      "result": "Discard tiles in center are larger with better spacing; symbols should be more visible at camera distance"
     }
   ],
   "status": "running",
-  "notes": "Round 5 — Wall tile gaps now clearly visible. Two-tone contrast improved. Next: compare for remaining visual gaps vs mockup."
+  "notes": "Round 6 — Discard tiles enlarged. Next: verify if face textures are actually showing on discards, or if UV mapping needs fixing for the ExtrudeGeometry front face."
 }
