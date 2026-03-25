@@ -3084,17 +3084,17 @@ class Renderer {
     // Player discard zones: each player's discards go on their side
     // Player 0=East, 1=South(you), 2=West, 3=North
     const zones = [
-      { baseX: 1.2, baseZ: 0, cols: 6, along: 'z', rotY: 0 },      // East discards
-      { baseX: 0, baseZ: 1.2, cols: 6, along: 'x', rotY: 0 },      // South discards
-      { baseX: -1.2, baseZ: 0, cols: 6, along: 'z', rotY: 0 },     // West discards
-      { baseX: 0, baseZ: -1.2, cols: 6, along: 'x', rotY: 0 },     // North discards
+      { baseX: 1.5, baseZ: 0, cols: 6, along: 'z', rotY: 0 },      // East discards
+      { baseX: 0, baseZ: 1.5, cols: 6, along: 'x', rotY: 0 },      // South discards
+      { baseX: -1.5, baseZ: 0, cols: 6, along: 'z', rotY: 0 },     // West discards
+      { baseX: 0, baseZ: -1.5, cols: 6, along: 'x', rotY: 0 },     // North discards
     ];
 
     for (let p = 0; p < 4; p++) {
       const discards = allDiscards[p] || [];
       const zone = zones[p];
-      const spacing = 0.52;
-      const rowSpacing = 0.62;
+      const spacing = 0.58;
+      const rowSpacing = 0.70;
 
       for (let i = 0; i < discards.length; i++) {
         const col = i % zone.cols;
@@ -3112,8 +3112,8 @@ class Renderer {
           z = zone.baseZ + offset;
         }
         mesh.position.set(x, 0.15, z);
-        mesh.rotation.y = (Math.random() - 0.5) * 0.04;
-        mesh.scale.set(0.88, 0.88, 0.88);
+        mesh.rotation.y = 0;
+        mesh.scale.set(1.10, 1.10, 1.10);
         this.scene.add(mesh);
         this.discardMeshes.push(mesh);
       }
