@@ -1,8 +1,8 @@
 {
-  "iteration": 6,
+  "iteration": 7,
   "maxIterations": 20,
   "startedAt": "2026-03-25T16:15:00-05:00",
-  "lastCompleted": "2026-03-25T17:08:00-05:00",
+  "lastCompleted": "2026-03-25T17:16:00-05:00",
   "changes": [
     {
       "iteration": 1,
@@ -33,8 +33,13 @@
       "iteration": 6,
       "fix": "Discard tile scale 1.10→1.35, spacing 0.58→0.65, rowSpacing 0.70→0.80 for better face artwork visibility",
       "result": "Discard tiles in center are larger with better spacing; symbols should be more visible at camera distance"
+    },
+    {
+      "iteration": 7,
+      "fix": "Wall tile tilt Math.PI*0.92→0.78 (more upright), sides 0x5a3f1a→0x4a3515 (darker), face 0xf5ead0→0xfff8ef (brighter), depth 0.28→0.35 (thicker)",
+      "result": "Wall tiles now show pronounced two-tone 3D block effect — bright cream top vs dark brown sides clearly visible from isometric camera. Tiles look like real mahjong blocks instead of flat slabs."
     }
   ],
   "status": "running",
-  "notes": "Round 6 — Discard tiles enlarged. Next: verify if face textures are actually showing on discards, or if UV mapping needs fixing for the ExtrudeGeometry front face."
+  "notes": "Round 7 — Wall two-tone dramatically improved. Next priorities from mockup comparison: (1) discard tile face artwork still hard to see at camera distance, (2) wall tile arrangement could be tighter/more uniform."
 }

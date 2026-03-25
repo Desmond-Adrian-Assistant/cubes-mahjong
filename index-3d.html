@@ -1591,7 +1591,7 @@ class Renderer {
     const tableGeo = new THREE.BoxGeometry(14, 0.15, 14);
     const tableMat = new THREE.MeshStandardMaterial({
       map: tableTexture,
-      color: 0xf5ead0,
+      color: 0xe0c898,
       roughness: 0.88,
       metalness: 0.0,
     });
@@ -1615,11 +1615,11 @@ class Renderer {
     // Inner playing area — slightly lighter parchment overlay
     const innerGeo = new THREE.PlaneGeometry(10.5, 10.5);
     const innerMat = new THREE.MeshStandardMaterial({
-      color: 0xf5eed6,
+      color: 0xdcc890,
       roughness: 0.92,
       metalness: 0.0,
       transparent: true,
-      opacity: 0.35,
+      opacity: 0.45,
     });
     const inner = new THREE.Mesh(innerGeo, innerMat);
     inner.rotation.x = -Math.PI / 2;
@@ -3045,8 +3045,8 @@ class Renderer {
     const bodyGeo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
 
     // TWO-TONE: Bright white face vs MUCH darker tan/brown sides
-    const faceColor = faceDown ? 0xfff8ef : 0xffffff;
-    const sideColor = faceDown ? 0x4a3515 : 0x7a5830;
+    const faceColor = faceDown ? 0xffffff : 0xffffff;
+    const sideColor = faceDown ? 0x4a3515 : 0x5a3a18;
 
     const faceMat = new THREE.MeshStandardMaterial({ map: faceTex, color: faceColor, roughness: 0.4, metalness: 0.0 });
     const sideMat = new THREE.MeshStandardMaterial({ color: sideColor, roughness: 0.55, metalness: 0.0 });
