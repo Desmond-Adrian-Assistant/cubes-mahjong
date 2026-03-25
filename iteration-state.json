@@ -1,8 +1,8 @@
 {
-  "iteration": 21,
+  "iteration": 22,
   "maxIterations": 25,
   "startedAt": "2026-03-24T22:55:00-05:00",
-  "lastCompleted": "2026-03-25T05:45:00-05:00",
+  "lastCompleted": "2026-03-25T06:19:00-05:00",
   "changes": [
     "Iteration 1: Replaced dots tiles (dots-1 through dots-9) with drawn circular artwork. Each dot is rendered as a teal circle with concentric ring effect and subtle highlight, arranged in traditional mahjong patterns.",
     "Iteration 2: Drew bamboo stick artwork (bam-2 to bam-9 as green sticks with segment nodes, bam-1 as stylized bird/sparrow). Character tiles now show Chinese numerals + 萬 in deep red-black ink with a traditional red seal/chop mark.",
@@ -24,7 +24,8 @@
     "Iteration 18: Enhanced action buttons and Your Turn indicator. Turn indicator centered with vermillion gradient (#c0392b→#a93226), larger font (16px), pulse animation with glow. Header buttons (棄/排) restyled with warm brown gradient (#8b6914), larger padding, rounded corners. Action buttons (Chi/Pong/Kong/Mahjong) enlarged with warm color palette — pong/sort warm brown, mahjong/discard vermillion, chi warm green. All buttons have stronger warm shadows and hover lift effects.",
     "Iteration 19: Subtle ensō circle — reduced radius 180→126 (~30% smaller), stroke widths [16,22,30]→[10,13,18] (~40% thinner), opacity [0.65,0.45,0.30]→[0.22,0.17,0.12] (ghost strokes), color shifted from brown rgba(60,45,30) to warm gray rgba(90,80,70). Splatter dot opacity halved. Ensō now appears as a faint aged ink impression on parchment, not a bold brown swirl. Center table area is much cleaner and more elegant.",
     "Iteration 20: Added icon-style toolbar buttons matching mockup. Bottom-right toolbar with 4 buttons (Discard, Mahjong, Settings, Help) — warm ivory squares with icons and uppercase labels. Top-right toolbar expanded from 2 to 4 buttons (Discard, Sort, Settings, Help) in same icon-square style. All buttons use toolbar-btn class: 56x56px, rounded corners, cream background, subtle shadow. Wired Discard to toggle discard overlay, Mahjong to claim win, Help shows toast. Matches mockup's distinctive icon toolbar layout.",
-    "Iteration 21: Boosted bamboo corner motif visibility on table surface. Changed bamboo ink color from muted green (#3a5a3a) to warm dark brown ink (rgba(50,40,30)) so motifs no longer blend into the cream table. Thickened stalk lineWidth 5→7.5 (+50%), node lineWidth 3.5→5, leaf lineWidth 4→6. Alpha adjusted 0.55→0.45. Bamboo brush paintings are now clearly visible in table corners, matching mockup's decorative ink elements."
+    "Iteration 21: Boosted bamboo corner motif visibility on table surface. Changed bamboo ink color from muted green (#3a5a3a) to warm dark brown ink (rgba(50,40,30)) so motifs no longer blend into the cream table. Thickened stalk lineWidth 5→7.5 (+50%), node lineWidth 3.5→5, leaf lineWidth 4→6. Alpha adjusted 0.55→0.45. Bamboo brush paintings are now clearly visible in table corners, matching mockup's decorative ink elements.",
+    "Iteration 22: Boosted tile contrast against table surface. Darkened faceDown edge colors (sides 0xd8ceb8→0xb8a890, bottom 0xd0c8b8→0xa89878, front 0xdcd4c0→0xc8c0b0). Reduced ambient light 0.55→0.4, boosted directional 1.35→1.5, tightened shadow radius 4→3. Added EdgesGeometry dark brown outlines (0x8a7a6a) to all tiles. Darkened tile back gradient and boosted lattice pattern visibility. Wall tiles now clearly defined against cream table."
   ],
   "status": "running"
 }

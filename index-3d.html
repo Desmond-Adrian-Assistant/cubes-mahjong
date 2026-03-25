@@ -1144,7 +1144,7 @@ class GameState {
 class Renderer {
   constructor() {
     this.scene = new THREE.Scene();
-    this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+    this.camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
     this.renderer = new THREE.WebGLRenderer({
       canvas: document.getElementById('game-canvas'),
       antialias: true,
@@ -1157,8 +1157,8 @@ class Renderer {
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.45;
 
-    // Camera setup - strong isometric view (~35° from horizontal), pulled back for breathing room
-    this.camera.position.set(0, 12, 12);
+    // Camera setup - close isometric view for table to fill viewport
+    this.camera.position.set(0, 9, 8);
     this.camera.lookAt(0, 0, -1);
 
     this.tileTextures = {};
