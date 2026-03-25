@@ -1,8 +1,8 @@
 {
-  "iteration": 13,
+  "iteration": 14,
   "maxIterations": 25,
   "startedAt": "2026-03-24T22:55:00-05:00",
-  "lastCompleted": "2026-03-25T02:43:00-05:00",
+  "lastCompleted": "2026-03-25T02:59:00-05:00",
   "changes": [
     "Iteration 1: Replaced dots tiles (dots-1 through dots-9) with drawn circular artwork. Each dot is rendered as a teal circle with concentric ring effect and subtle highlight, arranged in traditional mahjong patterns.",
     "Iteration 2: Drew bamboo stick artwork (bam-2 to bam-9 as green sticks with segment nodes, bam-1 as stylized bird/sparrow). Character tiles now show Chinese numerals + 萬 in deep red-black ink with a traditional red seal/chop mark.",
@@ -16,7 +16,8 @@
     "Iteration 10: Dramatically boosted ink decoration visibility across the board. Ensō circle: alpha [0.50,0.32,0.20]→[0.65,0.45,0.30], stroke widths [12,18,24]→[16,22,30]. Bamboo motifs: globalAlpha 0.25→0.55, thicker stalks/leaves. Cloud wisps: globalAlpha 0.18→0.40, lineWidth 2→3.5, added more wisp lines. Vermillion seal: all alphas ~2x, square 44→56px. Ink decorations are now clearly visible at game camera distance.",
     "Iteration 11: Replaced emoji avatars (🐱🦊🐰🐼) with ink-wash sumi-e portrait silhouettes using inline SVG data URIs. Each player now has a unique brush-stroke portrait — Lin (woman with hair bun), Chen (man with topknot), Kenji (elder with beard), Yuki (woman with flowing hair). Player names updated from Mochi/Kitsune/Usagi to Yuki/Kenji/Lin/Chen. Win modal kanji initials: 林陳健雪. Matches mockup's traditional East Asian ink portrait aesthetic.",
     "Iteration 12: Made wall tiles chunkier and more 3D. Increased tile depth from 0.30→0.38 in create3DTile and 0.28→0.38 in createWalls. Scaled wall tiles from 0.85→0.95 for more presence on table. Darkened face-down tile edge colors (sideColor 0xe0d8c8→0xd8ceb8, frontColor 0xe8e0d0→0xdcd4c0) for better depth contrast. Increased layer spacing for clearer two-tier stacking.",
-    "Iteration 13: Multicolored dots tiles — changed dots 2-9 from uniform teal to traditional multicolored pattern. Dots now alternate between green (#2a8a6a), red (#c03030), and blue (#2a4a8a) circles matching real mahjong tile colors. Each tile has a unique color assignment per dot position (e.g., dots-5 has green/red/blue/green/red). Much more authentic and visually rich."
+    "Iteration 13: Multicolored dots tiles — changed dots 2-9 from uniform teal to traditional multicolored pattern. Dots now alternate between green (#2a8a6a), red (#c03030), and blue (#2a4a8a) circles matching real mahjong tile colors. Each tile has a unique color assignment per dot position (e.g., dots-5 has green/red/blue/green/red). Much more authentic and visually rich.",
+    "Iteration 14: Muted background from saturated golden honey-brown wood (#8B6914 etc.) to light warm maple/birch tones (#c4a87a, #d0b88e, #c8ab80). Softened wood grain line colors and horizontal band contrast. Updated CSS body gradient to match. Background no longer dominates — much closer to mockup's subtle warm parchment/light wood feel."
   ],
   "status": "running"
 }
