@@ -59,16 +59,18 @@ canvas#game-canvas {
   position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
 }
 .menu-btn {
-  width: 40px; height: 40px; border-radius: 50%;
-  background: rgba(245,240,232,0.92);
+  width: auto; height: auto; border-radius: 8px;
+  background: linear-gradient(135deg, #8b6914, #7a5a10);
   border: 1px solid rgba(160,140,110,0.3);
-  color: #5a4a3a; font-size: 16px; cursor: pointer;
+  color: #fffff8; font-size: 16px; cursor: pointer;
+  padding: 8px 16px;
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 2px 8px rgba(80,60,30,0.08);
+  box-shadow: 0 3px 10px rgba(80,60,30,0.2);
   backdrop-filter: blur(10px);
-  transition: transform 0.2s;
+  transition: all 0.2s;
   font-family: 'Ma Shan Zheng', serif;
 }
+.menu-btn:hover { background: linear-gradient(135deg, #a07a1a, #8b6914); }
 .menu-btn:active { transform: scale(0.95); }
 
 /* ========== PLAYER BUBBLES ========== */
@@ -288,28 +290,29 @@ canvas#game-canvas {
 }
 .action-btn {
   border: none;
-  border-radius: 20px;
-  padding: 10px 22px;
-  font-size: 14px;
+  border-radius: 12px;
+  padding: 12px 26px;
+  font-size: 16px;
   font-family: 'Ma Shan Zheng', serif;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 3px 10px rgba(80,60,30,0.15);
+  box-shadow: 0 4px 14px rgba(80,60,30,0.25);
   display: none;
-  min-width: 72px;
+  min-width: 80px;
   text-align: center;
   letter-spacing: 1px;
 }
 .action-btn.visible { display: block; }
+.action-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
 .action-btn:active { transform: scale(0.95); }
 
-.action-btn.chi { background: linear-gradient(135deg, #5a8a6a, #4a7a5a); color: #fffff8; }
-.action-btn.pong { background: linear-gradient(135deg, #8a6a4a, #7a5a3a); color: #fffff8; }
-.action-btn.kong { background: linear-gradient(135deg, #5a5a6a, #4a4a5a); color: #fffff8; }
-.action-btn.mahjong { background: linear-gradient(135deg, #c94030, #a83020); color: #fffff8; box-shadow: 0 3px 14px rgba(179,58,42,0.3); }
+.action-btn.chi { background: linear-gradient(135deg, #6a9a5a, #5a8a4a); color: #fffff8; box-shadow: 0 4px 14px rgba(90,138,74,0.3); }
+.action-btn.pong { background: linear-gradient(135deg, #8b6914, #7a5a10); color: #fffff8; box-shadow: 0 4px 14px rgba(139,105,20,0.3); }
+.action-btn.kong { background: linear-gradient(135deg, #6a5a4a, #5a4a3a); color: #fffff8; box-shadow: 0 4px 14px rgba(90,74,58,0.3); }
+.action-btn.mahjong { background: linear-gradient(135deg, #c0392b, #a93226); color: #fffff8; box-shadow: 0 4px 18px rgba(192,57,43,0.4); }
 .action-btn.skip { background: linear-gradient(135deg, #b0a898, #9a9080); color: #fffff8; }
-.action-btn.discard { background: linear-gradient(135deg, #c94030, #a83020); color: #fffff8; box-shadow: 0 3px 14px rgba(179,58,42,0.3); }
-.action-btn.sort { background: rgba(245,240,232,0.95); color: #5a4a3a; border: 1px solid rgba(160,140,110,0.3); }
+.action-btn.discard { background: linear-gradient(135deg, #c0392b, #a93226); color: #fffff8; box-shadow: 0 4px 18px rgba(192,57,43,0.4); }
+.action-btn.sort { background: linear-gradient(135deg, #8b6914, #7a5a10); color: #fffff8; border: none; }
 
 /* ========== CLAIM PANEL ========== */
 .claim-panel {
@@ -371,23 +374,25 @@ canvas#game-canvas {
 .turn-indicator {
   position: fixed;
   bottom: 138px;
-  right: 16px;
-  font-size: 13px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 16px;
   font-family: 'Ma Shan Zheng', serif;
   color: #fffff8;
   background: #5a4a3a;
-  border-radius: 14px;
-  padding: 5px 14px;
+  border-radius: 20px;
+  padding: 10px 24px;
   box-shadow: 0 3px 10px rgba(80,60,30,0.2);
   white-space: nowrap;
   z-index: 35;
   transition: all 0.4s;
 }
 .turn-indicator.your-turn {
-  background: #b33a2a;
+  background: linear-gradient(135deg, #c0392b, #a93226);
+  box-shadow: 0 0 18px rgba(192,57,43,0.45), 0 4px 12px rgba(80,60,30,0.2);
   animation: turnPulse 2s ease infinite;
 }
-@keyframes turnPulse { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+@keyframes turnPulse { 0%,100% { transform: translateX(-50%) scale(1); box-shadow: 0 0 18px rgba(192,57,43,0.45); } 50% { transform: translateX(-50%) scale(1.05); box-shadow: 0 0 28px rgba(192,57,43,0.6); } }
 
 /* ========== TOAST ========== */
 .toast {

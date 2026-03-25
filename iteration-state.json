@@ -1,8 +1,8 @@
 {
-  "iteration": 16,
+  "iteration": 17,
   "maxIterations": 25,
   "startedAt": "2026-03-24T22:55:00-05:00",
-  "lastCompleted": "2026-03-25T03:45:00-05:00",
+  "lastCompleted": "2026-03-25T04:18:00-05:00",
   "changes": [
     "Iteration 1: Replaced dots tiles (dots-1 through dots-9) with drawn circular artwork. Each dot is rendered as a teal circle with concentric ring effect and subtle highlight, arranged in traditional mahjong patterns.",
     "Iteration 2: Drew bamboo stick artwork (bam-2 to bam-9 as green sticks with segment nodes, bam-1 as stylized bird/sparrow). Character tiles now show Chinese numerals + 萬 in deep red-black ink with a traditional red seal/chop mark.",
@@ -19,7 +19,8 @@
     "Iteration 13: Multicolored dots tiles — changed dots 2-9 from uniform teal to traditional multicolored pattern. Dots now alternate between green (#2a8a6a), red (#c03030), and blue (#2a4a8a) circles matching real mahjong tile colors. Each tile has a unique color assignment per dot position (e.g., dots-5 has green/red/blue/green/red). Much more authentic and visually rich.",
     "Iteration 14: Muted background from saturated golden honey-brown wood (#8B6914 etc.) to light warm maple/birch tones (#c4a87a, #d0b88e, #c8ab80). Softened wood grain line colors and horizontal band contrast. Updated CSS body gradient to match. Background no longer dominates — much closer to mockup's subtle warm parchment/light wood feel.",
     "Iteration 15: Enlarged center discard tiles for readability — scale 0.7→0.88, tile spacing 0.42→0.52, row spacing 0.56→0.62, zone bases 1.4→1.2 (pulled more central). Discarded tiles are now large enough to show their face artwork clearly at camera distance.",
-    "Iteration 16: Replaced flat wood panel background with ink-wash mountain landscape. 3 layers of misty mountains at different depths using warm gray-brown washes (opacity 0.06-0.13). Added atmospheric mist between layers, ink spatter for aged paper feel, and warm center glow. Background now evokes traditional sumi-e painting atmosphere matching the Paper & Ink theme."
+    "Iteration 16: Replaced flat wood panel background with ink-wash mountain landscape. 3 layers of misty mountains at different depths using warm gray-brown washes (opacity 0.06-0.13). Added atmospheric mist between layers, ink spatter for aged paper feel, and warm center glow. Background now evokes traditional sumi-e painting atmosphere matching the Paper & Ink theme.",
+    "Iteration 17: Enlarged player info panels for prominence — avatars 44px→64px, name font 13px→16px, score/wind font 11px→13px, padding 6px 12px→8px 16px, thicker avatar border (2.5px), stronger shadows, panels pulled inward from screen edges (12px→24-28px). Player panels now read as prominent visual elements framing the table, matching mockup."
   ],
   "status": "running"
 }
