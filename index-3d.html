@@ -3143,9 +3143,9 @@ class Renderer {
           mesh.rotation.y = side.rot;
 
           // Tilt tiles face-down (rotate around x so top faces away from center)
-          mesh.rotation.x = Math.PI;
+          mesh.rotation.x = Math.PI * 0.92;
 
-          mesh.scale.set(0.88, 0.88, 0.88);
+          mesh.scale.set(0.78, 0.82, 0.78);
           this.scene.add(mesh);
           this.wallMeshes.push(mesh);
         }
