@@ -2719,7 +2719,7 @@ class Renderer {
   }
 
   create3DTile(tile, faceDown = false) {
-    const W = 0.38, H = 0.52, D = 0.30;
+    const W = 0.38, H = 0.52, D = 0.38;
     const group = new THREE.Group();
 
     // Main tile body
@@ -2727,9 +2727,9 @@ class Renderer {
     const faceTex = faceDown ? this.createTileBackTexture() : this.createTileTexture(tile);
 
     // Side/edge materials — darker for face-down tiles to contrast with table
-    const sideColor = faceDown ? 0xe0d8c8 : 0xe8dcc8;
+    const sideColor = faceDown ? 0xd8ceb8 : 0xe8dcc8;
     const bottomColor = faceDown ? 0xd0c8b8 : 0xd8d0c0;
-    const frontColor = faceDown ? 0xe8e0d0 : 0xece4d4;
+    const frontColor = faceDown ? 0xdcd4c0 : 0xece4d4;
     const sideMat = new THREE.MeshStandardMaterial({ color: sideColor, roughness: 0.55, metalness: 0.02 });
     const bottomMat = new THREE.MeshStandardMaterial({ color: bottomColor, roughness: 0.7, metalness: 0.0 });
     const faceMat = new THREE.MeshStandardMaterial({ map: faceTex, roughness: 0.35, metalness: 0.0 });
@@ -2788,7 +2788,7 @@ class Renderer {
 
   createWalls(wallTiles) {
     this.clearWalls();
-    const W = 0.38, H = 0.52, D = 0.28;
+    const W = 0.38, H = 0.52, D = 0.38;
     const tilesPerSide = 17;
     const layers = 2;
     let tileIdx = 0;
@@ -2809,7 +2809,7 @@ class Renderer {
           tileIdx++;
 
           const offset = (i - tilesPerSide / 2 + 0.5) * (W + 0.02);
-          const yPos = 0.02 + D / 2 + layer * (D + 0.01);
+          const yPos = 0.02 + D / 2 + layer * (D + 0.02);
 
           if (side.along === 'x') {
             mesh.position.set(side.baseX + offset, yPos, side.baseZ);
@@ -2821,7 +2821,7 @@ class Renderer {
           // Tilt tiles face-down (rotate around x so top faces away from center)
           mesh.rotation.x = Math.PI;
 
-          mesh.scale.set(0.85, 0.85, 0.85);
+          mesh.scale.set(0.95, 0.95, 0.95);
           this.scene.add(mesh);
           this.wallMeshes.push(mesh);
         }
