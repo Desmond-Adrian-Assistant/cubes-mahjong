@@ -2,13 +2,14 @@
   "iteration": 5,
   "maxIterations": 25,
   "startedAt": "2026-03-24T22:55:00-05:00",
-  "lastCompleted": "2026-03-24T23:44:00-05:00",
+  "lastCompleted": "2026-03-25T00:00:00-05:00",
   "changes": [
-    "Iteration 1: Replaced dots tiles (dots-1 through dots-9) with drawn circular artwork. Each dot is rendered as a teal circle with concentric ring effect and subtle highlight, arranged in traditional mahjong patterns.",
-    "Iteration 2: Drew bamboo stick artwork (bam-2 to bam-9 as green sticks with segment nodes, bam-1 as stylized bird/sparrow). Character tiles now show Chinese numerals + 萬 in deep red-black ink with a traditional red seal/chop mark.",
-    "Iteration 3: Honor tiles upgraded - Wind tiles now have calligraphic seal circle borders, compass dots at cardinal positions, and brush-stroke texture effect. Dragon tiles: Red (中) gets vermillion rounded-rect frame with inner glow, Green (發) gets bamboo-leaf corner accents, White (白) gets traditional empty double-line frame.",
-    "Iteration 4: Bonus tiles and dots-1 upgrade. Flower tiles (梅蘭菊竹) now have ink wash botanical artwork - Plum with pink blossoms on dark branches, Orchid with curved leaves and purple flowers, Chrysanthemum with layered orange petals, Bamboo with green stalks and pointed leaves. Season tiles (春夏秋冬) have themed scenes - Spring cherry blossoms with sprouts, Summer sun with lush leaves, Autumn falling maple leaves, Winter bare branches with snowflakes. Dots-1 enhanced with ornate multi-ring concentric design (rays, decorative dots, teal/blue palette). All bonus tiles show corner number and Chinese name.",
-    "Iteration 5: Green felt table surface replacing rice paper (dark green #1a5c2e with fiber texture), procedural wood grain texture on border frame (dark walnut with grain lines, wavy curves, and knot details), brass corner brackets at all 4 corners of the table (L-shaped with metallic finish). Inner overlay tinted green, decorative border lines changed to warm gold contrast."
+    "Iteration 1: Dots tiles with drawn circle artwork",
+    "Iteration 2: Bamboo sticks & bird + character tiles with red ink",
+    "Iteration 3: Honor tile artwork - winds, dragons styling",
+    "Iteration 4: Flower/season botanical art, ornate dots-1",
+    "Iteration 5: REVERTED green felt (wrong direction). Locked guide to mockup parchment aesthetic."
   ],
-  "status": "running"
+  "status": "running",
+  "notes": "Table must stay cream/parchment per mockup. No green felt. Mockup is ONLY source of truth."
 }
