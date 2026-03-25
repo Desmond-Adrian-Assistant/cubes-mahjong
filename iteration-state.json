@@ -1,8 +1,8 @@
 {
-  "iteration": 15,
+  "iteration": 16,
   "maxIterations": 20,
   "startedAt": "2026-03-25T16:15:00-05:00",
-  "lastCompleted": "2026-03-25T18:32:00-05:00",
+  "lastCompleted": "2026-03-25T23:48:05-05:00",
   "changes": [
     {
       "iteration": 1,
@@ -78,8 +78,13 @@
       "iteration": 15,
       "fix": "Camera position (0,9,8)→(0,7.5,6.5), lookAt (0,0,-1)→(0,0,-0.5) for tighter viewport framing",
       "result": "Table fills viewport much better — tiles, walls, wind indicators, and wood border are all more visible and prominent. Less wasted background space. Composition is tighter and more polished."
+    },
+    {
+      "iteration": 16,
+      "fix": "Balanced scene lighting: ambient 0.3→0.50, hemisphere 0.25→0.40, main directional 1.5→1.2, fill 0.25→0.60, rim 0.15→0.35 for even illumination across all walls",
+      "result": "Scene is brighter and more evenly lit. Far side (north wall) no longer falls into shadow. All four walls, table surface, and decorative artwork are clearly visible with warm, balanced lighting. Matches mockup's bright, even aesthetic."
     }
   ],
   "status": "running",
-  "notes": "Round 15 — Tighter camera brings table closer to fill viewport. Wood border, tile walls, center wind tiles, and decorative artwork all more visible. Next priorities: (1) shadow/depth polish on tiles, (2) side wall visibility improvement, (3) final mockup comparison and polish pass."
+  "notes": "Round 16 — Even lighting across entire scene. All walls equally visible. Next priorities: (1) final polish pass on tile two-tone depth, (2) discard area tile visibility, (3) overall aesthetic refinement."
 }
