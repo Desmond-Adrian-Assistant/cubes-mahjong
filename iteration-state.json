@@ -1,8 +1,8 @@
 {
-  "iteration": 3,
+  "iteration": 4,
   "maxIterations": 20,
   "startedAt": "2026-03-25T16:15:00-05:00",
-  "lastCompleted": "2026-03-25T16:24:00-05:00",
+  "lastCompleted": "2026-03-25T16:35:00-05:00",
   "changes": [
     {
       "iteration": 1,
@@ -18,8 +18,13 @@
       "iteration": 3,
       "fix": "Darkened background from light golden #c4a87a to rich warm brown #7a5c30; darkened fog 0xc4a87a→0x7a5c30; darkened CSS body #9B7830→#6b4e28",
       "result": "Background is now darker warm brown wood — closer to mockup's medium-dark wood grain"
+    },
+    {
+      "iteration": 4,
+      "fix": "Lightened background from dark brown #7a5c30/#6b4e28 to warm medium wood #C4A882/#B89A6A; updated fog to 0xC4A882; updated all CSS gradient stops",
+      "result": "Background now matches mockup's warm medium wood tone — scene feels lighter, airier, Paper & Ink aesthetic intact"
     }
   ],
   "status": "running",
-  "notes": "Round 3 — Background darkened. Next: compare for remaining visual gaps."
+  "notes": "Round 4 — Background lightened to match mockup warm wood. Scene much closer overall. Next: compare for remaining visual gaps."
 }
