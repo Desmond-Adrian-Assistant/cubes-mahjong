@@ -1728,15 +1728,15 @@ class Renderer {
     // Bamboo corner motifs — load PNG texture
     const loader = new THREE.TextureLoader();
     loader.load('assets/bamboo-corner.png', (bambooTex) => {
-      const bambooW = 3.0, bambooH = 3.0;
+      const bambooW = 3.8, bambooH = 3.8;
       const bambooGeo = new THREE.PlaneGeometry(bambooW, bambooH);
       // Bottom-left corner
       const bambooMatBL = new THREE.MeshStandardMaterial({
-        map: bambooTex, transparent: true, roughness: 1, metalness: 0, depthWrite: false,
+        map: bambooTex, transparent: true, opacity: 0.85, roughness: 1, metalness: 0, depthWrite: false,
       });
       const bambooBL = new THREE.Mesh(bambooGeo, bambooMatBL);
       bambooBL.rotation.x = -Math.PI / 2;
-      bambooBL.position.set(-3.5, 0.006, 3.5);
+      bambooBL.position.set(-3.8, 0.011, 3.8);
       this.scene.add(bambooBL);
       // Bottom-right corner (mirror horizontally)
       const bambooTexBR = bambooTex.clone();
@@ -1745,23 +1745,23 @@ class Renderer {
       bambooTexBR.offset.x = 1;
       bambooTexBR.needsUpdate = true;
       const bambooMatBR = new THREE.MeshStandardMaterial({
-        map: bambooTexBR, transparent: true, roughness: 1, metalness: 0, depthWrite: false,
+        map: bambooTexBR, transparent: true, opacity: 0.85, roughness: 1, metalness: 0, depthWrite: false,
       });
       const bambooBR = new THREE.Mesh(bambooGeo, bambooMatBR);
       bambooBR.rotation.x = -Math.PI / 2;
-      bambooBR.position.set(3.5, 0.006, 3.5);
+      bambooBR.position.set(3.8, 0.011, 3.8);
       this.scene.add(bambooBR);
     });
 
     // Cloud wisps overlay — load PNG texture
     loader.load('assets/cloud-wisps.png', (cloudTex) => {
-      const cloudGeo = new THREE.PlaneGeometry(8, 8);
+      const cloudGeo = new THREE.PlaneGeometry(9.5, 9.5);
       const cloudMat = new THREE.MeshStandardMaterial({
-        map: cloudTex, transparent: true, opacity: 0.35, roughness: 1, metalness: 0, depthWrite: false,
+        map: cloudTex, transparent: true, opacity: 0.75, roughness: 1, metalness: 0, depthWrite: false,
       });
       const cloud = new THREE.Mesh(cloudGeo, cloudMat);
       cloud.rotation.x = -Math.PI / 2;
-      cloud.position.y = 0.007;
+      cloud.position.y = 0.012;
       this.scene.add(cloud);
     });
   }
