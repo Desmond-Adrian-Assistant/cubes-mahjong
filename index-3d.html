@@ -676,6 +676,94 @@ body::after {
 }
 .modal-btn:active { transform: scale(0.95); }
 
+/* ========== SETTINGS MODAL ========== */
+.settings-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(40,32,24,0.5);
+  backdrop-filter: blur(8px);
+  display: none; align-items: center; justify-content: center;
+  z-index: 200;
+}
+.settings-overlay.show { display: flex; }
+.settings-modal {
+  background: rgba(248,244,236,0.98);
+  border-radius: 20px;
+  padding: 28px 36px 24px;
+  box-shadow: 0 16px 48px rgba(40,30,20,0.25);
+  max-width: 440px;
+  min-width: 320px;
+  max-height: 85vh;
+  overflow-y: auto;
+  border: 1px solid rgba(160,140,110,0.3);
+  position: relative;
+}
+.settings-modal h2 {
+  font-size: 28px; color: #4a3a28; margin-bottom: 18px;
+  font-family: 'Ma Shan Zheng', serif; font-weight: 400;
+  text-align: center;
+}
+.settings-close {
+  position: absolute; top: 14px; right: 18px;
+  background: none; border: none; font-size: 22px;
+  color: #8a7a6a; cursor: pointer; line-height: 1;
+  padding: 4px 8px; border-radius: 8px;
+}
+.settings-close:hover { background: rgba(0,0,0,0.06); color: #4a3a28; }
+.settings-section {
+  margin-bottom: 20px;
+}
+.settings-section-title {
+  font-size: 14px; font-weight: 600; color: #6a5a48;
+  text-transform: uppercase; letter-spacing: 1.2px;
+  margin-bottom: 10px;
+  font-family: 'Helvetica Neue', sans-serif;
+}
+.mat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.mat-thumb {
+  width: 100%; aspect-ratio: 1;
+  border-radius: 10px;
+  border: 3px solid transparent;
+  cursor: pointer;
+  background-size: cover;
+  background-position: center;
+  transition: all 0.2s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+.mat-thumb:hover { transform: scale(1.05); }
+.mat-thumb.active { border-color: #b33a2a; box-shadow: 0 0 0 2px rgba(179,58,42,0.3); }
+.mat-upload-btn {
+  display: inline-block;
+  background: linear-gradient(135deg, #8b6914, #7a5a10);
+  color: #fffff8;
+  border: none; border-radius: 10px;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-family: 'Ma Shan Zheng', serif;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.mat-upload-btn:hover { background: linear-gradient(135deg, #a07a1a, #8b6914); }
+.color-picker-row {
+  display: flex; align-items: center; gap: 12px;
+}
+.color-picker-row label {
+  font-size: 14px; color: #5a4a38;
+  font-family: 'Helvetica Neue', sans-serif;
+}
+.color-picker-row input[type="color"] {
+  width: 48px; height: 36px;
+  border: 2px solid #c0a878;
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 2px;
+  background: #f5ede0;
+}
+
 .score-table { margin: 18px 0; text-align: left; }
 .score-row {
   display: flex; justify-content: space-between; align-items: center;
@@ -872,6 +960,27 @@ body::after {
     <p id="modal-text">Paper & Ink Mahjong — Ready to play?</p>
     <div id="modal-content"></div>
     <button class="modal-btn" id="modal-btn">Play</button>
+  </div>
+</div>
+
+<!-- Settings Modal -->
+<div class="settings-overlay" id="settings-overlay">
+  <div class="settings-modal">
+    <button class="settings-close" id="settings-close">&times;</button>
+    <h2>設定 Settings</h2>
+    <div class="settings-section">
+      <div class="settings-section-title">Table Mat</div>
+      <div class="mat-grid" id="mat-grid"></div>
+      <button class="mat-upload-btn" id="mat-upload-btn">Upload Custom</button>
+      <input type="file" id="mat-file-input" accept="image/*" style="display:none">
+    </div>
+    <div class="settings-section">
+      <div class="settings-section-title">Tile Color</div>
+      <div class="color-picker-row">
+        <label for="tile-color-picker">Side accent</label>
+        <input type="color" id="tile-color-picker" value="#7A6848">
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1682,8 +1791,8 @@ class Renderer {
       ctx.moveTo(-10, -28);
       ctx.bezierCurveTo(-22, -30, -30, -18, -24, -10);
       ctx.bezierCurveTo(-18, -2, -8, -6, -10, -14);
-      ctx.strokeStyle = `rgba(65,45,22,${baseAlpha * 0.8})`;
-      ctx.lineWidth = 1.8;
+      ctx.strokeStyle = `rgba(55,38,18,${baseAlpha * 0.85})`;
+      ctx.lineWidth = 2.5;
       ctx.stroke();
 
       // Third small lobe / tail
@@ -1691,30 +1800,30 @@ class Renderer {
       ctx.moveTo(8, -16);
       ctx.bezierCurveTo(18, -20, 22, -12, 16, -6);
       ctx.bezierCurveTo(12, -2, 6, -4, 8, -10);
-      ctx.strokeStyle = `rgba(65,45,22,${baseAlpha * 0.7})`;
-      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = `rgba(55,38,18,${baseAlpha * 0.75})`;
+      ctx.lineWidth = 2.0;
       ctx.stroke();
 
       // Wispy tail extending from main body
       ctx.beginPath();
       ctx.moveTo(0, 0);
       ctx.quadraticCurveTo(10, 6, 20, 4);
-      ctx.strokeStyle = `rgba(65,45,22,${baseAlpha * 0.5})`;
-      ctx.lineWidth = 1.2;
+      ctx.strokeStyle = `rgba(55,38,18,${baseAlpha * 0.6})`;
+      ctx.lineWidth = 1.8;
       ctx.stroke();
 
       ctx.restore();
     }
 
-    // Scatter cloud scrolls subtly around the table
-    drawCloudScroll(tctx, 280, 150, 1.8, 0.12);   // top area
-    drawCloudScroll(tctx, 750, 180, 1.5, 0.10);    // top-right area
-    drawCloudScroll(tctx, 200, 500, 1.3, 0.09);    // left side
-    drawCloudScroll(tctx, 830, 530, 1.4, 0.10);    // right side
-    drawCloudScroll(tctx, 300, 850, 1.6, 0.11);    // bottom-left area
-    drawCloudScroll(tctx, 720, 870, 1.3, 0.09);    // bottom-right area
-    drawCloudScroll(tctx, 512, 100, 1.2, 0.08);    // top center (very subtle)
-    drawCloudScroll(tctx, 500, 900, 1.4, 0.10);    // bottom center
+    // Scatter cloud scrolls around the table — bold enough to be visible from camera
+    drawCloudScroll(tctx, 280, 150, 3.5, 0.35);   // top area
+    drawCloudScroll(tctx, 750, 180, 3.0, 0.30);    // top-right area
+    drawCloudScroll(tctx, 200, 500, 2.5, 0.28);    // left side
+    drawCloudScroll(tctx, 830, 530, 2.8, 0.30);    // right side
+    drawCloudScroll(tctx, 300, 850, 3.2, 0.33);    // bottom-left area
+    drawCloudScroll(tctx, 720, 870, 2.8, 0.28);    // bottom-right area
+    drawCloudScroll(tctx, 512, 100, 2.4, 0.25);    // top center
+    drawCloudScroll(tctx, 500, 900, 2.8, 0.30);    // bottom center
 
     // Edge darkening — vignette for natural aging at edges
     const edgeGrad = tctx.createRadialGradient(512, 512, 300, 512, 512, 720);
