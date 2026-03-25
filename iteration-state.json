@@ -1,8 +1,8 @@
 {
-  "iteration": 12,
+  "iteration": 13,
   "maxIterations": 15,
   "startedAt": "2026-03-25T08:05:00-05:00",
-  "lastCompleted": "2026-03-25T14:37:00-05:00",
+  "lastCompleted": "2026-03-25T14:54:00-05:00",
   "changes": [
     {
       "iteration": 1,
@@ -75,10 +75,16 @@
       "delta": "F+G",
       "description": "Boosted ink decoration visibility: Cloud wisps opacity 0.35→0.75, size 8→9.5, y 0.007→0.012. Bamboo corners: added opacity 0.85, size 3.0→3.8, y 0.006→0.011, positions ±3.5→±3.8. Both now clearly visible dark ink on cream table.",
       "commit": "b771e39"
+    },
+    {
+      "iteration": 13,
+      "delta": "C",
+      "description": "Bolder tile walls: warmer tan backs (0xc8b890), much darker brown sides (0x7a6038), side metalness 0.05, dark edge outlines via EdgesGeometry (0x4a3a28), scale 1.02, drop shadow planes beneath each wall section. Walls now THE dominant 3D element.",
+      "commit": "4dbd8ab"
     }
   ],
   "status": "active",
-  "notes": "Iteration 12: Ink decorations (cloud wisps + bamboo corners) now clearly visible on table surface. All 10 original deltas (A-J) have been addressed at least once. Remaining refinement opportunities: avatar size/positioning fine-tuning, tile face detail on 3D wall tiles.",
+  "notes": "Iteration 13: Tile walls now much more prominent with dark edges, darker sides, and drop shadows. All 10 deltas addressed, walls refined twice (iter 2+13). 2 iterations remaining. Next candidates: avatar positioning refinement, or hand tile size/detail polish.",
   "user_feedback": [
     "Tiles must have ROUNDED edges and corners like the mockup",
     "Tiles need TWO-TONE look (cream face, darker sides)",
