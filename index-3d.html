@@ -3028,7 +3028,7 @@ class Renderer {
     const faceTex = faceDown ? this.createTileBackTexture() : this.createTileTexture(tile);
 
     // ROUNDED BOX via ExtrudeGeometry with rounded rect shape
-    const bevelR = 0.04; // corner radius
+    const bevelR = 0.06; // corner radius — visible rounded edges
     const shape = new THREE.Shape();
     const hw = W/2 - bevelR, hh = H/2 - bevelR;
     shape.moveTo(-W/2 + bevelR, -H/2);
@@ -3044,9 +3044,9 @@ class Renderer {
     const extrudeSettings = { depth: D, bevelEnabled: false };
     const bodyGeo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
 
-    // TWO-TONE: Very bright white face vs distinctly darker tan sides
-    const faceColor = faceDown ? 0xf8f0dc : 0xffffff;
-    const sideColor = faceDown ? 0x9a8060 : 0xa89068;
+    // TWO-TONE: Bright white face vs MUCH darker tan/brown sides
+    const faceColor = faceDown ? 0xfaf4e0 : 0xffffff;
+    const sideColor = faceDown ? 0x8a7048 : 0x9a7850;
 
     const faceMat = new THREE.MeshStandardMaterial({ map: faceTex, color: faceColor, roughness: 0.4, metalness: 0.0 });
     const sideMat = new THREE.MeshStandardMaterial({ color: sideColor, roughness: 0.55, metalness: 0.0 });
@@ -3145,7 +3145,7 @@ class Renderer {
           // Tilt tiles face-down (rotate around x so top faces away from center)
           mesh.rotation.x = Math.PI;
 
-          mesh.scale.set(0.85, 0.85, 0.85);
+          mesh.scale.set(0.88, 0.88, 0.88);
           this.scene.add(mesh);
           this.wallMeshes.push(mesh);
         }
