@@ -3,33 +3,63 @@
 ## Reference
 The file `mockup-reference.png` is the TARGET visual style. Every iteration should bring `index-3d.html` closer to it.
 
-## Iteration Process (REACTIVE, not preplanned!)
+## Key Mockup Features (priority order)
 
-Each iteration:
-1. **Open the game** in browser (http://localhost:8877/index-3d.html), click Play
-2. **Take a screenshot** of the current game state
-3. **Compare to mockup-reference.png** — identify the BIGGEST visual gap right now
-4. **Fix that one gap** with 2-4 targeted edits via Claude Code
-5. **Verify** JS syntax, git commit, update iteration-state.json
-6. **Report** what changed + screenshot to Discord #mahjong
+### TILE RENDERING — Most Important
+1. **Actual suit symbols** — NOT just Chinese characters. Real mahjong tiles show:
+   - **Dots (筒/Tong)**: Colored circles arranged in patterns (1-9 dots)
+   - **Bamboo (條/Tiao)**: Green bamboo stick bundles (1 is a bird, 2-9 are sticks)
+   - **Characters (萬/Wan)**: Chinese number + 萬 character in red/black
+   - **Winds**: 東南西北 in dark calligraphy
+   - **Dragons**: 中(red), 發(green), 白(white/empty frame)
+   - Use canvas to DRAW these symbols, not just text
+2. **Tile depth** — Chunky 3D look with clearly visible ivory/cream sides
+3. **Tile face** — Clean white/cream with detailed suit art
+4. **Tile shadows** — Soft shadows grounding tiles to table
 
-DO NOT preplan iterations. Each iteration should look at what's CURRENTLY wrong vs the mockup and fix the biggest issue.
+### TABLE & ENVIRONMENT
+5. **Warm parchment table** with visible rice paper texture
+6. **Dark wood border** — prominent frame around playing area
+7. **Ink wash decorations** — bamboo leaves, cloud wisps, ensō circle
+8. **Background** — aged parchment with faint ink wash mountains
+9. **Warm lighting** — lantern glow feel, not cold/clinical
 
-## Mockup Key Features (for comparison reference)
-- **Dramatic 3D isometric view** from bottom-left, significant tile depth visible
-- **Stacked 2-layer tile walls** around perimeter (dark colored backs)
-- **Large chunky tiles** in player hand with PICTORIAL suit artwork
-- **Ink wash illustrated avatars** (people in traditional clothing, not emoji)
-- **Bamboo leaf decorations** in corners
-- **Cloud/swirl ink motifs** on table
-- **Ensō circle** in center
-- **Wood grain border** frame
-- **Warm parchment** table surface with rice paper texture
-- **Warm lantern lighting**
-- **Face-up discards** scattered in center
-- **Clean header** with game info
+### LAYOUT & UI
+10. **Isometric camera** — ~35° showing tile depth
+11. **Stacked tile walls** — 2 layers, dark backs with pattern
+12. **Large player hand** — big readable tiles at bottom
+13. **Clean header** — game title + round info
+14. **Player avatars** — ink wash style (aim for stylized characters, not emoji)
+15. **Action buttons** — warm brown/vermillion with icons
+
+## Rules for Each Iteration
+1. Read `iteration-state.json` to see what iteration you're on
+2. Make 2-4 TARGETED edits (never rewrite entire file)
+3. Focus on ONE area per iteration
+4. Test that JS has no syntax errors after changes
+5. Update `iteration-state.json` with what you changed
+6. Keep all game logic intact — visual changes ONLY
+
+## Iteration Focus Areas (rotate through these)
+- Iterations 1-4: Tile suit artwork (draw actual dots, bamboo, characters)
+- Iterations 5-7: Table surface, wood border, ink decorations
+- Iterations 8-10: Lighting, shadows, material refinement
+- Iterations 11-13: UI elements (header, buttons, player info)
+- Iterations 14-16: Camera angle, composition, breathing room
+- Iterations 17-20: Polish pass — compare to mockup pixel by pixel
+- Iterations 21+: Final tweaks, consistency check
+
+## Asset Strategy
+- **Tile suit artwork**: Canvas/Three.js procedural drawing (resolution-independent, fast iteration)
+- **Player avatars** (ink wash style portraits): Generate with Nano Banana Pro (Gemini image gen) if needed for artistic quality. Save to /Users/adrianai/Projects/cubes-mahjong/assets/
+- **Backgrounds/textures**: Procedural canvas (rice paper, bamboo, ensō)
+- **Icons**: SVG inline or canvas-drawn
+
+## Nano Banana Usage (for image generation)
+When procedural rendering isn't enough (e.g., stylized avatar portraits), generate images using the image generation tool. Style prompt should include: "ink wash painting style, traditional East Asian, simple, minimalist, warm cream background"
 
 ## CRITICAL — Tile Suit Artwork Must Be VISUAL, Not Text!
+Adrian specifically wants PICTORIAL tile artwork, NOT Chinese characters:
 
 ### Dots (筒) — Draw colored CIRCLES/BALLS
 - 1-dot: One large colored circle
@@ -60,18 +90,3 @@ DO NOT preplan iterations. Each iteration should look at what's CURRENTLY wrong 
 - This is correct for Characters suit — they use text traditionally
 
 ### DO NOT just show "六竹" or "1" — draw the ACTUAL pictures!
-
-## Rules
-- NEVER rewrite the entire file — only targeted edits
-- NEVER break game logic — visual changes ONLY
-- Each iteration: compare to mockup, fix biggest gap, verify, commit
-- Use canvas drawing for tile suit symbols (procedural, resolution-independent)
-
-## Asset Strategy
-- **Tile suit artwork**: Canvas/Three.js procedural drawing (resolution-independent, fast iteration)
-- **Player avatars** (ink wash style portraits): Generate with Nano Banana Pro (Gemini image gen) if needed for artistic quality. Save to /Users/adrianai/Projects/cubes-mahjong/assets/
-- **Backgrounds/textures**: Procedural canvas (rice paper, bamboo, ensō)
-- **Icons**: SVG inline or canvas-drawn
-
-## Nano Banana Usage (for image generation)
-When procedural rendering isn't enough (e.g., stylized avatar portraits), generate images using the image generation tool. Style prompt should include: "ink wash painting style, traditional East Asian, simple, minimalist, warm cream background"
