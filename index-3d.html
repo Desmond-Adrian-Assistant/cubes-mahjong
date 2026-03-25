@@ -1569,14 +1569,212 @@ class Renderer {
           ctx.fill();
         }
       }
+    } else if (key.startsWith('bamboo-')) {
+      // Draw bamboo stick artwork
+      const bambooNum = parseInt(key.split('-')[1]);
+
+      if (bambooNum === 1) {
+        // Traditional 1-bamboo is a stylized bird/sparrow
+        ctx.save();
+        ctx.translate(128, 176);
+        // Body — green oval
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 36, 28, -0.3, 0, Math.PI * 2);
+        ctx.fillStyle = '#2a7a3a';
+        ctx.fill();
+        ctx.strokeStyle = '#1a5a2a';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        // Head
+        ctx.beginPath();
+        ctx.arc(-30, -20, 16, 0, Math.PI * 2);
+        ctx.fillStyle = '#2a7a3a';
+        ctx.fill();
+        ctx.stroke();
+        // Red head detail / crest
+        ctx.beginPath();
+        ctx.arc(-32, -28, 8, 0, Math.PI * 2);
+        ctx.fillStyle = '#c0392b';
+        ctx.fill();
+        // Eye
+        ctx.beginPath();
+        ctx.arc(-34, -18, 3, 0, Math.PI * 2);
+        ctx.fillStyle = '#1a1a1a';
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(-34.5, -18.5, 1, 0, Math.PI * 2);
+        ctx.fillStyle = '#fff';
+        ctx.fill();
+        // Beak
+        ctx.beginPath();
+        ctx.moveTo(-46, -18);
+        ctx.lineTo(-52, -16);
+        ctx.lineTo(-46, -14);
+        ctx.closePath();
+        ctx.fillStyle = '#d4a017';
+        ctx.fill();
+        // Wing detail
+        ctx.beginPath();
+        ctx.ellipse(6, -4, 22, 14, -0.2, 0, Math.PI * 2);
+        ctx.fillStyle = '#238b3a';
+        ctx.fill();
+        ctx.strokeStyle = '#1a5a2a';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        // Wing feather lines
+        for (let i = 0; i < 4; i++) {
+          ctx.beginPath();
+          ctx.moveTo(-6 + i * 9, -12 + i * 2);
+          ctx.quadraticCurveTo(4 + i * 8, 2, 14 + i * 6, 12);
+          ctx.strokeStyle = '#1a5a2a';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+        // Tail feathers
+        ctx.beginPath();
+        ctx.moveTo(30, -6);
+        ctx.quadraticCurveTo(50, -20, 58, -34);
+        ctx.strokeStyle = '#1a5a2a';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(32, 0);
+        ctx.quadraticCurveTo(52, -10, 62, -24);
+        ctx.strokeStyle = '#238b3a';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        // Feet
+        ctx.strokeStyle = '#d4a017';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(-8, 26);
+        ctx.lineTo(-8, 38);
+        ctx.lineTo(-16, 44);
+        ctx.moveTo(-8, 38);
+        ctx.lineTo(-4, 44);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(8, 26);
+        ctx.lineTo(8, 38);
+        ctx.lineTo(2, 44);
+        ctx.moveTo(8, 38);
+        ctx.lineTo(14, 44);
+        ctx.stroke();
+        ctx.restore();
+      } else {
+        // bamboo-2 through bamboo-9: draw green bamboo sticks
+        const stickLayouts = {
+          2: [[108, 80], [148, 80]],
+          3: [[88, 80], [128, 80], [168, 80]],
+          4: [[98, 80], [158, 80], [98, 212], [158, 212]],
+          5: [[78, 80], [128, 80], [178, 80], [98, 212], [158, 212]],
+          6: [[98, 80], [158, 80], [98, 146], [158, 146], [98, 212], [158, 212]],
+          7: [[78, 80], [128, 80], [178, 80], [78, 198], [128, 198], [178, 198], [128, 139]],
+          8: [[98, 80], [158, 80], [98, 146], [158, 146], [98, 212], [158, 212], [98, 278], [158, 278]],
+          9: [[78, 80], [128, 80], [178, 80], [78, 156], [128, 156], [178, 156], [78, 232], [128, 232], [178, 232]],
+        };
+        const sticks = stickLayouts[bambooNum] || [];
+        // Adjust stick dimensions based on count
+        let stickW, stickH, segments;
+        if (bambooNum <= 3) { stickW = 20; stickH = 120; segments = 5; }
+        else if (bambooNum <= 6) { stickW = 20; stickH = 100; segments = 4; }
+        else { stickW = 18; stickH = 80; segments = 3; }
+
+        for (const [cx, cy] of sticks) {
+          const x = cx - stickW / 2;
+          // Draw rounded bamboo stick
+          const r = stickW / 2;
+          ctx.beginPath();
+          ctx.moveTo(x + r, cy);
+          ctx.lineTo(x + stickW - r, cy);
+          ctx.arcTo(x + stickW, cy, x + stickW, cy + r, r);
+          ctx.lineTo(x + stickW, cy + stickH - r);
+          ctx.arcTo(x + stickW, cy + stickH, x + stickW - r, cy + stickH, r);
+          ctx.lineTo(x + r, cy + stickH);
+          ctx.arcTo(x, cy + stickH, x, cy + stickH - r, r);
+          ctx.lineTo(x, cy + r);
+          ctx.arcTo(x, cy, x + r, cy, r);
+          ctx.closePath();
+          // Gradient fill for 3D look
+          const grad = ctx.createLinearGradient(x, cy, x + stickW, cy);
+          grad.addColorStop(0, '#1e6e2e');
+          grad.addColorStop(0.3, '#2a7a3a');
+          grad.addColorStop(0.6, '#34944a');
+          grad.addColorStop(1, '#1e6e2e');
+          ctx.fillStyle = grad;
+          ctx.fill();
+          ctx.strokeStyle = '#1a5a2a';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+
+          // Segment lines (bamboo nodes)
+          const segSpacing = stickH / (segments + 1);
+          for (let s = 1; s <= segments; s++) {
+            const sy = cy + s * segSpacing;
+            ctx.beginPath();
+            ctx.moveTo(x + 2, sy);
+            ctx.lineTo(x + stickW - 2, sy);
+            ctx.strokeStyle = '#1a5a2a';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            // Slight node bulge highlight
+            ctx.beginPath();
+            ctx.moveTo(x + 3, sy - 2);
+            ctx.lineTo(x + stickW - 3, sy - 2);
+            ctx.strokeStyle = 'rgba(80,180,80,0.3)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
+        }
+      }
+
+    } else if (key.startsWith('characters-')) {
+      // Draw Chinese numeral + 萬 character with ink brush style
+      const charNum = parseInt(key.split('-')[1]);
+      const chineseNumerals = {
+        1: '一', 2: '二', 3: '三', 4: '四', 5: '五',
+        6: '六', 7: '七', 8: '八', 9: '九'
+      };
+      const numChar = chineseNumerals[charNum] || String(charNum);
+      const inkColor = '#8b1a1a';
+
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      // Chinese number on top — bold ink
+      ctx.fillStyle = inkColor;
+      ctx.font = 'bold 120px "Ma Shan Zheng", serif';
+      ctx.fillText(numChar, 128, 118);
+
+      // 萬 character below
+      ctx.fillStyle = inkColor;
+      ctx.font = 'bold 100px "Ma Shan Zheng", serif';
+      ctx.fillText('萬', 128, 254);
+
+      // Faint red seal/chop mark — bottom-right corner
+      ctx.save();
+      ctx.translate(210, 310);
+      // Seal square
+      ctx.fillStyle = 'rgba(180, 40, 30, 0.55)';
+      ctx.fillRect(-16, -16, 32, 32);
+      ctx.strokeStyle = 'rgba(140, 30, 20, 0.45)';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(-16, -16, 32, 32);
+      // Tiny character inside seal
+      ctx.fillStyle = 'rgba(255, 240, 220, 0.7)';
+      ctx.font = 'bold 18px "Ma Shan Zheng", serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('萬', 0, 1);
+      ctx.restore();
+
     } else {
-      // Text rendering for bamboo, characters, honors, bonus tiles
+      // Text rendering for honors, bonus tiles
       const label = getTileLabel(tile);
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
 
       if (label.bottom) {
-        // Suited tiles: number on top, suit character below — crisp ink
         ctx.fillStyle = label.color;
         ctx.font = 'bold 100px "Ma Shan Zheng", serif';
         ctx.fillText(label.top, 128, 120);
