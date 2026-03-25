@@ -80,11 +80,11 @@ canvas#game-canvas {
   z-index: 30;
 }
 .bubble-avatar {
-  width: 44px; height: 44px; border-radius: 50%;
-  border: 2px solid rgba(180,160,130,0.5);
+  width: 64px; height: 64px; border-radius: 50%;
+  border: 2.5px solid rgba(180,160,130,0.5);
   display: flex; align-items: center; justify-content: center;
   font-size: 0;
-  box-shadow: 0 3px 12px rgba(80,60,30,0.12);
+  box-shadow: 0 4px 16px rgba(80,60,30,0.18);
   transition: all 0.3s;
   flex-shrink: 0;
   background: rgba(245,240,232,0.9);
@@ -107,20 +107,20 @@ canvas#game-canvas {
 }
 .bubble-info {
   background: rgba(245,240,232,0.95);
-  border-radius: 12px;
-  padding: 6px 12px;
+  border-radius: 14px;
+  padding: 8px 16px;
   box-shadow: 0 2px 8px rgba(80,60,30,0.08);
   line-height: 1.3;
   white-space: nowrap;
   border: 1px solid rgba(160,140,110,0.2);
 }
 .bubble-info .name {
-  font-size: 13px; color: #4a3a28;
+  font-size: 16px; color: #4a3a28;
   font-family: 'Ma Shan Zheng', serif;
 }
-.bubble-info .score { font-size: 11px; color: #8a7a6a; }
+.bubble-info .score { font-size: 13px; color: #8a7a6a; }
 .bubble-info .wind-seat {
-  font-size: 11px; color: #b33a2a;
+  font-size: 13px; color: #b33a2a;
   display: inline-block; margin-left: 4px;
   font-family: 'Ma Shan Zheng', serif;
 }
@@ -134,9 +134,9 @@ canvas#game-canvas {
   50% { box-shadow: 0 3px 12px rgba(179,58,42,0.3), 0 0 0 8px rgba(179,58,42,0.08); }
 }
 
-#p-north { top: 12px; left: 50%; transform: translateX(-50%); flex-direction: column; align-items: center; gap: 2px; }
-#p-west { top: 45%; left: 12px; transform: translateY(-50%); }
-#p-east { top: 45%; right: 12px; transform: translateY(-50%); flex-direction: row-reverse; }
+#p-north { top: 24px; left: 50%; transform: translateX(-50%); flex-direction: column; align-items: center; gap: 2px; }
+#p-west { top: 45%; left: 28px; transform: translateY(-50%); }
+#p-east { top: 45%; right: 28px; transform: translateY(-50%); flex-direction: row-reverse; }
 #p-south { display: none; }
 
 /* ========== PLAYER HAND (2D overlay at bottom) ========== */
