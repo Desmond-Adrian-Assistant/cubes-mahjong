@@ -1,8 +1,8 @@
 {
-  "iteration": 9,
+  "iteration": 10,
   "maxIterations": 25,
   "startedAt": "2026-03-24T22:55:00-05:00",
-  "lastCompleted": "2026-03-25T01:12:00-05:00",
+  "lastCompleted": "2026-03-25T01:38:00-05:00",
   "changes": [
     "Iteration 1: Replaced dots tiles (dots-1 through dots-9) with drawn circular artwork. Each dot is rendered as a teal circle with concentric ring effect and subtle highlight, arranged in traditional mahjong patterns.",
     "Iteration 2: Drew bamboo stick artwork (bam-2 to bam-9 as green sticks with segment nodes, bam-1 as stylized bird/sparrow). Character tiles now show Chinese numerals + 萬 in deep red-black ink with a traditional red seal/chop mark.",
@@ -12,7 +12,8 @@
     "Iteration 6: Reverted table surface from green felt back to correct cream/parchment (#f5eed6) per mockup reference. Added warm wood panel wall background with honey-gold tones and vertical grain pattern. Inner overlay tint corrected to warm cream. Wood border frame and brass corners preserved.",
     "Iteration 7: Enhanced lighting and atmosphere. Reduced ambient light (0.75→0.55) and boosted directional light (1.1→1.35) for stronger shadow contrast. Increased shadow radius to 4. Added warm CSS vignette overlay darkening screen edges. Boosted ink decoration visibility (ensō strokes +30%, bamboo motifs 0.18→0.25, cloud wisps 0.12→0.18). Added subtle ambient occlusion gradient to table edges. Darkened tile edge color for better contrast against table.",
     "Iteration 8: Changed tile backs from jade green (#3a5c4a) to warm taupe/brown (#8a7a68 → #6e5f4e gradient) matching mockup's ivory tile back look. Added diamond lattice crosshatch pattern with light highlight and dark shadow lines for woven texture effect. Wall tiles now blend harmoniously with the cream parchment table surface.",
-    "Iteration 9: Lightened wall tile backs from dark taupe (#8a7a68) to cream/ivory (#ede4d0 → #d0c8b4) to match mockup's light-colored wall tiles. Updated faceDown side/bottom/front colors to complementary warm cream tones (0xe0d8c8, 0xd0c8b8, 0xe8e0d0). Adjusted diamond lattice opacity for visibility on lighter background."
+    "Iteration 9: Lightened wall tile backs from dark taupe (#8a7a68) to cream/ivory (#ede4d0 → #d0c8b4) to match mockup's light-colored wall tiles. Updated faceDown side/bottom/front colors to complementary warm cream tones (0xe0d8c8, 0xd0c8b8, 0xe8e0d0). Adjusted diamond lattice opacity for visibility on lighter background.",
+    "Iteration 10: Dramatically boosted ink decoration visibility across the board. Ensō circle: alpha [0.50,0.32,0.20]→[0.65,0.45,0.30], stroke widths [12,18,24]→[16,22,30]. Bamboo motifs: globalAlpha 0.25→0.55, thicker stalks/leaves. Cloud wisps: globalAlpha 0.18→0.40, lineWidth 2→3.5, added more wisp lines. Vermillion seal: all alphas ~2x, square 44→56px. Ink decorations are now clearly visible at game camera distance."
   ],
   "status": "running"
 }
