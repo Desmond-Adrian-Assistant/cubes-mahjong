@@ -1,8 +1,8 @@
 {
-  "iteration": 10,
+  "iteration": 0,
   "maxIterations": 15,
   "startedAt": "2026-03-25T08:05:00-05:00",
-  "lastCompleted": "2026-03-25T12:54:00-05:00",
+  "lastCompleted": "2026-03-25T13:51:00-05:00",
   "changes": [
     {
       "iteration": 1,
@@ -13,37 +13,37 @@
     {
       "iteration": 2,
       "delta": "C",
-      "description": "Chunkier tile walls: tiles 20% bigger (W0.60 H0.78 D0.55), tighter spacing (0.015 gap), walls closer to center (±3.6), warmer beige/tan backs (#e0d4b0 gradient), brighter cream/ivory sides (0xe0d8bc), darker edge lines (0x6a5a4a, 0.8 opacity).",
+      "description": "Chunkier tile walls: tiles 20% bigger (W0.60 H0.78 D0.55), tighter spacing (0.015 gap), walls closer to center (\u00b13.6), warmer beige/tan backs (#e0d4b0 gradient), brighter cream/ivory sides (0xe0d8bc), darker edge lines (0x6a5a4a, 0.8 opacity).",
       "commit": "207e37c"
     },
     {
       "iteration": 3,
       "delta": "D",
-      "description": "Bigger hand tiles: 64x84→82x108px, face font 36→46px, char-top 27→34px, char-bottom 22→28px. Hand tray padding/gap adjusted. Tiles now dominate bottom screen with large readable calligraphy.",
+      "description": "Bigger hand tiles: 64x84\u219282x108px, face font 36\u219246px, char-top 27\u219234px, char-bottom 22\u219228px. Hand tray padding/gap adjusted. Tiles now dominate bottom screen with large readable calligraphy.",
       "commit": "3efd5ec"
     },
     {
       "iteration": 4,
       "delta": "A",
-      "description": "Player avatars: Renamed Yuki→Keni with new qipao/cheongsam SVG portrait (bun, flower ornament, mandarin collar, frog button). Avatars 110→120px. Added 'PLAYER N' labels above each name. Player-label updated to 'PLAYER 4: Chen'.",
+      "description": "Player avatars: Renamed Yuki\u2192Keni with new qipao/cheongsam SVG portrait (bun, flower ornament, mandarin collar, frog button). Avatars 110\u2192120px. Added 'PLAYER N' labels above each name. Player-label updated to 'PLAYER 4: Chen'.",
       "commit": "2475f74"
     },
     {
       "iteration": 5,
       "delta": "F",
-      "description": "Bold ink cloud wisps (雲): Replaced 2 barely-visible corner wisps with 6 spiral cloud groups positioned between tile walls and center. Dark brown ink (#3a2a18), alpha 0.70, lineWidth 5-7. Traditional 雲 spiral curls with flowing bezier wisps. Positions: N→center, S→center, E→center, W→center, NE diagonal, SW diagonal.",
+      "description": "Bold ink cloud wisps (\u96f2): Replaced 2 barely-visible corner wisps with 6 spiral cloud groups positioned between tile walls and center. Dark brown ink (#3a2a18), alpha 0.70, lineWidth 5-7. Traditional \u96f2 spiral curls with flowing bezier wisps. Positions: N\u2192center, S\u2192center, E\u2192center, W\u2192center, NE diagonal, SW diagonal.",
       "commit": "ef91514"
     },
     {
       "iteration": 6,
       "delta": "I",
-      "description": "Bold header: title 20→30px, weight 600→800, color #3a3028→#2a2018 (darker), letter-spacing 3→4px, added text-shadow. Subtitle 12→14px, weight 500. Header now prominent and commanding above table.",
+      "description": "Bold header: title 20\u219230px, weight 600\u2192800, color #3a3028\u2192#2a2018 (darker), letter-spacing 3\u21924px, added text-shadow. Subtitle 12\u219214px, weight 500. Header now prominent and commanding above table.",
       "commit": "cff1bdd"
     },
     {
       "iteration": 7,
       "delta": "E",
-      "description": "Bigger toolbar buttons: 58→68px, border-radius 8→10px, warm beige gradient (f5ede0→ece2cf), golden border (#c0a878, 2px), icons 20→28px, labels 9→10px darker (#5a4a38), stronger hover shadow. Both top-right and bottom-right toolbars now more prominent.",
+      "description": "Bigger toolbar buttons: 58\u219268px, border-radius 8\u219210px, warm beige gradient (f5ede0\u2192ece2cf), golden border (#c0a878, 2px), icons 20\u219228px, labels 9\u219210px darker (#5a4a38), stronger hover shadow. Both top-right and bottom-right toolbars now more prominent.",
       "commit": "54f1d3c"
     },
     {
@@ -55,10 +55,22 @@
     {
       "iteration": 9,
       "delta": "G",
-      "description": "Bolder bamboo corners: stalks thicker (13→17 regular, 22 trunk), more stalks (6→8 left, 5→7 right), 2 thick trunk stalks per corner, leaves 30% bigger, more leaves (12→16 left, 10→14 right), reach higher (y=780→740), node lines thicker (7→9). Both corners now dominant ink-brush bamboo motifs.",
+      "description": "Bolder bamboo corners: stalks thicker (13\u219217 regular, 22 trunk), more stalks (6\u21928 left, 5\u21927 right), 2 thick trunk stalks per corner, leaves 30% bigger, more leaves (12\u219216 left, 10\u219214 right), reach higher (y=780\u2192740), node lines thicker (7\u21929). Both corners now dominant ink-brush bamboo motifs.",
       "commit": "9978ab3"
+    },
+    {
+      "iteration": 10,
+      "delta": "H",
+      "description": "Larger, well-organized center discards: scale 0.88\u21921.10 (25% bigger), zero rotation (was random \u00b10.04), zones \u00b11.2\u2192\u00b11.5 from center, spacing 0.52\u21920.58, rowSpacing 0.62\u21920.70. Discards now prominent and neatly arranged.",
+      "commit": "7c0e4ca"
     }
   ],
-  "status": "running",
-  "notes": "Round 2 — 9/10 deltas addressed (A-G, I, E, J). Remaining: H (center discards - larger/organized). Fixed duplicate edgeGrad variable declaration that Claude Code introduced."
+  "status": "active",
+  "notes": "Round 2 COMPLETE \u2014 ALL 10/10 deltas addressed (A-J). Final delta H: center discards made 25% bigger (scale 1.10), zero rotation for neat rows, zones pushed to \u00b11.5 from center, wider spacing (0.58/0.70). All deltas now implemented.",
+  "user_feedback": [
+    "Tiles must have ROUNDED edges and corners like the mockup",
+    "Tiles need TWO-TONE look (cream face, darker sides)",
+    "Discard pile tiles must match player hand tiles exactly - consistent style",
+    "Reference mockup: /Users/adrianai/.openclaw/workspace/mahjong-mockup.html"
+  ]
 }
