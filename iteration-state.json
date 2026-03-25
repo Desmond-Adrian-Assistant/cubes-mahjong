@@ -1,8 +1,8 @@
 {
-  "iteration": 14,
+  "iteration": 15,
   "maxIterations": 20,
   "startedAt": "2026-03-25T16:15:00-05:00",
-  "lastCompleted": "2026-03-25T18:30:00-05:00",
+  "lastCompleted": "2026-03-25T18:32:00-05:00",
   "changes": [
     {
       "iteration": 1,
@@ -73,8 +73,13 @@
       "iteration": 14,
       "fix": "Added bold ink-brush bamboo sprigs in 4 corners (scale 1.4-1.8, alpha 0.40-0.55) and 8 cloud scroll motifs (scale 2.4-3.5, alpha 0.25-0.35) drawn on table texture canvas via 2D API",
       "result": "Table surface now features prominent traditional East Asian ink-wash bamboo and cloud artwork, matching the mockup's Paper & Ink aesthetic. Decorations are clearly visible from game camera distance."
+    },
+    {
+      "iteration": 15,
+      "fix": "Camera position (0,9,8)→(0,7.5,6.5), lookAt (0,0,-1)→(0,0,-0.5) for tighter viewport framing",
+      "result": "Table fills viewport much better — tiles, walls, wind indicators, and wood border are all more visible and prominent. Less wasted background space. Composition is tighter and more polished."
     }
   ],
   "status": "running",
-  "notes": "Round 14 — Added bold ink-brush bamboo sprigs (4 corners) and cloud scroll motifs (8 placements) to table surface. Table now has the Paper & Ink aesthetic matching mockup's decorative artwork. Next priorities: (1) fine-tune cloud/bamboo placement to avoid competing with game tiles, (2) shadow/depth polish, (3) final mockup comparison."
+  "notes": "Round 15 — Tighter camera brings table closer to fill viewport. Wood border, tile walls, center wind tiles, and decorative artwork all more visible. Next priorities: (1) shadow/depth polish on tiles, (2) side wall visibility improvement, (3) final mockup comparison and polish pass."
 }
