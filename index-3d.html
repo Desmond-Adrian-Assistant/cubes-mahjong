@@ -31,7 +31,7 @@ canvas#game-canvas {
 body::after {
   content: '';
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: radial-gradient(ellipse at center, transparent 35%, rgba(60,40,10,0.4) 100%);
+  background: radial-gradient(ellipse at center, transparent 30%, rgba(60,40,10,0.5) 100%);
   pointer-events: none;
   z-index: 5;
 }
@@ -148,7 +148,7 @@ body::after {
   z-index: 30;
 }
 .bubble-avatar {
-  width: 120px; height: 120px; border-radius: 50%;
+  width: 150px; height: 150px; border-radius: 50%;
   border: 2.5px solid rgba(180,160,130,0.5);
   display: flex; align-items: center; justify-content: center;
   font-size: 0;
@@ -675,7 +675,7 @@ body::after {
 .scene-vignette {
   position: fixed; top: 0; left: 0; right: 0; bottom: 0;
   pointer-events: none; z-index: 1;
-  background: radial-gradient(ellipse at center, transparent 50%, rgba(40,25,10,0.25) 100%);
+  background: radial-gradient(ellipse at center, transparent 45%, rgba(40,25,10,0.35) 100%);
 }
 </style>
 </head>
@@ -1227,7 +1227,7 @@ class Renderer {
     this.scene.fog = new THREE.Fog(0xc4a87a, 22, 45);
 
     // Warm ambient light - lantern glow feel (~3500K)
-    const ambient = new THREE.AmbientLight(0xfff5e0, 0.45);
+    const ambient = new THREE.AmbientLight(0xfff5e0, 0.35);
     this.scene.add(ambient);
 
     // Hemisphere light for natural sky/ground bounce
@@ -1235,7 +1235,7 @@ class Renderer {
     this.scene.add(hemiLight);
 
     // Main directional light — warm, from above-front like a lantern
-    const dirLight = new THREE.DirectionalLight(0xfff0d0, 1.5);
+    const dirLight = new THREE.DirectionalLight(0xfff0d0, 1.7);
     dirLight.position.set(2, 9, 5);
     dirLight.castShadow = true;
     dirLight.shadow.mapSize.width = 2048;
@@ -2964,50 +2964,59 @@ class Renderer {
     const W = 0.60, H = 0.78, D = 0.55;
     const group = new THREE.Group();
 
-    // Main tile body
-    const bodyGeo = new THREE.BoxGeometry(W, D, H);
+    // Rounded rectangle shape for tile face
+    const r = 0.05; // corner radius
+    const hw = W / 2, hh = H / 2;
+    const shape = new THREE.Shape();
+    shape.moveTo(-hw + r, -hh);
+    shape.lineTo(hw - r, -hh);
+    shape.quadraticCurveTo(hw, -hh, hw, -hh + r);
+    shape.lineTo(hw, hh - r);
+    shape.quadraticCurveTo(hw, hh, hw - r, hh);
+    shape.lineTo(-hw + r, hh);
+    shape.quadraticCurveTo(-hw, hh, -hw, hh - r);
+    shape.lineTo(-hw, -hh + r);
+    shape.quadraticCurveTo(-hw, -hh, -hw + r, -hh);
+
+    const extrudeSettings = {
+      depth: D,
+      bevelEnabled: true,
+      bevelThickness: 0.018,
+      bevelSize: 0.018,
+      bevelSegments: 3,
+    };
+    const bodyGeo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+
     const faceTex = faceDown ? this.createTileBackTexture() : this.createTileTexture(tile);
 
-    // Side/edge materials — darker for face-down tiles to contrast with table
-    const sideColor = faceDown ? 0xc8b898 : 0xc8b898;
-    const bottomColor = faceDown ? 0xb0a080 : 0xb0a080;
-    const frontColor = faceDown ? 0xc8b898 : 0xece4d4;
+    // Strong two-tone: bright cream face, distinctly darker tan sides
+    const faceColor = faceDown ? 0xd8ccb0 : 0xf5ead8;
+    const sideColor = faceDown ? 0xa08860 : 0xb0986c;
+
+    // ExtrudeGeometry material indices: 0 = front face, 1 = back face, 2+ = sides/bevel
+    const faceMat = new THREE.MeshStandardMaterial({ map: faceTex, color: faceColor, roughness: 0.35, metalness: 0.0 });
+    const backMat = new THREE.MeshStandardMaterial({ color: sideColor, roughness: 0.7, metalness: 0.0 });
     const sideMat = new THREE.MeshStandardMaterial({ color: sideColor, roughness: 0.55, metalness: 0.02 });
-    const bottomMat = new THREE.MeshStandardMaterial({ color: bottomColor, roughness: 0.7, metalness: 0.0 });
-    const faceMat = new THREE.MeshStandardMaterial({ map: faceTex, roughness: 0.35, metalness: 0.0 });
-    const frontMat = new THREE.MeshStandardMaterial({ color: frontColor, roughness: 0.5, metalness: 0.02 });
 
     const materials = [
-      sideMat,     // right
-      sideMat,     // left
-      faceMat,     // top (face)
-      bottomMat,   // bottom
-      frontMat,    // front (visible edge)
-      sideMat,     // back
+      faceMat,   // front face (index 0) — tile texture
+      backMat,   // back face (index 1)
+      sideMat,   // sides/bevel (index 2)
     ];
 
     const body = new THREE.Mesh(bodyGeo, materials);
+
+    // Rotate so face points UP (+Y) instead of default +Z
+    // ExtrudeGeometry extrudes along +Z, so rotate -90° around X to make face point up
+    body.rotation.x = -Math.PI / 2;
+    // Center vertically: shape goes from z=0 to z=D, after rotation that's y=0 to y=D
+    // Shift down so tile is centered at y=0
+    body.position.y = D / 2;
+    // After rotation, the front face (texture) is on top
+
     body.castShadow = true;
     body.receiveShadow = true;
     group.add(body);
-
-    // Top edge bevel highlight — subtle white rim
-    const bevelGeo = new THREE.BoxGeometry(W - 0.02, 0.005, H - 0.02);
-    const bevelMat = new THREE.MeshStandardMaterial({
-      color: 0xffffff,
-      roughness: 0.3,
-      transparent: true,
-      opacity: 0.15,
-    });
-    const bevel = new THREE.Mesh(bevelGeo, bevelMat);
-    bevel.position.y = D / 2 + 0.002;
-    group.add(bevel);
-
-    // Dark edge outline for contrast against table
-    const edgesGeo = new THREE.EdgesGeometry(bodyGeo);
-    const edgesMat = new THREE.LineBasicMaterial({ color: 0x6a5a4a, transparent: true, opacity: 1.0 });
-    const edges = new THREE.LineSegments(edgesGeo, edgesMat);
-    group.add(edges);
 
     group.userData = { tile, faceDown };
     return group;
