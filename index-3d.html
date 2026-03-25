@@ -1808,7 +1808,7 @@ class Renderer {
     for (const w of winds) {
       const tile = { suit: 'winds', wind: w.char === '東' ? 'East' : w.char === '南' ? 'South' : w.char === '西' ? 'West' : 'North' };
       const mesh = this.create3DTile(tile, false);
-      mesh.position.set(w.x * 1.3, 0.45, w.z * 1.3);
+      mesh.position.set(w.x * 1.3, 0.05, w.z * 1.3);
       mesh.scale.set(0.975, 0.975, 0.975);
       this.scene.add(mesh);
 
@@ -3146,8 +3146,10 @@ class Renderer {
           const wallLen = side.offsetEnd - side.offsetStart;
           const tileSpacing = wallLen / tilesPerSide;
           const offset = side.offsetStart + (i + 0.5) * tileSpacing;
-          // After Math.PI flip, raise tiles well above table surface
-          const yPos = 0.15 + D + layer * (D + 0.08);
+          // Math: After π flip, tile local y=[D, 2D] becomes [-2D, -D]
+          // To place bottom at y=0 (table surface): yPos = 2*D
+          // Layer 1 stacks on top: yPos = 2*D + D
+          const yPos = 2 * D + layer * D;
 
           if (side.along === 'x') {
             mesh.position.set(side.baseX + offset, yPos, side.baseZ);
@@ -3203,7 +3205,7 @@ class Renderer {
           x = zone.baseX > 0 ? zone.baseX + rowOff : zone.baseX - rowOff;
           z = zone.baseZ + offset;
         }
-        mesh.position.set(x, 0.45, z);
+        mesh.position.set(x, 0.05, z);
         mesh.rotation.y = 0;
         mesh.scale.set(1.35, 1.35, 1.35);
         this.scene.add(mesh);
@@ -3232,9 +3234,9 @@ class Renderer {
       const offset = (i - count / 2 + 0.5) * spacing;
 
       if (pos.along === 'x') {
-        mesh.position.set(pos.x + offset, 0.45, pos.z);
+        mesh.position.set(pos.x + offset, 0.05, pos.z);
       } else {
-        mesh.position.set(pos.x, 0.45, pos.z + offset);
+        mesh.position.set(pos.x, 0.05, pos.z + offset);
       }
       mesh.rotation.y = pos.rotY;
 

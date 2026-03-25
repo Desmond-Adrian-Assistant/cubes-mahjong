@@ -1,8 +1,8 @@
 {
-  "iteration": 11,
+  "iteration": 12,
   "maxIterations": 20,
   "startedAt": "2026-03-25T16:15:00-05:00",
-  "lastCompleted": "2026-03-25T17:55:00-05:00",
+  "lastCompleted": "2026-03-25T18:04:00-05:00",
   "changes": [
     {
       "iteration": 1,
@@ -58,8 +58,13 @@
       "iteration": 11,
       "fix": "Tile side colors darkened for stronger two-tone: faceDown 0xC8B8A0→0xA08860, faceUp 0xC0AC90→0x9C8060 (warm medium brown vs white/ivory faces)",
       "result": "Tile two-tone contrast is more pronounced — sides are clearly darker warm brown against bright face tops. Closer to mockup's classic mahjong tile look."
+    },
+    {
+      "iteration": 12,
+      "fix": "Wall tile scale (0.88,0.92,0.88)→(0.78,0.85,0.78) for visible inter-tile gaps; layer vertical gap D+0.06→D+0.08 for stacked layer separation",
+      "result": "Each wall tile now reads as a distinct individual block with visible gaps between neighbors. Two stacked layers also show clear separation. Walls look like properly stacked mahjong tile bricks."
     }
   ],
   "status": "running",
-  "notes": "Round 11 — Tile side colors darkened for stronger two-tone contrast. Next priorities: (1) verify discard tile readability at camera distance, (2) lighting/shadow refinement, (3) compare wall tile density against mockup."
+  "notes": "Round 12 — Wall tile gaps restored for individual tile visibility. Next priorities: (1) lighting/shadow refinement for depth, (2) discard tile symbol readability at distance, (3) overall polish pass."
 }
