@@ -1781,8 +1781,165 @@ class Renderer {
         ctx.fillStyle = label.color;
         ctx.font = 'bold 84px "Ma Shan Zheng", serif';
         ctx.fillText(label.bottom, 128, 254);
+
+      } else if (key.startsWith('winds-')) {
+        // === WIND TILES: calligraphic with seal circle & compass dots ===
+        const cx = 128, cy = 176;
+
+        // Subtle circular seal border
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, 88, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(60, 50, 40, 0.15)';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+        // Inner circle
+        ctx.beginPath();
+        ctx.arc(cx, cy, 82, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(60, 50, 40, 0.08)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.restore();
+
+        // Compass-like cardinal dots
+        const dotR = 4;
+        const dotDist = 96;
+        const cardinals = [[0, -1], [0, 1], [-1, 0], [1, 0]]; // N, S, W, E
+        ctx.save();
+        for (const [dx, dy] of cardinals) {
+          ctx.beginPath();
+          ctx.arc(cx + dx * dotDist, cy + dy * dotDist, dotR, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(40, 35, 30, 0.18)';
+          ctx.fill();
+        }
+        ctx.restore();
+
+        // Brush stroke texture: draw character multiple times with slight offsets at low opacity
+        ctx.save();
+        ctx.font = 'bold 140px "Ma Shan Zheng", serif';
+        const offsets = [[-1.5, -1], [1.5, 0.5], [0, 1.5], [-0.5, -1.5], [1, -0.5]];
+        for (const [ox, oy] of offsets) {
+          ctx.fillStyle = 'rgba(26, 26, 24, 0.1)';
+          ctx.fillText(label.top, cx + ox, cy + oy);
+        }
+        // Main character in dark ink
+        ctx.fillStyle = '#1a1a18';
+        ctx.fillText(label.top, cx, cy);
+        ctx.restore();
+
+      } else if (key === 'dragons-Red') {
+        // === RED DRAGON 中: vermillion with rounded rect border ===
+        const cx = 128, cy = 176;
+
+        // Rounded rectangle red border
+        ctx.save();
+        const bx = 48, by = 86, bw = 160, bh = 180, br = 16;
+        ctx.beginPath();
+        ctx.moveTo(bx + br, by);
+        ctx.lineTo(bx + bw - br, by);
+        ctx.quadraticCurveTo(bx + bw, by, bx + bw, by + br);
+        ctx.lineTo(bx + bw, by + bh - br);
+        ctx.quadraticCurveTo(bx + bw, by + bh, bx + bw - br, by + bh);
+        ctx.lineTo(bx + br, by + bh);
+        ctx.quadraticCurveTo(bx, by + bh, bx, by + bh - br);
+        ctx.lineTo(bx, by + br);
+        ctx.quadraticCurveTo(bx, by, bx + br, by);
+        ctx.closePath();
+        ctx.strokeStyle = '#c0392b';
+        ctx.lineWidth = 3.5;
+        ctx.stroke();
+        ctx.restore();
+
+        // Inner glow effect: large blurred red behind character
+        ctx.save();
+        ctx.font = 'bold 140px "Ma Shan Zheng", serif';
+        ctx.fillStyle = 'rgba(192, 57, 43, 0.12)';
+        for (let i = 0; i < 3; i++) {
+          ctx.fillText(label.top, cx + (i - 1) * 2, cy + (i - 1) * 1.5);
+        }
+        // Main character in bold vermillion
+        ctx.fillStyle = '#c0392b';
+        ctx.fillText(label.top, cx, cy);
+        ctx.restore();
+
+      } else if (key === 'dragons-Green') {
+        // === GREEN DRAGON 發: rich green with bamboo-leaf accents ===
+        const cx = 128, cy = 176;
+
+        // Bamboo-leaf accents in corners
+        ctx.save();
+        ctx.strokeStyle = 'rgba(42, 122, 58, 0.25)';
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        // Top-left leaf
+        ctx.beginPath();
+        ctx.moveTo(30, 60);
+        ctx.quadraticCurveTo(50, 40, 60, 55);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(35, 50);
+        ctx.quadraticCurveTo(55, 35, 55, 55);
+        ctx.stroke();
+        // Top-right leaf
+        ctx.beginPath();
+        ctx.moveTo(226, 60);
+        ctx.quadraticCurveTo(206, 40, 196, 55);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(221, 50);
+        ctx.quadraticCurveTo(201, 35, 201, 55);
+        ctx.stroke();
+        // Bottom-left leaf
+        ctx.beginPath();
+        ctx.moveTo(30, 292);
+        ctx.quadraticCurveTo(50, 312, 60, 297);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(35, 302);
+        ctx.quadraticCurveTo(55, 317, 55, 297);
+        ctx.stroke();
+        // Bottom-right leaf
+        ctx.beginPath();
+        ctx.moveTo(226, 292);
+        ctx.quadraticCurveTo(206, 312, 196, 297);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(221, 302);
+        ctx.quadraticCurveTo(201, 317, 201, 297);
+        ctx.stroke();
+        ctx.restore();
+
+        // Main character in rich green
+        ctx.save();
+        ctx.font = 'bold 140px "Ma Shan Zheng", serif';
+        ctx.fillStyle = '#2a7a3a';
+        ctx.fillText(label.top, cx, cy);
+        ctx.restore();
+
+      } else if (key === 'dragons-White') {
+        // === WHITE DRAGON 白: traditional empty double-line frame ===
+        const cx = 128, cy = 176;
+
+        // Outer frame
+        ctx.save();
+        ctx.strokeStyle = 'rgba(120, 115, 110, 0.35)';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(44, 76, 168, 200);
+        // Inner frame (double-line border)
+        ctx.strokeStyle = 'rgba(120, 115, 110, 0.2)';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(54, 86, 148, 180);
+        ctx.restore();
+
+        // Faint 白 character in center
+        ctx.save();
+        ctx.font = 'bold 60px "Ma Shan Zheng", serif';
+        ctx.fillStyle = 'rgba(140, 135, 130, 0.18)';
+        ctx.fillText(label.top, cx, cy);
+        ctx.restore();
+
       } else {
-        // Honor/bonus tiles: single large character
+        // Generic fallback for bonus tiles etc.
         ctx.fillStyle = label.color;
         ctx.font = 'bold 140px "Ma Shan Zheng", serif';
         ctx.fillText(label.top, 128, 180);
