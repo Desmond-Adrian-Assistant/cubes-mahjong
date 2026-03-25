@@ -3143,7 +3143,9 @@ class Renderer {
           mesh.rotation.y = side.rot;
 
           // Tilt tiles face-down (rotate around x so top faces away from center)
-          mesh.rotation.x = Math.PI * 0.78;
+          // Face-down: flip tile so back texture faces UP (visible from isometric camera)
+          // No tilt — tiles lie perfectly flat like bricks in a wall
+          mesh.rotation.x = Math.PI;
 
           mesh.scale.set(0.88, 0.92, 0.88);
           this.scene.add(mesh);

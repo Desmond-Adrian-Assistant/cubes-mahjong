@@ -1,8 +1,8 @@
 {
-  "iteration": 8,
+  "iteration": 9,
   "maxIterations": 20,
   "startedAt": "2026-03-25T16:15:00-05:00",
-  "lastCompleted": "2026-03-25T17:24:00-05:00",
+  "lastCompleted": "2026-03-25T17:38:00-05:00",
   "changes": [
     {
       "iteration": 1,
@@ -43,8 +43,13 @@
       "iteration": 8,
       "fix": "Table surface 0xf5ead0→0xe0c898 (golden parchment); inner overlay 0xf5eed6→0xdcc890 at 0.45 opacity; face-up sides 0x7a5830→0x5a3a18; face-down tops 0xfff8ef→0xffffff",
       "result": "Table surface is now visibly warmer golden parchment, creating better contrast with bright white tile faces. Face-up tiles have deeper two-tone with darker sides."
+    },
+    {
+      "iteration": 9,
+      "fix": "Wall tile sides 0x4a3515→0xB8A894 (warm taupe); face-down face 0xffffff→0xF5F0E6 (warm ivory); scale (0.68,0.75,0.68)→(0.88,0.92,0.88) for minimal gaps",
+      "result": "Wall tiles now form continuous wall sections with hairline gaps — warm taupe sides match mockup's refined look. Two-tone is subtler but elegant. Walls look proper and cohesive."
     }
   ],
   "status": "running",
-  "notes": "Round 8 — Table-to-tile contrast improved. Next priorities: (1) wall tile tops still blend somewhat with table — may need even more table warmth or tile brightness, (2) discard tiles in center still small/hard to read at camera distance, (3) table could use subtle paper grain texture."
+  "notes": "Round 9 — Wall tiles match mockup closely now (warm taupe sides, minimal gaps, ivory face). Next priorities: (1) face-up tile sides still dark 0x5a3a18 — may need lightening to match wall taupe, (2) discard tile artwork still small at camera distance, (3) overall scene lighting/shadow softness vs mockup."
 }
