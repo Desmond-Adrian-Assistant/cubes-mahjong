@@ -1701,22 +1701,42 @@ class Renderer {
           ctx.fillStyle = 'rgba(255,255,255,0.12)';
           ctx.fill();
         } else {
-          for (const [cx, cy] of pos) {
+          // Multicolored dots matching traditional mahjong patterns
+          const dotColors = {
+            green: { fill: '#2a8a6a', inner: '#3a9a7a', stroke: '#1a6a4a' },
+            red:   { fill: '#c03030', inner: '#d04545', stroke: '#8a1a1a' },
+            blue:  { fill: '#2a4a8a', inner: '#3a5a9a', stroke: '#1a3a6a' }
+          };
+          const colorPatterns = {
+            2: ['green','red'],
+            3: ['green','red','green'],
+            4: ['green','red','red','green'],
+            5: ['green','red','blue','green','red'],
+            6: ['green','red','green','red','green','red'],
+            7: ['green','red','green','blue','green','red','green'],
+            8: ['green','red','green','red','red','green','red','green'],
+            9: ['green','red','green','red','blue','red','green','red','green']
+          };
+          const pattern = colorPatterns[dotNum] || [];
+          for (let i = 0; i < pos.length; i++) {
+            const [cx, cy] = pos[i];
+            const c = dotColors[pattern[i] || 'green'];
+
             // Outer filled circle
             ctx.beginPath();
             ctx.arc(cx, cy, r, 0, Math.PI * 2);
-            ctx.fillStyle = '#3a8a7a';
+            ctx.fillStyle = c.fill;
             ctx.fill();
-            ctx.strokeStyle = '#2a6a5a';
+            ctx.strokeStyle = c.stroke;
             ctx.lineWidth = r * 0.15;
             ctx.stroke();
 
             // Inner concentric ring
             ctx.beginPath();
             ctx.arc(cx, cy, r * 0.55, 0, Math.PI * 2);
-            ctx.fillStyle = '#4a9a8a';
+            ctx.fillStyle = c.inner;
             ctx.fill();
-            ctx.strokeStyle = '#2a6a5a';
+            ctx.strokeStyle = c.stroke;
             ctx.lineWidth = r * 0.1;
             ctx.stroke();
 
