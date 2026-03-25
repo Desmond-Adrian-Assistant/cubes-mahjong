@@ -1150,87 +1150,115 @@ class Renderer {
   }
 
   createBackgroundSky() {
-    // Procedural warm wood panel wall background
+    // Ink-wash sumi-e mountain landscape background
     const canvas = document.createElement('canvas');
     canvas.width = 1024;
     canvas.height = 1024;
     const ctx = canvas.getContext('2d');
 
-    // Base warm honey-brown wood tone
+    // Warm parchment/cream base with vertical gradient
     const bgGrad = ctx.createLinearGradient(0, 0, 0, 1024);
-    bgGrad.addColorStop(0, '#c4a87a');
-    bgGrad.addColorStop(0.2, '#d0b88e');
-    bgGrad.addColorStop(0.5, '#c8ab80');
-    bgGrad.addColorStop(0.8, '#bfa070');
-    bgGrad.addColorStop(1, '#b09565');
+    bgGrad.addColorStop(0, '#ede3d2');
+    bgGrad.addColorStop(0.3, '#e8dcc8');
+    bgGrad.addColorStop(0.6, '#e4d8c2');
+    bgGrad.addColorStop(1, '#ddd0b8');
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, 1024, 1024);
 
-    // Vertical wood grain lines — many thin strokes with slight variation
-    for (let i = 0; i < 600; i++) {
+    // Subtle parchment texture noise
+    for (let i = 0; i < 8000; i++) {
       const x = Math.random() * 1024;
-      const alpha = Math.random() * 0.12 + 0.02;
-      const dark = Math.random() > 0.5;
-      ctx.strokeStyle = dark
-        ? `rgba(120,95,60,${alpha})`
-        : `rgba(200,175,140,${alpha * 0.6})`;
-      ctx.lineWidth = Math.random() * 1.5 + 0.3;
+      const y = Math.random() * 1024;
+      const alpha = Math.random() * 0.03;
+      ctx.fillStyle = `rgba(140,120,90,${alpha})`;
+      ctx.fillRect(x, y, Math.random() * 2 + 0.5, Math.random() * 2 + 0.5);
+    }
+
+    // Helper: draw a mountain silhouette layer
+    function drawMountainLayer(ctx, baseY, maxHeight, color, opacity, segments) {
+      ctx.save();
+      ctx.globalAlpha = opacity;
+      ctx.fillStyle = color;
       ctx.beginPath();
-      let y = 0;
-      ctx.moveTo(x, y);
-      while (y < 1024) {
-        y += Math.random() * 40 + 10;
-        const drift = (Math.random() - 0.5) * 3;
-        ctx.lineTo(x + drift, y);
+      ctx.moveTo(0, baseY);
+      const segW = 1024 / segments;
+      // Generate peak heights with smooth variation
+      const peaks = [];
+      for (let i = 0; i <= segments; i++) {
+        const h = Math.random() * maxHeight * 0.6 + maxHeight * 0.2;
+        // Create a few dominant peaks
+        const peakBoost = (Math.sin(i * 0.8) * 0.5 + 0.5) * maxHeight * 0.3;
+        peaks.push(h + peakBoost);
       }
-      ctx.stroke();
+      // Draw mountain ridge with quadratic curves for soft ink-wash look
+      for (let i = 0; i <= segments; i++) {
+        const x = i * segW;
+        const y = baseY - peaks[i];
+        if (i === 0) {
+          ctx.lineTo(x, y);
+        } else {
+          const cpx = (i - 0.5) * segW;
+          const cpy = baseY - (peaks[i - 1] + peaks[i]) / 2 - Math.random() * 15;
+          ctx.quadraticCurveTo(cpx, cpy, x, y);
+        }
+      }
+      ctx.lineTo(1024, baseY + 50);
+      ctx.lineTo(0, baseY + 50);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
     }
 
-    // Subtle horizontal variation bands (natural wood color variation)
-    for (let i = 0; i < 12; i++) {
-      const y = Math.random() * 1024;
-      const h = Math.random() * 60 + 20;
-      const alpha = Math.random() * 0.08 + 0.02;
-      const lighter = Math.random() > 0.5;
-      ctx.fillStyle = lighter
-        ? `rgba(190,160,100,${alpha})`
-        : `rgba(150,125,90,${alpha})`;
-      ctx.fillRect(0, y, 1024, h);
-    }
+    // Layer 1: Far distant mountains — very faint, high up
+    drawMountainLayer(ctx, 420, 180, '#a89888', 0.06, 8);
 
-    // Vertical panel seam lines (subtle joins between planks)
-    const panelWidth = 1024 / 5;
-    ctx.strokeStyle = 'rgba(50,30,10,0.15)';
-    ctx.lineWidth = 1.5;
-    for (let p = 1; p < 5; p++) {
-      const px = p * panelWidth + (Math.random() - 0.5) * 10;
-      ctx.beginPath();
-      ctx.moveTo(px, 0);
-      ctx.lineTo(px + (Math.random() - 0.5) * 2, 1024);
-      ctx.stroke();
-      // Shadow side of seam
-      ctx.strokeStyle = 'rgba(30,18,5,0.08)';
-      ctx.beginPath();
-      ctx.moveTo(px + 2, 0);
-      ctx.lineTo(px + 2, 1024);
-      ctx.stroke();
-      ctx.strokeStyle = 'rgba(50,30,10,0.15)';
-    }
+    // Atmospheric mist between layers 1 and 2
+    const mist1 = ctx.createLinearGradient(0, 350, 0, 480);
+    mist1.addColorStop(0, 'rgba(232,220,200,0)');
+    mist1.addColorStop(0.4, 'rgba(232,220,200,0.5)');
+    mist1.addColorStop(1, 'rgba(232,220,200,0)');
+    ctx.fillStyle = mist1;
+    ctx.fillRect(0, 350, 1024, 130);
 
-    // Fine wood grain noise for texture
-    for (let i = 0; i < 15000; i++) {
+    // Layer 2: Mid-distance mountains — slightly stronger
+    drawMountainLayer(ctx, 500, 160, '#9a8a7a', 0.09, 10);
+
+    // Atmospheric mist between layers 2 and 3
+    const mist2 = ctx.createLinearGradient(0, 440, 0, 560);
+    mist2.addColorStop(0, 'rgba(228,216,194,0)');
+    mist2.addColorStop(0.5, 'rgba(228,216,194,0.45)');
+    mist2.addColorStop(1, 'rgba(228,216,194,0)');
+    ctx.fillStyle = mist2;
+    ctx.fillRect(0, 440, 1024, 120);
+
+    // Layer 3: Nearest mountains — most visible, warm dark wash
+    drawMountainLayer(ctx, 580, 140, '#8a7a68', 0.13, 12);
+
+    // Soft mist pooling at the base of mountains
+    const baseMist = ctx.createLinearGradient(0, 540, 0, 650);
+    baseMist.addColorStop(0, 'rgba(232,220,200,0)');
+    baseMist.addColorStop(0.5, 'rgba(232,220,200,0.6)');
+    baseMist.addColorStop(1, 'rgba(232,220,200,0.3)');
+    ctx.fillStyle = baseMist;
+    ctx.fillRect(0, 540, 1024, 110);
+
+    // Very faint ink wash spatter for aged paper feel
+    for (let i = 0; i < 3000; i++) {
       const x = Math.random() * 1024;
       const y = Math.random() * 1024;
-      const alpha = Math.random() * 0.04;
-      ctx.fillStyle = `rgba(50,30,10,${alpha})`;
-      ctx.fillRect(x, y, Math.random() * 1.5 + 0.3, Math.random() * 3 + 0.5);
+      const alpha = Math.random() * 0.015;
+      ctx.fillStyle = `rgba(100,85,65,${alpha})`;
+      const r = Math.random() * 1.2 + 0.2;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fill();
     }
 
-    // Subtle warm varnish sheen — radial highlight in center
-    const sheen = ctx.createRadialGradient(512, 400, 50, 512, 500, 600);
-    sheen.addColorStop(0, 'rgba(220,190,130,0.08)');
-    sheen.addColorStop(1, 'rgba(220,190,130,0)');
-    ctx.fillStyle = sheen;
+    // Warm atmospheric glow from center
+    const glow = ctx.createRadialGradient(512, 350, 50, 512, 450, 550);
+    glow.addColorStop(0, 'rgba(240,230,210,0.12)');
+    glow.addColorStop(1, 'rgba(240,230,210,0)');
+    ctx.fillStyle = glow;
     ctx.fillRect(0, 0, 1024, 1024);
 
     const texture = new THREE.CanvasTexture(canvas);
