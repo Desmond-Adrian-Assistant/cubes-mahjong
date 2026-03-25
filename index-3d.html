@@ -2991,13 +2991,13 @@ class Renderer {
     const faceTex = faceDown ? this.createTileBackTexture() : this.createTileTexture(tile);
 
     // Strong two-tone: bright cream face, distinctly darker tan sides
-    const faceColor = faceDown ? 0xd8ccb0 : 0xf5ead8;
-    const sideColor = faceDown ? 0x9a8058 : 0xa89068;
+    const faceColor = faceDown ? 0xc8b890 : 0xf5ead8;
+    const sideColor = faceDown ? 0x7a6038 : 0xa89068;
 
     // ExtrudeGeometry material indices: 0 = front face, 1 = back face, 2+ = sides/bevel
     const faceMat = new THREE.MeshStandardMaterial({ map: faceTex, color: faceColor, roughness: 0.35, metalness: 0.0 });
     const backMat = new THREE.MeshStandardMaterial({ color: sideColor, roughness: 0.7, metalness: 0.0 });
-    const sideMat = new THREE.MeshStandardMaterial({ color: sideColor, roughness: 0.55, metalness: 0.02 });
+    const sideMat = new THREE.MeshStandardMaterial({ color: sideColor, roughness: 0.55, metalness: faceDown ? 0.05 : 0.02 });
 
     const materials = [
       faceMat,   // front face (index 0) — tile texture
@@ -3018,6 +3018,16 @@ class Renderer {
     body.castShadow = true;
     body.receiveShadow = true;
     group.add(body);
+
+    // Add crisp dark edge outlines for faceDown (wall) tiles
+    if (faceDown) {
+      const edges = new THREE.EdgesGeometry(bodyGeo, 15);
+      const edgeMat = new THREE.LineBasicMaterial({ color: 0x4a3a28, linewidth: 1 });
+      const edgeLines = new THREE.LineSegments(edges, edgeMat);
+      edgeLines.rotation.x = body.rotation.x;
+      edgeLines.position.y = body.position.y;
+      group.add(edgeLines);
+    }
 
     group.userData = { tile, faceDown };
     return group;
@@ -3059,7 +3069,25 @@ class Renderer {
       { dir: 'west',  baseX: -3.6, baseZ: 0, along: 'z', rot: -Math.PI / 2 },
     ];
 
+    // Drop shadow material (shared across all wall sections)
+    const shadowMat = new THREE.MeshBasicMaterial({
+      color: 0x000000, transparent: true, opacity: 0.15, depthWrite: false,
+    });
+
     for (const side of sides) {
+      // Add drop shadow plane beneath each wall section
+      const shadowLen = tilesPerSide * (W + 0.015);
+      const shadowDepth = H * 1.2;
+      const shadowGeo = new THREE.PlaneGeometry(
+        side.along === 'x' ? shadowLen : shadowDepth,
+        side.along === 'x' ? shadowDepth : shadowLen
+      );
+      const shadowPlane = new THREE.Mesh(shadowGeo, shadowMat);
+      shadowPlane.rotation.x = -Math.PI / 2;
+      shadowPlane.position.set(side.baseX, 0.005, side.baseZ);
+      this.scene.add(shadowPlane);
+      this.wallMeshes.push(shadowPlane);
+
       for (let layer = 0; layer < layers; layer++) {
         for (let i = 0; i < tilesPerSide; i++) {
           if (tileIdx >= wallTiles.length) break;
@@ -3079,7 +3107,7 @@ class Renderer {
           // Tilt tiles face-down (rotate around x so top faces away from center)
           mesh.rotation.x = Math.PI;
 
-          mesh.scale.set(1.0, 1.0, 1.0);
+          mesh.scale.set(1.02, 1.02, 1.02);
           this.scene.add(mesh);
           this.wallMeshes.push(mesh);
         }
