@@ -1526,23 +1526,69 @@ class Renderer {
     ctx.lineWidth = 3;
     ctx.strokeRect(2, 2, 252, 348);
 
-    const label = getTileLabel(tile);
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
+    if (key.startsWith('dots-')) {
+      // Draw actual circles for dots tiles instead of text
+      const dotNum = parseInt(key.split('-')[1]);
+      const layouts = {
+        1: { r: 42, pos: [[128, 176]] },
+        2: { r: 30, pos: [[128, 116], [128, 236]] },
+        3: { r: 26, pos: [[172, 96], [128, 176], [84, 256]] },
+        4: { r: 26, pos: [[88, 116], [168, 116], [88, 236], [168, 236]] },
+        5: { r: 24, pos: [[84, 108], [172, 108], [128, 176], [84, 244], [172, 244]] },
+        6: { r: 22, pos: [[88, 96], [168, 96], [88, 176], [168, 176], [88, 256], [168, 256]] },
+        7: { r: 20, pos: [[128, 82], [84, 168], [128, 168], [172, 168], [84, 260], [128, 260], [172, 260]] },
+        8: { r: 20, pos: [[80, 96], [128, 96], [176, 96], [104, 176], [152, 176], [80, 256], [128, 256], [176, 256]] },
+        9: { r: 20, pos: [[80, 96], [128, 96], [176, 96], [80, 176], [128, 176], [176, 176], [80, 256], [128, 256], [176, 256]] },
+      };
+      const layout = layouts[dotNum];
+      if (layout) {
+        const { r, pos } = layout;
+        for (const [cx, cy] of pos) {
+          // Outer filled circle
+          ctx.beginPath();
+          ctx.arc(cx, cy, r, 0, Math.PI * 2);
+          ctx.fillStyle = '#3a8a7a';
+          ctx.fill();
+          ctx.strokeStyle = '#2a6a5a';
+          ctx.lineWidth = r * 0.15;
+          ctx.stroke();
 
-    if (label.bottom) {
-      // Suited tiles: number on top, suit character below — crisp ink
-      ctx.fillStyle = label.color;
-      ctx.font = 'bold 100px "Ma Shan Zheng", serif';
-      ctx.fillText(label.top, 128, 120);
-      ctx.fillStyle = label.color;
-      ctx.font = 'bold 84px "Ma Shan Zheng", serif';
-      ctx.fillText(label.bottom, 128, 254);
+          // Inner concentric ring
+          ctx.beginPath();
+          ctx.arc(cx, cy, r * 0.55, 0, Math.PI * 2);
+          ctx.fillStyle = '#4a9a8a';
+          ctx.fill();
+          ctx.strokeStyle = '#2a6a5a';
+          ctx.lineWidth = r * 0.1;
+          ctx.stroke();
+
+          // Subtle highlight for depth
+          ctx.beginPath();
+          ctx.arc(cx - r * 0.15, cy - r * 0.18, r * 0.22, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(255,255,255,0.2)';
+          ctx.fill();
+        }
+      }
     } else {
-      // Honor/bonus tiles: single large character
-      ctx.fillStyle = label.color;
-      ctx.font = 'bold 140px "Ma Shan Zheng", serif';
-      ctx.fillText(label.top, 128, 180);
+      // Text rendering for bamboo, characters, honors, bonus tiles
+      const label = getTileLabel(tile);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      if (label.bottom) {
+        // Suited tiles: number on top, suit character below — crisp ink
+        ctx.fillStyle = label.color;
+        ctx.font = 'bold 100px "Ma Shan Zheng", serif';
+        ctx.fillText(label.top, 128, 120);
+        ctx.fillStyle = label.color;
+        ctx.font = 'bold 84px "Ma Shan Zheng", serif';
+        ctx.fillText(label.bottom, 128, 254);
+      } else {
+        // Honor/bonus tiles: single large character
+        ctx.fillStyle = label.color;
+        ctx.font = 'bold 140px "Ma Shan Zheng", serif';
+        ctx.fillText(label.top, 128, 180);
+      }
     }
 
     const texture = new THREE.CanvasTexture(canvas);
