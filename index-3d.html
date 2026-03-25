@@ -578,11 +578,17 @@ canvas#game-canvas {
   .action-bar { bottom: 12px; }
   .melds-area.bottom { bottom: 120px; }
 }
+.scene-vignette {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none; z-index: 1;
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(40,25,10,0.25) 100%);
+}
 </style>
 </head>
 <body>
 
 <canvas id="game-canvas"></canvas>
+<div class="scene-vignette"></div>
 
 <div id="ui-overlay">
   <div class="top-bar">
@@ -1080,7 +1086,7 @@ class Renderer {
     this.scene.fog = new THREE.Fog(0xf2e4c8, 22, 45);
 
     // Warm ambient light - lantern glow feel (~3500K)
-    const ambient = new THREE.AmbientLight(0xffe8cc, 0.75);
+    const ambient = new THREE.AmbientLight(0xffe8cc, 0.55);
     this.scene.add(ambient);
 
     // Hemisphere light for natural sky/ground bounce
@@ -1088,7 +1094,7 @@ class Renderer {
     this.scene.add(hemiLight);
 
     // Main directional light — warm, from above-front like a lantern
-    const dirLight = new THREE.DirectionalLight(0xffeedd, 1.1);
+    const dirLight = new THREE.DirectionalLight(0xffeedd, 1.35);
     dirLight.position.set(2, 9, 5);
     dirLight.castShadow = true;
     dirLight.shadow.mapSize.width = 2048;
@@ -1101,7 +1107,7 @@ class Renderer {
     dirLight.shadow.camera.bottom = -7;
     dirLight.shadow.bias = -0.0005;
     dirLight.shadow.normalBias = 0.02;
-    dirLight.shadow.radius = 3;
+    dirLight.shadow.radius = 4;
     this.scene.add(dirLight);
 
     // Warm fill light from opposite side
@@ -1311,6 +1317,11 @@ class Renderer {
     lineCanvas.height = 512;
     const lctx = lineCanvas.getContext('2d');
     lctx.clearRect(0, 0, 512, 512);
+    const edgeGrad = lctx.createRadialGradient(256, 256, 180, 256, 256, 280);
+    edgeGrad.addColorStop(0, 'rgba(0,0,0,0)');
+    edgeGrad.addColorStop(1, 'rgba(60,40,20,0.08)');
+    lctx.fillStyle = edgeGrad;
+    lctx.fillRect(0, 0, 512, 512);
     lctx.strokeStyle = 'rgba(80,60,40,0.18)';
     lctx.lineWidth = 2;
     lctx.strokeRect(20, 20, 472, 472);
@@ -1377,7 +1388,7 @@ class Renderer {
     const ensoR = 180, nSteps = 200, gapA = 0.4;
     for (let pass = 0; pass < 3; pass++) {
       ctx.beginPath();
-      const alpha = [0.40, 0.25, 0.15][pass];
+      const alpha = [0.50, 0.32, 0.20][pass];
       const lw = [12, 18, 24][pass];
       for (let i = 0; i < nSteps; i++) {
         const t = i / nSteps;
@@ -1405,7 +1416,7 @@ class Renderer {
 
     // Corner bamboo motif — top-left
     ctx.save();
-    ctx.globalAlpha = 0.18;
+    ctx.globalAlpha = 0.25;
     ctx.strokeStyle = '#3a5a3a';
     ctx.lineWidth = 3;
     // Bamboo stalks
@@ -1444,7 +1455,7 @@ class Renderer {
 
     // Corner bamboo motif — bottom-right
     ctx.save();
-    ctx.globalAlpha = 0.18;
+    ctx.globalAlpha = 0.25;
     ctx.strokeStyle = '#3a5a3a';
     ctx.fillStyle = '#3a5a3a';
     ctx.lineWidth = 3;
@@ -1481,7 +1492,7 @@ class Renderer {
 
     // Ink wash cloud wisps in corners
     ctx.save();
-    ctx.globalAlpha = 0.12;
+    ctx.globalAlpha = 0.18;
     ctx.strokeStyle = '#5a4a38';
     ctx.lineWidth = 2;
     // Bottom-left cloud
@@ -2671,7 +2682,7 @@ class Renderer {
     const faceTex = faceDown ? this.createTileBackTexture() : this.createTileTexture(tile);
 
     // Side/edge materials — darker for face-down tiles to contrast with table
-    const sideColor = faceDown ? 0xc8c0b0 : 0xf0e8d8;
+    const sideColor = faceDown ? 0xc8c0b0 : 0xe8dcc8;
     const bottomColor = faceDown ? 0xa8a090 : 0xd8d0c0;
     const frontColor = faceDown ? 0xd0c8b8 : 0xece4d4;
     const sideMat = new THREE.MeshStandardMaterial({ color: sideColor, roughness: 0.55, metalness: 0.02 });
@@ -2945,23 +2956,18 @@ class GameController {
       if (index === this.gs.selectedTileIndex) el.classList.add('selected');
       if (this.gs.drawnTile && tile.id === this.gs.drawnTile.id) el.classList.add('drawn');
 
-      const label = getTileLabel(tile);
       const body = document.createElement('div');
       body.className = 'tile-body';
 
       const face = document.createElement('div');
       face.className = 'face';
 
-      if (label.bottom) {
-        face.innerHTML = `<div class="tile-content">
-          <span class="char-top" style="color:${label.color}">${label.top}</span>
-          <span class="char-bottom" style="color:${label.color}">${label.bottom}</span>
-        </div>`;
-      } else {
-        face.innerHTML = `<div class="tile-content">
-          <span style="font-size:36px;font-family:'Ma Shan Zheng',serif;color:${label.color}">${label.top}</span>
-        </div>`;
-      }
+      // Use the same canvas artwork as the 3D table tiles
+      const texture = this.renderer.createTileTexture(tile);
+      const srcCanvas = texture.image;
+      face.style.backgroundImage = `url(${srcCanvas.toDataURL()})`;
+      face.style.backgroundSize = 'cover';
+      face.style.backgroundPosition = 'center';
 
       body.appendChild(face);
       el.appendChild(body);
