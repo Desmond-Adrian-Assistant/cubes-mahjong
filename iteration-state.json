@@ -1,8 +1,8 @@
 {
-  "iteration": 4,
+  "iteration": 5,
   "maxIterations": 20,
   "startedAt": "2026-03-25T16:15:00-05:00",
-  "lastCompleted": "2026-03-25T16:35:00-05:00",
+  "lastCompleted": "2026-03-25T16:44:00-05:00",
   "changes": [
     {
       "iteration": 1,
@@ -23,8 +23,13 @@
       "iteration": 4,
       "fix": "Lightened background from dark brown #7a5c30/#6b4e28 to warm medium wood #C4A882/#B89A6A; updated fog to 0xC4A882; updated all CSS gradient stops",
       "result": "Background now matches mockup's warm medium wood tone — scene feels lighter, airier, Paper & Ink aesthetic intact"
+    },
+    {
+      "iteration": 5,
+      "fix": "Wall tile scale 0.78/0.82→0.68/0.75 for wider gaps; face-down side color 0x6b4f2a→0x5a3f1a (darker brown); face-down face color 0xfff8ec→0xf5ead0 (warmer cream)",
+      "result": "Wall tiles now have clearly visible gaps between individual tiles; stronger two-tone contrast with darker sides and warmer cream tops; tiles stand out distinctly from table surface"
     }
   ],
   "status": "running",
-  "notes": "Round 4 — Background lightened to match mockup warm wood. Scene much closer overall. Next: compare for remaining visual gaps."
+  "notes": "Round 5 — Wall tile gaps now clearly visible. Two-tone contrast improved. Next: compare for remaining visual gaps vs mockup."
 }

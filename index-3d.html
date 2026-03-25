@@ -3169,8 +3169,8 @@ class Renderer {
     for (let p = 0; p < 4; p++) {
       const discards = allDiscards[p] || [];
       const zone = zones[p];
-      const spacing = 0.58;
-      const rowSpacing = 0.70;
+      const spacing = 0.65;
+      const rowSpacing = 0.80;
 
       for (let i = 0; i < discards.length; i++) {
         const col = i % zone.cols;
@@ -3189,7 +3189,7 @@ class Renderer {
         }
         mesh.position.set(x, 0.15, z);
         mesh.rotation.y = 0;
-        mesh.scale.set(1.10, 1.10, 1.10);
+        mesh.scale.set(1.35, 1.35, 1.35);
         this.scene.add(mesh);
         this.discardMeshes.push(mesh);
       }
@@ -3259,7 +3259,7 @@ class GameController {
     document.getElementById('btn-mahjong').addEventListener('click', () => this.claimMahjong());
     document.getElementById('btn-discard').addEventListener('click', () => this.discardSelected());
     document.getElementById('btn-discards').addEventListener('click', () => this.toggleDiscardOverlay());
-    document.getElementById('btn-sort-hand').addEventListener('click', () => this.sortPlayerHand());
+    document.getElementById('btn-sort-hand')?.addEventListener('click', () => this.sortPlayerHand());
     document.getElementById('discard-close-btn').addEventListener('click', () => this.closeDiscardOverlay());
     document.getElementById('discard-sort-btn').addEventListener('click', () => this.toggleDiscardSort());
     // Top-right toolbar buttons
