@@ -2960,62 +2960,9 @@ class Renderer {
     ctx.save();
     ctx.clip();
 
-    // Back — warm cream/ivory fill inside rounded area
-    const bgG = ctx.createLinearGradient(0, 0, 128, 176);
-    bgG.addColorStop(0, '#e0d4b0');
-    bgG.addColorStop(0.5, '#d4c8a4');
-    bgG.addColorStop(1, '#ccbf98');
-    ctx.fillStyle = bgG;
+    // Solid warm ivory fill — clean, no pattern
+    ctx.fillStyle = '#E8DCC8';
     ctx.fillRect(0, 0, 128, 176);
-
-    // Diamond lattice / crosshatch pattern
-    ctx.strokeStyle = 'rgba(255,255,240,0.7)';
-    ctx.lineWidth = 1.2;
-    const step = 10;
-    for (let x = -176; x < 128 + 176; x += step) {
-      ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x + 176, 176);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(x, 176);
-      ctx.lineTo(x + 176, 0);
-      ctx.stroke();
-    }
-    ctx.strokeStyle = 'rgba(50,40,30,0.35)';
-    for (let x = -176; x < 128 + 176; x += step) {
-      ctx.beginPath();
-      ctx.moveTo(x + 1, 0);
-      ctx.lineTo(x + 177, 176);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(x + 1, 176);
-      ctx.lineTo(x + 177, 0);
-      ctx.stroke();
-    }
-
-    // Double border frame — warm brown
-    ctx.strokeStyle = 'rgba(180,155,100,0.7)';
-    ctx.lineWidth = 3.0;
-    ctx.strokeRect(8, 8, 112, 160);
-    ctx.strokeStyle = 'rgba(180,155,100,0.5)';
-    ctx.lineWidth = 1.5;
-    ctx.strokeRect(14, 14, 100, 148);
-
-    // Vermillion seal in center
-    ctx.translate(64, 88);
-    ctx.fillStyle = 'rgba(179,58,42,0.85)';
-    ctx.fillRect(-16, -16, 32, 32);
-    ctx.strokeStyle = 'rgba(140,30,20,0.6)';
-    ctx.lineWidth = 1.5;
-    ctx.strokeRect(-16, -16, 32, 32);
-    // Seal character
-    ctx.fillStyle = 'rgba(255,240,220,0.9)';
-    ctx.font = 'bold 20px "Ma Shan Zheng", serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('雀', 0, 1);
-    ctx.restore();
 
     this._backTex = new THREE.CanvasTexture(canvas);
     return this._backTex;
@@ -3057,11 +3004,11 @@ class Renderer {
     uvAttr.needsUpdate = true;
 
     // TWO-TONE: Bright white face, clearly darker warm brown sides
-    const faceColor = faceDown ? 0xFAF6EE : 0xffffff;
-    const sideColor = faceDown ? 0x7A6A4A : 0x8A7A5A;  // DARK warm brown — very visible contrast
+    const faceColor = faceDown ? 0xFFFBF4 : 0xffffff;
+    const sideColor = faceDown ? 0x5A4830 : 0x7A6848;  // Rich dark warm brown — strong two-tone contrast
 
     const faceMat = new THREE.MeshStandardMaterial({ map: faceTex, color: faceColor, roughness: 0.35, metalness: 0.0 });
-    const sideMat = new THREE.MeshStandardMaterial({ color: sideColor, roughness: 0.5, metalness: 0.0 });
+    const sideMat = new THREE.MeshStandardMaterial({ color: sideColor, roughness: 0.45, metalness: 0.02 });
 
     // ExtrudeGeometry: group 0 = front shape face, group 1 = back shape face, group 2 = extruded sides
     const body = new THREE.Mesh(bodyGeo, [faceMat, faceMat, sideMat]);
