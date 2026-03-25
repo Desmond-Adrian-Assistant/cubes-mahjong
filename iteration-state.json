@@ -1,8 +1,8 @@
 {
-  "iteration": 8,
+  "iteration": 9,
   "maxIterations": 15,
   "startedAt": "2026-03-25T08:05:00-05:00",
-  "lastCompleted": "2026-03-25T12:22:00-05:00",
+  "lastCompleted": "2026-03-25T12:44:00-05:00",
   "changes": [
     {
       "iteration": 1,
@@ -45,8 +45,14 @@
       "delta": "E",
       "description": "Bigger toolbar buttons: 58→68px, border-radius 8→10px, warm beige gradient (f5ede0→ece2cf), golden border (#c0a878, 2px), icons 20→28px, labels 9→10px darker (#5a4a38), stronger hover shadow. Both top-right and bottom-right toolbars now more prominent.",
       "commit": "54f1d3c"
+    },
+    {
+      "iteration": 8,
+      "delta": "J",
+      "description": "Aged paper texture on table: procedural canvas texture with uneven base tone patches, 50k fine noise grain dots, 40k+ horizontal fiber strands, 200 visible wavy fiber lines, 10k cross-grain vertical fibers, 35 age/discoloration spots with multi-stop gradients, 20 foxing spots, and edge vignette darkening. Table now looks like old rice paper/parchment.",
+      "commit": "555d2ce"
     }
   ],
   "status": "running",
-  "notes": "Round 2 — fixing specific deltas from mockup comparison. Parchment aesthetic ONLY. 7/10 deltas addressed (A-F, I, E). Remaining: G (bamboo bold enough?), H (center discards), J (table texture)."
+  "notes": "Round 2 — 8/10 deltas addressed (A-F, I, E, J). Remaining: G (bamboo corners - bolder), H (center discards - larger/organized). Fixed duplicate edgeGrad variable declaration that Claude Code introduced."
 }
