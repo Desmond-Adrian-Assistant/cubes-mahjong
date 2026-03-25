@@ -1,8 +1,8 @@
 {
-  "iteration": 4,
+  "iteration": 7,
   "maxIterations": 15,
   "startedAt": "2026-03-25T08:05:00-05:00",
-  "lastCompleted": "2026-03-25T09:06:00-05:00",
+  "lastCompleted": "2026-03-25T10:25:00-05:00",
   "changes": [
     {
       "iteration": 1,
@@ -27,6 +27,18 @@
       "delta": "A",
       "description": "Player avatars: Renamed Yuki→Keni with new qipao/cheongsam SVG portrait (bun, flower ornament, mandarin collar, frog button). Avatars 110→120px. Added 'PLAYER N' labels above each name. Player-label updated to 'PLAYER 4: Chen'.",
       "commit": "2475f74"
+    },
+    {
+      "iteration": 5,
+      "delta": "F",
+      "description": "Bold ink cloud wisps (雲): Replaced 2 barely-visible corner wisps with 6 spiral cloud groups positioned between tile walls and center. Dark brown ink (#3a2a18), alpha 0.70, lineWidth 5-7. Traditional 雲 spiral curls with flowing bezier wisps. Positions: N→center, S→center, E→center, W→center, NE diagonal, SW diagonal.",
+      "commit": "ef91514"
+    },
+    {
+      "iteration": 6,
+      "delta": "I",
+      "description": "Bold header: title 20→30px, weight 600→800, color #3a3028→#2a2018 (darker), letter-spacing 3→4px, added text-shadow. Subtitle 12→14px, weight 500. Header now prominent and commanding above table.",
+      "commit": "cff1bdd"
     }
   ],
   "status": "running",
