@@ -1199,28 +1199,28 @@ class Renderer {
   }
 
   createTable() {
-    // Procedural rice paper texture for table surface
+    // Procedural green felt texture for table surface
     const texCanvas = document.createElement('canvas');
     texCanvas.width = 1024;
     texCanvas.height = 1024;
     const tctx = texCanvas.getContext('2d');
 
-    // Base warm cream
+    // Base dark green felt
     const baseGrad = tctx.createRadialGradient(512, 512, 0, 512, 512, 600);
-    baseGrad.addColorStop(0, '#f5e6c8');
-    baseGrad.addColorStop(0.6, '#f0dfc0');
-    baseGrad.addColorStop(1, '#e8d5b0');
+    baseGrad.addColorStop(0, '#1a5c2e');
+    baseGrad.addColorStop(0.6, '#165028');
+    baseGrad.addColorStop(1, '#124420');
     tctx.fillStyle = baseGrad;
     tctx.fillRect(0, 0, 1024, 1024);
 
-    // Rice paper fiber grain — horizontal
+    // Felt fiber grain — horizontal
     for (let i = 0; i < 30000; i++) {
       const x = Math.random() * 1024;
       const y = Math.random() * 1024;
       const w = Math.random() * 6 + 1;
       const h = Math.random() * 1.5 + 0.3;
       const alpha = Math.random() * 0.035 + 0.005;
-      tctx.fillStyle = `rgba(160,140,100,${alpha})`;
+      tctx.fillStyle = `rgba(40,120,60,${alpha})`;
       tctx.fillRect(x, y, w, h);
     }
 
@@ -1231,18 +1231,18 @@ class Renderer {
       const w = Math.random() * 1 + 0.3;
       const h = Math.random() * 5 + 1;
       const alpha = Math.random() * 0.025;
-      tctx.fillStyle = `rgba(140,120,80,${alpha})`;
+      tctx.fillStyle = `rgba(30,100,50,${alpha})`;
       tctx.fillRect(x, y, w, h);
     }
 
-    // Subtle warm splotches for aged feel
-    for (let i = 0; i < 15; i++) {
+    // Subtle felt texture variation
+    for (let i = 0; i < 8; i++) {
       const x = Math.random() * 1024;
       const y = Math.random() * 1024;
       const r = Math.random() * 80 + 30;
       const sGrad = tctx.createRadialGradient(x, y, 0, x, y, r);
-      sGrad.addColorStop(0, `rgba(180,150,100,${Math.random() * 0.04})`);
-      sGrad.addColorStop(1, 'rgba(180,150,100,0)');
+      sGrad.addColorStop(0, `rgba(20,80,35,${Math.random() * 0.03})`);
+      sGrad.addColorStop(1, 'rgba(20,80,35,0)');
       tctx.fillStyle = sGrad;
       tctx.fillRect(x - r, y - r, r * 2, r * 2);
     }
@@ -1264,10 +1264,71 @@ class Renderer {
     table.receiveShadow = true;
     this.scene.add(table);
 
-    // Table border/frame — dark lacquered wood
+    // Table border/frame — procedural wood grain texture
+    const woodCanvas = document.createElement('canvas');
+    woodCanvas.width = 512;
+    woodCanvas.height = 512;
+    const wctx = woodCanvas.getContext('2d');
+
+    // Base walnut color
+    wctx.fillStyle = '#3a2818';
+    wctx.fillRect(0, 0, 512, 512);
+
+    // Horizontal grain lines with varying browns
+    const grainColors = ['#3a2818', '#4a3320', '#2a1a10', '#352315', '#3f2c1c'];
+    for (let i = 0; i < 600; i++) {
+      const y = Math.random() * 512;
+      const w = 512;
+      const h = Math.random() * 2 + 0.5;
+      const alpha = Math.random() * 0.4 + 0.1;
+      wctx.fillStyle = grainColors[Math.floor(Math.random() * grainColors.length)];
+      wctx.globalAlpha = alpha;
+      wctx.fillRect(0, y, w, h);
+    }
+    wctx.globalAlpha = 1.0;
+
+    // Wavy grain lines for realism
+    for (let i = 0; i < 40; i++) {
+      const baseY = Math.random() * 512;
+      wctx.beginPath();
+      wctx.moveTo(0, baseY);
+      for (let x = 0; x < 512; x += 4) {
+        const yOff = Math.sin(x * 0.02 + i) * 3 + Math.sin(x * 0.005 + i * 0.7) * 6;
+        wctx.lineTo(x, baseY + yOff);
+      }
+      wctx.strokeStyle = `rgba(${30 + Math.random() * 30},${15 + Math.random() * 20},${5 + Math.random() * 10},${Math.random() * 0.15 + 0.05})`;
+      wctx.lineWidth = Math.random() * 1.5 + 0.5;
+      wctx.stroke();
+    }
+
+    // Knot-like darker oval spots
+    for (let i = 0; i < 5; i++) {
+      const kx = Math.random() * 512;
+      const ky = Math.random() * 512;
+      const rx = Math.random() * 15 + 8;
+      const ry = Math.random() * 10 + 5;
+      wctx.save();
+      wctx.translate(kx, ky);
+      wctx.rotate(Math.random() * 0.3);
+      wctx.beginPath();
+      wctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
+      const kGrad = wctx.createRadialGradient(0, 0, 0, 0, 0, rx);
+      kGrad.addColorStop(0, 'rgba(20,10,3,0.35)');
+      kGrad.addColorStop(0.6, 'rgba(25,14,5,0.15)');
+      kGrad.addColorStop(1, 'rgba(30,18,8,0)');
+      wctx.fillStyle = kGrad;
+      wctx.fill();
+      wctx.restore();
+    }
+
+    const woodTexture = new THREE.CanvasTexture(woodCanvas);
+    woodTexture.wrapS = THREE.RepeatWrapping;
+    woodTexture.wrapT = THREE.RepeatWrapping;
+
     const borderGeo = new THREE.BoxGeometry(15.0, 0.35, 15.0);
     const borderMat = new THREE.MeshStandardMaterial({
-      color: 0x3a2818,
+      map: woodTexture,
+      color: 0xffffff,
       roughness: 0.55,
       metalness: 0.15,
     });
@@ -1276,14 +1337,43 @@ class Renderer {
     border.receiveShadow = true;
     this.scene.add(border);
 
-    // Inner playing area — slightly lighter rice paper overlay
+    // Decorative brass corner brackets
+    const brassMat = new THREE.MeshStandardMaterial({
+      color: 0xb8860b,
+      metalness: 0.6,
+      roughness: 0.4,
+    });
+    const corners = [
+      { x: -7.2, z: -7.2, rot: 0 },
+      { x:  7.2, z: -7.2, rot: Math.PI * 0.5 },
+      { x:  7.2, z:  7.2, rot: Math.PI },
+      { x: -7.2, z:  7.2, rot: Math.PI * 1.5 },
+    ];
+    for (const c of corners) {
+      const bracket = new THREE.Group();
+      const armH = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.08, 0.15), brassMat);
+      armH.position.set(0.75, 0, 0);
+      bracket.add(armH);
+      const armV = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.08, 1.5), brassMat);
+      armV.position.set(0, 0, 0.75);
+      bracket.add(armV);
+      // Small corner square where arms meet
+      const corner = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.08, 0.25), brassMat);
+      corner.position.set(0, 0, 0);
+      bracket.add(corner);
+      bracket.position.set(c.x, -0.02, c.z);
+      bracket.rotation.y = c.rot;
+      this.scene.add(bracket);
+    }
+
+    // Inner playing area — slightly lighter felt overlay
     const innerGeo = new THREE.PlaneGeometry(10.5, 10.5);
     const innerMat = new THREE.MeshStandardMaterial({
-      color: 0xfaf4e6,
+      color: 0x1e6b35,
       roughness: 0.92,
       metalness: 0.0,
       transparent: true,
-      opacity: 0.35,
+      opacity: 0.18,
     });
     const inner = new THREE.Mesh(innerGeo, innerMat);
     inner.rotation.x = -Math.PI / 2;
@@ -1297,10 +1387,10 @@ class Renderer {
     lineCanvas.height = 512;
     const lctx = lineCanvas.getContext('2d');
     lctx.clearRect(0, 0, 512, 512);
-    lctx.strokeStyle = 'rgba(80,60,40,0.18)';
+    lctx.strokeStyle = 'rgba(200,180,100,0.18)';
     lctx.lineWidth = 2;
     lctx.strokeRect(20, 20, 472, 472);
-    lctx.strokeStyle = 'rgba(80,60,40,0.12)';
+    lctx.strokeStyle = 'rgba(200,180,100,0.12)';
     lctx.lineWidth = 1;
     lctx.strokeRect(30, 30, 452, 452);
     const lineTexture = new THREE.CanvasTexture(lineCanvas);
