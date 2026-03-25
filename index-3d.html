@@ -73,6 +73,49 @@ canvas#game-canvas {
 .menu-btn:hover { background: linear-gradient(135deg, #a07a1a, #8b6914); }
 .menu-btn:active { transform: scale(0.95); }
 
+/* ========== TOOLBAR BUTTONS (bottom-right & top-right icon squares) ========== */
+.toolbar-group {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  display: flex;
+  gap: 8px;
+  z-index: 40;
+}
+.toolbar-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  background: rgba(245,238,225,0.95);
+  border: 1px solid rgba(180,160,130,0.4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(80,60,30,0.15);
+  font-family: 'Helvetica Neue', sans-serif;
+  transition: all 0.2s;
+  padding: 0;
+}
+.toolbar-btn:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+.toolbar-btn .tb-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+.toolbar-btn .tb-icon.red { color: #c0392b; }
+.toolbar-btn .tb-label {
+  font-size: 8px;
+  letter-spacing: 0.5px;
+  color: #7a6a5a;
+  text-transform: uppercase;
+  margin-top: 2px;
+  line-height: 1;
+}
+
 /* ========== PLAYER BUBBLES ========== */
 .player-bubble {
   position: absolute;
@@ -621,8 +664,18 @@ canvas#game-canvas {
       <div class="header-subtitle" id="header-subtitle">ROUND: 1/4 | EAST WINDS | TILES LEFT: 136</div>
     </div>
     <div class="top-btns">
-      <button class="menu-btn" id="btn-discards" title="View Discards">棄</button>
-      <button class="menu-btn" id="btn-sort-hand" title="Sort Hand">排</button>
+      <button class="toolbar-btn" id="btn-discards" title="View Discards">
+        <span class="tb-icon red">■</span><span class="tb-label">Discard</span>
+      </button>
+      <button class="toolbar-btn" id="btn-sort-hand" title="Sort Hand">
+        <span class="tb-icon">🤚</span><span class="tb-label">Sort</span>
+      </button>
+      <button class="toolbar-btn" id="tb-top-settings" title="Settings">
+        <span class="tb-icon">⚙</span><span class="tb-label">Settings</span>
+      </button>
+      <button class="toolbar-btn" id="tb-top-help" title="Help">
+        <span class="tb-icon">?</span><span class="tb-label">Help</span>
+      </button>
     </div>
   </div>
 
@@ -700,6 +753,22 @@ canvas#game-canvas {
   <div class="claim-panel" id="claim-panel">
     <div class="claim-panel-title" id="claim-panel-title">Choose action</div>
     <div id="claim-options"></div>
+  </div>
+
+  <!-- Bottom-right toolbar -->
+  <div class="toolbar-group" id="toolbar-bottom-right">
+    <button class="toolbar-btn" id="tb-discard" title="View Discards">
+      <span class="tb-icon red">■</span><span class="tb-label">Discard</span>
+    </button>
+    <button class="toolbar-btn" id="tb-mahjong" title="Mahjong">
+      <span class="tb-icon red">🀄</span><span class="tb-label">Mahjong</span>
+    </button>
+    <button class="toolbar-btn" id="tb-settings" title="Settings">
+      <span class="tb-icon">⚙</span><span class="tb-label">Settings</span>
+    </button>
+    <button class="toolbar-btn" id="tb-help" title="Help">
+      <span class="tb-icon">?</span><span class="tb-label">Help</span>
+    </button>
   </div>
 
   <!-- Toast -->
@@ -2959,6 +3028,11 @@ class GameController {
     document.getElementById('btn-sort-hand').addEventListener('click', () => this.sortPlayerHand());
     document.getElementById('discard-close-btn').addEventListener('click', () => this.closeDiscardOverlay());
     document.getElementById('discard-sort-btn').addEventListener('click', () => this.toggleDiscardSort());
+    // Bottom-right toolbar buttons
+    document.getElementById('tb-discard').addEventListener('click', () => this.toggleDiscardOverlay());
+    document.getElementById('tb-mahjong').addEventListener('click', () => { if(this.canDeclareWin) this.claimMahjong(); });
+    document.getElementById('tb-settings').addEventListener('click', () => { /* settings placeholder */ });
+    document.getElementById('tb-help').addEventListener('click', () => { this.showToast('Paper & Ink Mahjong — Chi, Pong, Kong, Hu!'); });
   }
 
   startGame() {
