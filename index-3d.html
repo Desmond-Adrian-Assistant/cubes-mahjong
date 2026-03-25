@@ -33,22 +33,30 @@ canvas#game-canvas {
 
 /* ========== TOP BAR ========== */
 .top-bar {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 12px 16px;
+  display: flex; justify-content: center; align-items: center;
+  padding: 10px 16px;
+  position: relative;
 }
-.round-pill {
-  font-size: 15px; font-weight: 400;
+.header-center {
+  text-align: center;
+}
+.header-title {
+  font-size: 20px;
   font-family: 'Ma Shan Zheng', serif;
-  background: rgba(245,240,232,0.92);
-  color: #5a4a3a;
-  border: 1px solid rgba(160,140,110,0.3);
-  border-radius: 20px;
-  padding: 8px 20px;
-  box-shadow: 0 2px 8px rgba(80,60,30,0.08);
-  backdrop-filter: blur(10px);
+  color: #3a3028;
+  letter-spacing: 3px;
+  font-weight: 400;
 }
-.round-pill .wind { color: #b33a2a; font-weight: 400; }
-.top-btns { display: flex; gap: 8px; }
+.header-subtitle {
+  font-size: 12px;
+  color: #7a6a5a;
+  letter-spacing: 1px;
+  margin-top: 2px;
+}
+.top-btns {
+  display: flex; gap: 8px;
+  position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+}
 .menu-btn {
   width: 40px; height: 40px; border-radius: 50%;
   background: rgba(245,240,232,0.92);
@@ -139,7 +147,7 @@ canvas#game-canvas {
 
 /* Tile in hand */
 .tile {
-  width: 42px; height: 56px; position: relative;
+  width: 56px; height: 74px; position: relative;
   cursor: pointer;
   transition: transform 0.2s cubic-bezier(.34,1.56,.64,1), box-shadow 0.2s;
   transform-origin: bottom center;
@@ -147,7 +155,7 @@ canvas#game-canvas {
 }
 .tile-body {
   width: 100%; height: 100%;
-  border-radius: 6px;
+  border-radius: 8px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   position: relative; overflow: hidden;
   background: linear-gradient(160deg, #fafaf5 0%, #f5f0e6 60%, #ede8dc 100%);
@@ -162,18 +170,18 @@ canvas#game-canvas {
 .tile .face {
   display: flex; align-items: center; justify-content: center;
   width: 100%; height: 100%;
-  padding: 3px;
-  font-size: 26px;
+  padding: 4px;
+  font-size: 32px;
   line-height: 1;
 }
 .tile .face .char-top {
-  font-size: 18px;
+  font-size: 24px;
   font-family: 'Ma Shan Zheng', serif;
   color: #2a2018;
   line-height: 1;
 }
 .tile .face .char-bottom {
-  font-size: 16px;
+  font-size: 20px;
   font-family: 'Ma Shan Zheng', serif;
   color: #b33a2a;
   line-height: 1;
@@ -497,18 +505,7 @@ canvas#game-canvas {
 
 /* ========== WALL INFO (center table) ========== */
 .wall-info {
-  position: fixed; top: 46%; left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(248,244,236,0.92);
-  border: 2px solid rgba(120,100,70,0.2);
-  border-radius: 50%;
-  width: 68px; height: 68px;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  box-shadow:
-    0 4px 16px rgba(80,60,30,0.12),
-    0 0 0 6px rgba(120,100,70,0.06),
-    0 0 0 12px rgba(120,100,70,0.03);
-  z-index: 5;
+  display: none;
 }
 .wall-info .dealer {
   font-size: 22px; color: #b33a2a;
@@ -568,16 +565,13 @@ canvas#game-canvas {
 
 /* ========== OPPONENT HAND COUNTS ========== */
 .opp-hand-count {
-  font-size: 11px;
-  color: #8a7a6a;
-  margin-top: 2px;
-  text-align: center;
+  display: none;
 }
 
 /* ========== RESPONSIVE ========== */
 @media (max-width: 600px) {
-  .tile { width: 34px; height: 46px; }
-  .tile .face { font-size: 20px; }
+  .tile { width: 44px; height: 58px; }
+  .tile .face { font-size: 26px; }
   .hand-tray { bottom: 60px; padding: 6px 10px; }
   .player-label { bottom: 116px; }
   .action-bar { bottom: 12px; }
@@ -591,7 +585,10 @@ canvas#game-canvas {
 
 <div id="ui-overlay">
   <div class="top-bar">
-    <div class="round-pill">🀄 <span class="wind" id="round-wind">東風 Round 1</span></div>
+    <div class="header-center">
+      <div class="header-title">PAPER & INK MAHJONG</div>
+      <div class="header-subtitle" id="header-subtitle">ROUND: 1/4 | EAST WINDS | TILES LEFT: 136</div>
+    </div>
     <div class="top-btns">
       <button class="menu-btn" id="btn-discards" title="View Discards">棄</button>
       <button class="menu-btn" id="btn-sort-hand" title="Sort Hand">排</button>
@@ -1060,13 +1057,14 @@ class Renderer {
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.45;
 
-    // Camera setup - slightly tilted view
-    this.camera.position.set(0, 8, 6);
-    this.camera.lookAt(0, 0, 0);
+    // Camera setup - strong isometric view (~35° from horizontal)
+    this.camera.position.set(0, 10, 10);
+    this.camera.lookAt(0, 0, -1);
 
     this.tileTextures = {};
     this.tileMeshes = [];
     this.discardMeshes = [];
+    this.wallMeshes = [];
     this.animating = false;
 
     this.setupScene();
@@ -1078,7 +1076,7 @@ class Renderer {
   setupScene() {
     // Background - warm aged parchment with ink wash sky
     this.createBackgroundSky();
-    this.scene.fog = new THREE.Fog(0xf5e8d0, 16, 30);
+    this.scene.fog = new THREE.Fog(0xf5e8d0, 20, 40);
 
     // Warm ambient light - lantern glow feel (~3500K)
     const ambient = new THREE.AmbientLight(0xffe8cc, 0.75);
@@ -1120,6 +1118,9 @@ class Renderer {
 
     // Ink wash decorations on table
     this.createInkDecorations();
+
+    // Wind direction indicator tiles in center
+    this.createWindIndicators();
   }
 
   createBackgroundSky() {
@@ -1328,7 +1329,7 @@ class Renderer {
     const ensoR = 180, nSteps = 200, gapA = 0.4;
     for (let pass = 0; pass < 3; pass++) {
       ctx.beginPath();
-      const alpha = [0.12, 0.07, 0.04][pass];
+      const alpha = [0.25, 0.15, 0.09][pass];
       const lw = [12, 18, 24][pass];
       for (let i = 0; i < nSteps; i++) {
         const t = i / nSteps;
@@ -1349,41 +1350,108 @@ class Renderer {
       const r = ensoR + (Math.random() - 0.5) * 30;
       ctx.beginPath();
       ctx.arc(Math.cos(ang) * r, Math.sin(ang) * r, Math.random() * 3 + 1, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(60,45,30,' + (Math.random() * 0.08 + 0.02) + ')';
+      ctx.fillStyle = 'rgba(60,45,30,' + (Math.random() * 0.15 + 0.05) + ')';
       ctx.fill();
     }
     ctx.restore();
 
-    // Corner bamboo motif
+    // Corner bamboo motif — top-left
     ctx.save();
-    ctx.globalAlpha = 0.035;
-    ctx.strokeStyle = '#4a6a4a';
-    ctx.lineWidth = 2;
+    ctx.globalAlpha = 0.18;
+    ctx.strokeStyle = '#3a5a3a';
+    ctx.lineWidth = 3;
+    // Bamboo stalks
     for (let i = 0; i < 3; i++) {
-      const bx = 80 + i * 25;
-      ctx.beginPath(); ctx.moveTo(bx, 40); ctx.lineTo(bx + 3, 200); ctx.stroke();
-      for (let n = 0; n < 3; n++) { const ny = 60 + n * 50; ctx.beginPath(); ctx.moveTo(bx - 4, ny); ctx.lineTo(bx + 7, ny); ctx.stroke(); }
+      const bx = 70 + i * 28;
+      ctx.beginPath(); ctx.moveTo(bx, 20); ctx.lineTo(bx + 4, 220); ctx.stroke();
+      // Node lines
+      for (let n = 0; n < 4; n++) {
+        const ny = 50 + n * 45;
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(bx - 5, ny); ctx.lineTo(bx + 9, ny); ctx.stroke();
+        ctx.lineWidth = 3;
+      }
     }
-    ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.moveTo(105, 80); ctx.bezierCurveTo(130, 60, 150, 55, 160, 65); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(80, 120); ctx.bezierCurveTo(55, 100, 40, 95, 35, 105); ctx.stroke();
-    ctx.strokeStyle = '#6a5a48';
-    ctx.beginPath(); ctx.moveTo(860, 920); ctx.bezierCurveTo(880, 900, 920, 895, 940, 910); ctx.bezierCurveTo(960, 890, 980, 895, 990, 915); ctx.stroke();
+    // Bamboo leaves — sweeping strokes
+    ctx.lineWidth = 2.5;
+    ctx.fillStyle = '#3a5a3a';
+    const drawLeaf = (x, y, angle, len) => {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.bezierCurveTo(len * 0.3, -len * 0.15, len * 0.7, -len * 0.12, len, 0);
+      ctx.bezierCurveTo(len * 0.7, len * 0.12, len * 0.3, len * 0.15, 0, 0);
+      ctx.fill();
+      ctx.restore();
+    };
+    drawLeaf(100, 70, -0.5, 50);
+    drawLeaf(95, 90, -0.8, 40);
+    drawLeaf(75, 110, -2.4, 45);
+    drawLeaf(70, 130, -2.6, 35);
+    drawLeaf(110, 55, -0.3, 55);
+    drawLeaf(130, 60, 0.2, 40);
+    ctx.restore();
+
+    // Corner bamboo motif — bottom-right
+    ctx.save();
+    ctx.globalAlpha = 0.18;
+    ctx.strokeStyle = '#3a5a3a';
+    ctx.fillStyle = '#3a5a3a';
+    ctx.lineWidth = 3;
+    for (let i = 0; i < 2; i++) {
+      const bx = 890 + i * 28;
+      ctx.beginPath(); ctx.moveTo(bx, 800); ctx.lineTo(bx + 3, 1000); ctx.stroke();
+      for (let n = 0; n < 3; n++) {
+        const ny = 830 + n * 50;
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(bx - 5, ny); ctx.lineTo(bx + 8, ny); ctx.stroke();
+        ctx.lineWidth = 3;
+      }
+    }
+    drawLeaf(910, 860, -0.4, 50);
+    drawLeaf(905, 880, -0.7, 40);
+    drawLeaf(890, 900, -2.5, 45);
+    drawLeaf(920, 845, 0.2, 40);
     ctx.restore();
 
     // Vermillion seal stamp
     ctx.save();
-    ctx.translate(920, 920);
-    ctx.fillStyle = 'rgba(179,58,42,0.06)';
-    ctx.fillRect(-20, -20, 40, 40);
-    ctx.strokeStyle = 'rgba(179,58,42,0.08)';
-    ctx.lineWidth = 1.5;
-    ctx.strokeRect(-18, -18, 36, 36);
-    ctx.fillStyle = 'rgba(179,58,42,0.07)';
-    ctx.font = 'bold 20px "Ma Shan Zheng", serif';
+    ctx.translate(920, 100);
+    ctx.fillStyle = 'rgba(179,58,42,0.18)';
+    ctx.fillRect(-22, -22, 44, 44);
+    ctx.strokeStyle = 'rgba(179,58,42,0.25)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(-20, -20, 40, 40);
+    ctx.fillStyle = 'rgba(179,58,42,0.22)';
+    ctx.font = 'bold 22px "Ma Shan Zheng", serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('\u96C0', 0, 0);
+    ctx.restore();
+
+    // Ink wash cloud wisps in corners
+    ctx.save();
+    ctx.globalAlpha = 0.12;
+    ctx.strokeStyle = '#5a4a38';
+    ctx.lineWidth = 2;
+    // Bottom-left cloud
+    for (let i = 0; i < 3; i++) {
+      ctx.beginPath();
+      const y = 870 + i * 20;
+      ctx.moveTo(40, y);
+      ctx.bezierCurveTo(80, y - 15, 130, y + 10, 180, y - 5);
+      ctx.stroke();
+    }
+    // Top-right cloud
+    for (let i = 0; i < 3; i++) {
+      ctx.beginPath();
+      const y = 100 + i * 20;
+      ctx.moveTo(820, y);
+      ctx.bezierCurveTo(860, y - 15, 910, y + 10, 960, y - 5);
+      ctx.stroke();
+    }
     ctx.restore();
 
     const texture = new THREE.CanvasTexture(canvas);
@@ -1395,6 +1463,24 @@ class Renderer {
     deco.rotation.x = -Math.PI / 2;
     deco.position.y = 0.005;
     this.scene.add(deco);
+  }
+
+  createWindIndicators() {
+    // Wind tiles in a diamond pattern in the center of the table
+    const winds = [
+      { char: '東', color: '#2a2018', x: 0.55, z: 0 },     // East - right
+      { char: '南', color: '#2a2018', x: 0, z: 0.55 },      // South - bottom
+      { char: '西', color: '#2a2018', x: -0.55, z: 0 },     // West - left
+      { char: '北', color: '#2a2018', x: 0, z: -0.55 },     // North - top
+    ];
+
+    for (const w of winds) {
+      const tile = { suit: 'winds', wind: w.char === '東' ? 'East' : w.char === '南' ? 'South' : w.char === '西' ? 'West' : 'North' };
+      const mesh = this.create3DTile(tile, false);
+      mesh.position.set(w.x, 0.15, w.z);
+      mesh.scale.set(0.65, 0.65, 0.65);
+      this.scene.add(mesh);
+    }
   }
 
   createTileTexture(tile) {
@@ -1514,20 +1600,26 @@ class Renderer {
   }
 
   create3DTile(tile, faceDown = false) {
-    const W = 0.38, H = 0.52, D = 0.22;
+    const W = 0.38, H = 0.52, D = 0.30;
     const group = new THREE.Group();
 
     // Main tile body
     const bodyGeo = new THREE.BoxGeometry(W, D, H);
     const faceTex = faceDown ? this.createTileBackTexture() : this.createTileTexture(tile);
 
+    // Warm ivory sides with subtle variation for depth
+    const sideMat = new THREE.MeshStandardMaterial({ color: 0xf0e8d8, roughness: 0.55, metalness: 0.02 });
+    const bottomMat = new THREE.MeshStandardMaterial({ color: 0xd8d0c0, roughness: 0.7, metalness: 0.0 });
+    const faceMat = new THREE.MeshStandardMaterial({ map: faceTex, roughness: 0.35, metalness: 0.0 });
+    const frontMat = new THREE.MeshStandardMaterial({ color: 0xece4d4, roughness: 0.5, metalness: 0.02 });
+
     const materials = [
-      new THREE.MeshStandardMaterial({ color: 0xe0d4bc, roughness: 0.6 }), // right
-      new THREE.MeshStandardMaterial({ color: 0xe0d4bc, roughness: 0.6 }), // left
-      new THREE.MeshStandardMaterial({ map: faceTex, roughness: 0.4 }), // top (face)
-      new THREE.MeshStandardMaterial({ color: 0xc8bca8, roughness: 0.7 }), // bottom
-      new THREE.MeshStandardMaterial({ color: 0xe0d4bc, roughness: 0.6 }), // front
-      new THREE.MeshStandardMaterial({ color: 0xe0d4bc, roughness: 0.6 }), // back
+      sideMat,     // right
+      sideMat,     // left
+      faceMat,     // top (face)
+      bottomMat,   // bottom
+      frontMat,    // front (visible edge)
+      sideMat,     // back
     ];
 
     const body = new THREE.Mesh(bodyGeo, materials);
@@ -1535,16 +1627,17 @@ class Renderer {
     body.receiveShadow = true;
     group.add(body);
 
-    // Slight bevel effect using edge highlight
-    const edgeGeo = new THREE.BoxGeometry(W + 0.01, D + 0.01, H + 0.01);
-    const edgeMat = new THREE.MeshStandardMaterial({
-      color: 0xe0d8c8,
-      roughness: 0.5,
+    // Top edge bevel highlight — subtle white rim
+    const bevelGeo = new THREE.BoxGeometry(W - 0.02, 0.005, H - 0.02);
+    const bevelMat = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      roughness: 0.3,
       transparent: true,
-      opacity: 0.3,
+      opacity: 0.15,
     });
-    const edge = new THREE.Mesh(edgeGeo, edgeMat);
-    group.add(edge);
+    const bevel = new THREE.Mesh(bevelGeo, bevelMat);
+    bevel.position.y = D / 2 + 0.002;
+    group.add(bevel);
 
     group.userData = { tile, faceDown };
     return group;
@@ -1564,66 +1657,127 @@ class Renderer {
     this.tileMeshes = [];
   }
 
-  // Render 3D discards in center of table
+  clearWalls() {
+    for (const m of this.wallMeshes) {
+      this.scene.remove(m);
+    }
+    this.wallMeshes = [];
+  }
+
+  createWalls(wallTiles) {
+    this.clearWalls();
+    const W = 0.38, H = 0.52, D = 0.28;
+    const tilesPerSide = 17;
+    const layers = 2;
+    let tileIdx = 0;
+
+    // Wall sides: North(z=-4), East(x=4), South(z=4), West(x=-4)
+    const sides = [
+      { dir: 'north', baseX: 0, baseZ: -4, along: 'x', rot: 0 },
+      { dir: 'east',  baseX: 4, baseZ: 0,  along: 'z', rot: Math.PI / 2 },
+      { dir: 'south', baseX: 0, baseZ: 4,  along: 'x', rot: Math.PI },
+      { dir: 'west',  baseX: -4, baseZ: 0, along: 'z', rot: -Math.PI / 2 },
+    ];
+
+    for (const side of sides) {
+      for (let layer = 0; layer < layers; layer++) {
+        for (let i = 0; i < tilesPerSide; i++) {
+          if (tileIdx >= wallTiles.length) break;
+          const mesh = this.create3DTile(wallTiles[tileIdx], true);
+          tileIdx++;
+
+          const offset = (i - tilesPerSide / 2 + 0.5) * (W + 0.02);
+          const yPos = 0.02 + D / 2 + layer * (D + 0.01);
+
+          if (side.along === 'x') {
+            mesh.position.set(side.baseX + offset, yPos, side.baseZ);
+          } else {
+            mesh.position.set(side.baseX, yPos, side.baseZ + offset);
+          }
+          mesh.rotation.y = side.rot;
+
+          // Tilt tiles face-down (rotate around x so top faces away from center)
+          mesh.rotation.x = Math.PI;
+
+          mesh.scale.set(0.85, 0.85, 0.85);
+          this.scene.add(mesh);
+          this.wallMeshes.push(mesh);
+        }
+      }
+    }
+  }
+
+  // Render 3D discards in center of table — per player, surrounding wind indicators
   renderDiscards(allDiscards) {
     this.clearDiscards();
 
-    let totalCount = 0;
-    for (const discards of allDiscards) totalCount += discards.length;
+    // Player discard zones: each player's discards go on their side
+    // Player 0=East, 1=South(you), 2=West, 3=North
+    const zones = [
+      { baseX: 1.4, baseZ: 0, cols: 6, along: 'z', rotY: 0 },      // East discards
+      { baseX: 0, baseZ: 1.4, cols: 6, along: 'x', rotY: 0 },      // South discards
+      { baseX: -1.4, baseZ: 0, cols: 6, along: 'z', rotY: 0 },     // West discards
+      { baseX: 0, baseZ: -1.4, cols: 6, along: 'x', rotY: 0 },     // North discards
+    ];
 
-    const allFlat = [];
-    for (const discards of allDiscards) {
-      for (const tile of discards) allFlat.push(tile);
-    }
+    for (let p = 0; p < 4; p++) {
+      const discards = allDiscards[p] || [];
+      const zone = zones[p];
+      const spacing = 0.42;
+      const rowSpacing = 0.56;
 
-    const cols = 8;
-    const spacing = 0.44;
-    const zSpacing = 0.58;
+      for (let i = 0; i < discards.length; i++) {
+        const col = i % zone.cols;
+        const row = Math.floor(i / zone.cols);
+        const offset = (col - zone.cols / 2 + 0.5) * spacing;
+        const rowOff = row * rowSpacing;
 
-    for (let i = 0; i < allFlat.length; i++) {
-      const col = i % cols;
-      const row = Math.floor(i / cols);
-      const x = (col - cols / 2 + 0.5) * spacing;
-      const z = (row - 1) * zSpacing;
-
-      const mesh = this.create3DTile(allFlat[i], false);
-      mesh.position.set(x, 0.11, z);
-      // Slight random rotation for natural look
-      mesh.rotation.y = (Math.random() - 0.5) * 0.06;
-      mesh.scale.set(0.8, 0.8, 0.8);
-      this.scene.add(mesh);
-      this.discardMeshes.push(mesh);
+        const mesh = this.create3DTile(discards[i], false);
+        let x, z;
+        if (zone.along === 'x') {
+          x = zone.baseX + offset;
+          z = zone.baseZ > 0 ? zone.baseZ + rowOff : zone.baseZ - rowOff;
+        } else {
+          x = zone.baseX > 0 ? zone.baseX + rowOff : zone.baseX - rowOff;
+          z = zone.baseZ + offset;
+        }
+        mesh.position.set(x, 0.15, z);
+        mesh.rotation.y = (Math.random() - 0.5) * 0.04;
+        mesh.scale.set(0.7, 0.7, 0.7);
+        this.scene.add(mesh);
+        this.discardMeshes.push(mesh);
+      }
     }
   }
 
   // Render opponent tiles as face-down 3D tiles
   renderOpponentTiles(playerIndex, tileCount) {
-    // Positions for opponents around the table
+    // Face-down tile rows on each side of the table (inside the walls)
+    // Tiles stand upright with backs facing the camera/center
     const positions = {
-      0: { x: 4.5, z: 0, rotY: Math.PI / 2 },     // East (right)
-      2: { x: -4.5, z: 0, rotY: -Math.PI / 2 },    // West (left)
-      3: { x: 0, z: -3.5, rotY: Math.PI },           // North (top)
+      0: { x: 3.0, z: 0, along: 'z', rotY: -Math.PI / 2 },    // East
+      2: { x: -3.0, z: 0, along: 'z', rotY: Math.PI / 2 },     // West
+      3: { x: 0, z: -2.8, along: 'x', rotY: Math.PI },          // North
     };
 
     const pos = positions[playerIndex];
     if (!pos) return;
 
-    const spacing = 0.42;
+    const spacing = 0.40;
     const count = Math.min(tileCount, 14);
 
     for (let i = 0; i < count; i++) {
       const mesh = this.create3DTile({}, true);
       const offset = (i - count / 2 + 0.5) * spacing;
 
-      if (playerIndex === 3) {
-        mesh.position.set(offset, 0.11, pos.z);
-        mesh.rotation.y = pos.rotY;
+      if (pos.along === 'x') {
+        mesh.position.set(pos.x + offset, 0.15, pos.z);
       } else {
-        mesh.position.set(pos.x, 0.11, offset);
-        mesh.rotation.y = pos.rotY;
+        mesh.position.set(pos.x, 0.15, pos.z + offset);
       }
+      mesh.rotation.y = pos.rotY;
 
-      mesh.scale.set(0.75, 0.75, 0.75);
+      mesh.scale.set(0.85, 0.85, 0.85);
       this.scene.add(mesh);
       this.tileMeshes.push(mesh);
     }
@@ -1700,6 +1854,9 @@ class GameController {
     this.renderer.clearTiles();
     this.renderer.clearDiscards();
 
+    // Render wall tiles (stacked around the playing area)
+    this.renderer.createWalls(this.gs.wall);
+
     // Render discards in center
     const allDiscards = this.gs.players.map(p => p.discards);
     this.renderer.renderDiscards(allDiscards);
@@ -1736,7 +1893,7 @@ class GameController {
         </div>`;
       } else {
         face.innerHTML = `<div class="tile-content">
-          <span style="font-size:28px;font-family:'Ma Shan Zheng',serif;color:${label.color}">${label.top}</span>
+          <span style="font-size:36px;font-family:'Ma Shan Zheng',serif;color:${label.color}">${label.top}</span>
         </div>`;
       }
 
@@ -1821,6 +1978,11 @@ class GameController {
   updateWallInfo() {
     document.getElementById('tiles-left').textContent = this.gs.wall.length;
     document.getElementById('dealer-wind').textContent = WIND_CHARS[WINDS[this.gs.dealerSeat]];
+    const wind = this.gs.roundWind ? this.gs.roundWind.toUpperCase() : 'EAST';
+    const subtitle = document.getElementById('header-subtitle');
+    if (subtitle) {
+      subtitle.textContent = `ROUND: 1/4 | ${wind} WINDS | TILES LEFT: ${this.gs.wall.length}`;
+    }
   }
 
   updateTurnIndicator() {
