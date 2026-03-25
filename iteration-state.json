@@ -1,9 +1,28 @@
 {
-  "iteration": 0,
+  "iteration": 3,
   "maxIterations": 15,
   "startedAt": "2026-03-25T08:05:00-05:00",
-  "lastCompleted": null,
-  "changes": [],
+  "lastCompleted": "2026-03-25T08:57:00-05:00",
+  "changes": [
+    {
+      "iteration": 1,
+      "delta": "B",
+      "description": "Wood panel background: replaced flat beige gradient with warm honey-brown SVG wood grain texture (#8B6914, #A0822A, #7A5A10). Three layers of grain lines. Darker vignette overlay.",
+      "commit": "74041ad"
+    },
+    {
+      "iteration": 2,
+      "delta": "C",
+      "description": "Chunkier tile walls: tiles 20% bigger (W0.60 H0.78 D0.55), tighter spacing (0.015 gap), walls closer to center (±3.6), warmer beige/tan backs (#e0d4b0 gradient), brighter cream/ivory sides (0xe0d8bc), darker edge lines (0x6a5a4a, 0.8 opacity).",
+      "commit": "207e37c"
+    },
+    {
+      "iteration": 3,
+      "delta": "D",
+      "description": "Bigger hand tiles: 64x84→82x108px, face font 36→46px, char-top 27→34px, char-bottom 22→28px. Hand tray padding/gap adjusted. Tiles now dominate bottom screen with large readable calligraphy.",
+      "commit": "3efd5ec"
+    }
+  ],
   "status": "running",
   "notes": "Round 2 — fixing specific deltas from mockup comparison. Parchment aesthetic ONLY."
 }
