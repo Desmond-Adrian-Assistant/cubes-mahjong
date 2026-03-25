@@ -3146,7 +3146,9 @@ class Renderer {
           const wallLen = side.offsetEnd - side.offsetStart;
           const tileSpacing = wallLen / tilesPerSide;
           const offset = side.offsetStart + (i + 0.5) * tileSpacing;
-          const yPos = 0.02 + D / 2 + layer * (D + 0.02);
+          // After Math.PI flip, tile body (at internal y=D) gets inverted
+          // Need to offset so bottom of flipped tile sits on the table/previous layer
+          const yPos = 0.02 + D + layer * (D + 0.04);
 
           if (side.along === 'x') {
             mesh.position.set(side.baseX + offset, yPos, side.baseZ);

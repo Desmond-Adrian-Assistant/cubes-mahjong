@@ -1,8 +1,8 @@
 {
-  "iteration": 10,
+  "iteration": 11,
   "maxIterations": 20,
   "startedAt": "2026-03-25T16:15:00-05:00",
-  "lastCompleted": "2026-03-25T17:44:00-05:00",
+  "lastCompleted": "2026-03-25T17:55:00-05:00",
   "changes": [
     {
       "iteration": 1,
@@ -53,8 +53,13 @@
       "iteration": 10,
       "fix": "Face-up tile sides 0x5a3a18→0x9C8468 (warm medium tan). Hand and discard tiles no longer have harsh near-black borders.",
       "result": "All tiles now have consistent warm tan/brown sides — face-up tiles match the refined Paper & Ink aesthetic. Two-tone contrast is still clear (white face vs tan sides) but softer and more elegant."
+    },
+    {
+      "iteration": 11,
+      "fix": "Tile side colors darkened for stronger two-tone: faceDown 0xC8B8A0→0xA08860, faceUp 0xC0AC90→0x9C8060 (warm medium brown vs white/ivory faces)",
+      "result": "Tile two-tone contrast is more pronounced — sides are clearly darker warm brown against bright face tops. Closer to mockup's classic mahjong tile look."
     }
   ],
   "status": "running",
-  "notes": "Round 10 — Face-up tile sides now warm tan matching overall aesthetic. Next priorities: (1) check if discard tiles in center are readable at camera distance, (2) overall lighting/shadow refinement, (3) wall tile density/visibility from isometric view."
+  "notes": "Round 11 — Tile side colors darkened for stronger two-tone contrast. Next priorities: (1) verify discard tile readability at camera distance, (2) lighting/shadow refinement, (3) compare wall tile density against mockup."
 }
