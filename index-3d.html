@@ -1,0 +1,2556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paper & Ink Mahjong 🀄</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+  height: 100%; width: 100%;
+  background: linear-gradient(170deg, #f5e6c8 0%, #ede0cc 30%, #e8d5b0 70%, #ddc8a0 100%);
+  font-family: 'ZCOOL XiaoWei', 'Ma Shan Zheng', serif;
+  color: #3a3028;
+  overflow: hidden;
+  user-select: none;
+}
+
+canvas#game-canvas {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  z-index: 0;
+}
+
+/* ========== UI OVERLAY ========== */
+#ui-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none; z-index: 10;
+}
+#ui-overlay > * { pointer-events: auto; }
+
+/* ========== TOP BAR ========== */
+.top-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 16px;
+}
+.round-pill {
+  font-size: 15px; font-weight: 400;
+  font-family: 'Ma Shan Zheng', serif;
+  background: rgba(245,240,232,0.92);
+  color: #5a4a3a;
+  border: 1px solid rgba(160,140,110,0.3);
+  border-radius: 20px;
+  padding: 8px 20px;
+  box-shadow: 0 2px 8px rgba(80,60,30,0.08);
+  backdrop-filter: blur(10px);
+}
+.round-pill .wind { color: #b33a2a; font-weight: 400; }
+.top-btns { display: flex; gap: 8px; }
+.menu-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(245,240,232,0.92);
+  border: 1px solid rgba(160,140,110,0.3);
+  color: #5a4a3a; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 8px rgba(80,60,30,0.08);
+  backdrop-filter: blur(10px);
+  transition: transform 0.2s;
+  font-family: 'Ma Shan Zheng', serif;
+}
+.menu-btn:active { transform: scale(0.95); }
+
+/* ========== PLAYER BUBBLES ========== */
+.player-bubble {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 30;
+}
+.bubble-avatar {
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 2px solid rgba(180,160,130,0.5);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  box-shadow: 0 3px 12px rgba(80,60,30,0.12);
+  transition: all 0.3s;
+  flex-shrink: 0;
+  background: rgba(245,240,232,0.9);
+}
+.bubble-info {
+  background: rgba(245,240,232,0.95);
+  border-radius: 12px;
+  padding: 6px 12px;
+  box-shadow: 0 2px 8px rgba(80,60,30,0.08);
+  line-height: 1.3;
+  white-space: nowrap;
+  border: 1px solid rgba(160,140,110,0.2);
+}
+.bubble-info .name {
+  font-size: 13px; color: #4a3a28;
+  font-family: 'Ma Shan Zheng', serif;
+}
+.bubble-info .score { font-size: 11px; color: #8a7a6a; }
+.bubble-info .wind-seat {
+  font-size: 11px; color: #b33a2a;
+  display: inline-block; margin-left: 4px;
+  font-family: 'Ma Shan Zheng', serif;
+}
+.player-bubble.active .bubble-avatar {
+  border-color: #b33a2a;
+  box-shadow: 0 3px 12px rgba(179,58,42,0.3), 0 0 0 4px rgba(179,58,42,0.15);
+  animation: pulse 1.8s ease infinite;
+}
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 3px 12px rgba(179,58,42,0.3), 0 0 0 4px rgba(179,58,42,0.15); }
+  50% { box-shadow: 0 3px 12px rgba(179,58,42,0.3), 0 0 0 8px rgba(179,58,42,0.08); }
+}
+
+#p-north { top: 12px; left: 50%; transform: translateX(-50%); flex-direction: column; align-items: center; gap: 2px; }
+#p-west { top: 45%; left: 12px; transform: translateY(-50%); }
+#p-east { top: 45%; right: 12px; transform: translateY(-50%); flex-direction: row-reverse; }
+#p-south { display: none; }
+
+/* ========== PLAYER HAND (2D overlay at bottom) ========== */
+.hand-tray {
+  position: fixed;
+  bottom: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(245,240,232,0.85);
+  backdrop-filter: blur(16px);
+  border-radius: 16px;
+  padding: 8px 14px;
+  display: flex;
+  justify-content: center;
+  gap: 3px;
+  box-shadow: 0 -2px 20px rgba(80,60,30,0.1), inset 0 1px 0 rgba(255,255,255,0.5);
+  border: 1px solid rgba(180,160,130,0.3);
+  z-index: 25;
+  max-width: 96%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.hand-tray::-webkit-scrollbar { height: 4px; }
+.hand-tray::-webkit-scrollbar-thumb { background: rgba(160,140,110,0.3); border-radius: 2px; }
+
+/* Tile in hand */
+.tile {
+  width: 42px; height: 56px; position: relative;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(.34,1.56,.64,1), box-shadow 0.2s;
+  transform-origin: bottom center;
+  flex-shrink: 0;
+}
+.tile-body {
+  width: 100%; height: 100%;
+  border-radius: 6px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+  background: linear-gradient(160deg, #fafaf5 0%, #f5f0e6 60%, #ede8dc 100%);
+  border: 1px solid rgba(160,140,110,0.4);
+  box-shadow:
+    0 2px 4px rgba(80,60,30,0.12),
+    0 4px 10px rgba(80,60,30,0.08),
+    0 1px 0 rgba(80,60,30,0.04),
+    inset 0 1px 0 rgba(255,255,255,0.9),
+    inset 0 -1px 2px rgba(160,140,110,0.1);
+}
+.tile .face {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; height: 100%;
+  padding: 3px;
+  font-size: 26px;
+  line-height: 1;
+}
+.tile .face .char-top {
+  font-size: 18px;
+  font-family: 'Ma Shan Zheng', serif;
+  color: #2a2018;
+  line-height: 1;
+}
+.tile .face .char-bottom {
+  font-size: 16px;
+  font-family: 'Ma Shan Zheng', serif;
+  color: #b33a2a;
+  line-height: 1;
+}
+.tile .face .tile-content {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 0;
+  width: 100%; height: 100%;
+}
+
+.tile:hover {
+  transform: translateY(-6px);
+}
+.tile:hover .tile-body {
+  box-shadow:
+    0 4px 12px rgba(200,170,80,0.25),
+    0 6px 16px rgba(80,60,30,0.1),
+    inset 0 1px 0 rgba(255,255,255,0.8);
+  border-color: rgba(200,170,80,0.5);
+}
+.tile.selected { transform: translateY(-14px) scale(1.05); }
+.tile.selected .tile-body {
+  border-color: #c8a040;
+  box-shadow:
+    0 8px 24px rgba(200,160,64,0.3),
+    0 0 0 2px rgba(200,160,64,0.4),
+    0 0 20px rgba(200,170,80,0.15);
+}
+.tile.drawn { margin-left: 14px !important; }
+.tile.drawn::after {
+  content: ''; position: absolute; top: -3px; left: -3px; right: -3px; bottom: -3px;
+  border: 2px dashed rgba(200,160,64,0.4);
+  border-radius: 8px;
+  pointer-events: none;
+  animation: drawnPulse 2s ease infinite;
+}
+@keyframes drawnPulse {
+  0%, 100% { border-color: rgba(200,160,64,0.4); }
+  50% { border-color: rgba(200,160,64,0.15); }
+}
+
+/* ========== PLAYER LABEL ========== */
+.player-label {
+  position: fixed;
+  bottom: 136px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 26;
+}
+.player-label .avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  background: rgba(245,240,232,0.9);
+  border: 1px solid rgba(180,160,130,0.4);
+  box-shadow: 0 2px 8px rgba(80,60,30,0.1);
+}
+.player-label .info {
+  background: rgba(245,240,232,0.92);
+  border-radius: 10px;
+  padding: 4px 12px;
+  border: 1px solid rgba(160,140,110,0.2);
+}
+.player-label .name {
+  font-size: 13px; color: #4a3a28;
+  font-family: 'Ma Shan Zheng', serif;
+}
+.player-label .score { font-size: 11px; color: #8a7a6a; margin-left: 6px; }
+
+/* ========== ACTION BUTTONS ========== */
+.action-bar {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  z-index: 40;
+}
+.action-btn {
+  border: none;
+  border-radius: 20px;
+  padding: 10px 22px;
+  font-size: 14px;
+  font-family: 'Ma Shan Zheng', serif;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 3px 10px rgba(80,60,30,0.15);
+  display: none;
+  min-width: 72px;
+  text-align: center;
+  letter-spacing: 1px;
+}
+.action-btn.visible { display: block; }
+.action-btn:active { transform: scale(0.95); }
+
+.action-btn.chi { background: linear-gradient(135deg, #5a8a6a, #4a7a5a); color: #fffff8; }
+.action-btn.pong { background: linear-gradient(135deg, #8a6a4a, #7a5a3a); color: #fffff8; }
+.action-btn.kong { background: linear-gradient(135deg, #5a5a6a, #4a4a5a); color: #fffff8; }
+.action-btn.mahjong { background: linear-gradient(135deg, #c94030, #a83020); color: #fffff8; box-shadow: 0 3px 14px rgba(179,58,42,0.3); }
+.action-btn.skip { background: linear-gradient(135deg, #b0a898, #9a9080); color: #fffff8; }
+.action-btn.discard { background: linear-gradient(135deg, #c94030, #a83020); color: #fffff8; box-shadow: 0 3px 14px rgba(179,58,42,0.3); }
+.action-btn.sort { background: rgba(245,240,232,0.95); color: #5a4a3a; border: 1px solid rgba(160,140,110,0.3); }
+
+/* ========== CLAIM PANEL ========== */
+.claim-panel {
+  position: fixed;
+  bottom: 140px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(245,240,232,0.97);
+  backdrop-filter: blur(16px);
+  border-radius: 16px;
+  padding: 16px 20px;
+  box-shadow: 0 8px 32px rgba(80,60,30,0.15);
+  border: 1px solid rgba(160,140,110,0.3);
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 50;
+  max-width: 90%;
+}
+.claim-panel.visible { display: flex; }
+.claim-panel-title {
+  font-size: 15px; color: #5a4a3a;
+  text-align: center; margin-bottom: 4px;
+  font-family: 'Ma Shan Zheng', serif;
+}
+.claim-option {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(230,222,210,0.6);
+  border-radius: 12px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 2px solid transparent;
+}
+.claim-option:hover {
+  background: rgba(220,210,195,0.8);
+  border-color: #b33a2a;
+}
+.claim-option .tiles-preview { display: flex; gap: 3px; }
+.claim-option .preview-tile {
+  width: 28px; height: 38px;
+  border-radius: 4px;
+  background: linear-gradient(160deg, #fffff8 0%, #f8f4ec 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  border: 1px solid rgba(160,140,110,0.3);
+  box-shadow: 0 1px 3px rgba(80,60,30,0.1);
+}
+.claim-option .preview-tile.claimed {
+  border-color: #b33a2a;
+  box-shadow: 0 0 0 1px #b33a2a;
+}
+.claim-option .action-label {
+  font-size: 14px; color: #5a4a3a;
+  font-family: 'Ma Shan Zheng', serif;
+}
+
+/* ========== TURN INDICATOR ========== */
+.turn-indicator {
+  position: fixed;
+  bottom: 138px;
+  right: 16px;
+  font-size: 13px;
+  font-family: 'Ma Shan Zheng', serif;
+  color: #fffff8;
+  background: #5a4a3a;
+  border-radius: 14px;
+  padding: 5px 14px;
+  box-shadow: 0 3px 10px rgba(80,60,30,0.2);
+  white-space: nowrap;
+  z-index: 35;
+  transition: all 0.4s;
+}
+.turn-indicator.your-turn {
+  background: #b33a2a;
+  animation: turnPulse 2s ease infinite;
+}
+@keyframes turnPulse { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+
+/* ========== TOAST ========== */
+.toast {
+  position: fixed; top: 38%; left: 50%; transform: translate(-50%, -50%) scale(0.8);
+  background: rgba(245,240,232,0.97);
+  backdrop-filter: blur(16px);
+  border-radius: 16px;
+  padding: 16px 32px;
+  font-size: 22px; color: #4a3a28;
+  font-family: 'Ma Shan Zheng', serif;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(.34,1.56,.64,1);
+  pointer-events: none;
+  z-index: 100;
+  box-shadow: 0 8px 32px rgba(80,60,30,0.2);
+  border: 1px solid rgba(160,140,110,0.3);
+  text-align: center;
+}
+.toast.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+.ai-toast {
+  position: fixed; top: 30%; left: 50%; transform: translate(-50%, -50%) scale(0);
+  background: rgba(245,240,232,0.95);
+  backdrop-filter: blur(16px);
+  border-radius: 14px;
+  padding: 12px 24px;
+  font-size: 17px; color: #5a4a3a;
+  font-family: 'Ma Shan Zheng', serif;
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(.34,1.56,.64,1);
+  pointer-events: none;
+  z-index: 99;
+  box-shadow: 0 8px 24px rgba(80,60,30,0.12);
+  border: 1px solid rgba(160,140,110,0.2);
+  white-space: nowrap;
+}
+.ai-toast.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+/* ========== DISCARD OVERLAY ========== */
+.discard-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(40,32,24,0.7);
+  backdrop-filter: blur(6px);
+  display: none;
+  align-items: center; justify-content: center;
+  z-index: 150;
+}
+.discard-overlay.show { display: flex; }
+.discard-modal {
+  background: rgba(248,244,236,0.98);
+  border-radius: 20px;
+  padding: 24px;
+  max-width: 90vw;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 16px 48px rgba(40,30,20,0.3);
+  border: 1px solid rgba(160,140,110,0.3);
+  min-width: 320px;
+}
+.discard-modal h3 {
+  font-family: 'Ma Shan Zheng', serif;
+  font-size: 22px; color: #4a3a28;
+  text-align: center; margin-bottom: 16px;
+  font-weight: 400;
+}
+.discard-section {
+  margin-bottom: 12px;
+}
+.discard-section-title {
+  font-family: 'Ma Shan Zheng', serif;
+  font-size: 16px; color: #8a7a6a;
+  margin-bottom: 6px;
+  padding-left: 4px;
+}
+.discard-grid {
+  display: flex; flex-wrap: wrap; gap: 4px;
+}
+.discard-grid .dtile {
+  width: 36px; height: 48px;
+  border-radius: 4px;
+  background: linear-gradient(160deg, #fffff8 0%, #f8f4ec 100%);
+  border: 1px solid rgba(160,140,110,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 1px 3px rgba(80,60,30,0.1);
+}
+.discard-close-bar {
+  display: flex; gap: 8px; justify-content: center; margin-top: 16px;
+}
+.discard-close-bar button {
+  font-family: 'Ma Shan Zheng', serif;
+  font-size: 15px;
+  padding: 8px 22px;
+  border-radius: 14px;
+  border: 1px solid rgba(160,140,110,0.3);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.discard-close-bar .close-btn {
+  background: #5a4a3a; color: #fffff8; border: none;
+}
+.discard-close-bar .sort-btn {
+  background: rgba(245,240,232,0.95); color: #5a4a3a;
+}
+
+/* ========== MELDS ========== */
+.melds-area {
+  position: fixed; display: flex; gap: 6px; flex-wrap: wrap; z-index: 12;
+}
+.melds-area.bottom { bottom: 142px; left: 16px; max-width: 45%; }
+.melds-area.top { top: 70px; right: 16px; max-width: 40%; flex-direction: row-reverse; }
+.melds-area.left { left: 70px; top: calc(45% + 60px); flex-direction: column; }
+.melds-area.right { right: 70px; top: calc(45% + 60px); flex-direction: column; }
+
+.meld-group {
+  display: flex; gap: 2px;
+  background: rgba(245,240,232,0.7);
+  border-radius: 6px;
+  padding: 3px;
+  border: 1px solid rgba(160,140,110,0.2);
+}
+.meld-group.concealed { background: rgba(200,190,175,0.3); }
+.meld-tile {
+  width: 22px; height: 30px;
+  border-radius: 4px;
+  background: linear-gradient(160deg, #fffff8 0%, #f8f4ec 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  border: 1px solid rgba(160,140,110,0.25);
+  box-shadow: 0 1px 2px rgba(80,60,30,0.06);
+}
+.meld-tile.facedown {
+  background: linear-gradient(160deg, #d8d0c4 0%, #c8c0b4 100%);
+}
+
+/* ========== WALL INFO (center table) ========== */
+.wall-info {
+  position: fixed; top: 46%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(248,244,236,0.92);
+  border: 2px solid rgba(120,100,70,0.2);
+  border-radius: 50%;
+  width: 68px; height: 68px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  box-shadow:
+    0 4px 16px rgba(80,60,30,0.12),
+    0 0 0 6px rgba(120,100,70,0.06),
+    0 0 0 12px rgba(120,100,70,0.03);
+  z-index: 5;
+}
+.wall-info .dealer {
+  font-size: 22px; color: #b33a2a;
+  font-family: 'Ma Shan Zheng', serif;
+}
+.wall-info .tiles-left { font-size: 10px; color: #8a7a6a; }
+
+/* ========== MODAL ========== */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(40,32,24,0.5);
+  backdrop-filter: blur(8px);
+  display: none; align-items: center; justify-content: center;
+  z-index: 200;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: rgba(248,244,236,0.98);
+  border-radius: 20px;
+  padding: 28px 36px;
+  box-shadow: 0 16px 48px rgba(40,30,20,0.25);
+  text-align: center;
+  max-width: 90%;
+  min-width: 300px;
+  border: 1px solid rgba(160,140,110,0.3);
+}
+.modal h2 {
+  font-size: 28px; color: #4a3a28; margin-bottom: 14px;
+  font-family: 'Ma Shan Zheng', serif; font-weight: 400;
+}
+.modal p { font-size: 15px; color: #8a7a6a; margin-bottom: 18px; }
+.modal-btn {
+  background: #b33a2a;
+  border: none;
+  border-radius: 16px;
+  padding: 12px 32px;
+  font-size: 17px;
+  font-family: 'Ma Shan Zheng', serif;
+  color: #fffff8;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(179,58,42,0.3);
+  transition: all 0.2s;
+}
+.modal-btn:active { transform: scale(0.95); }
+
+.score-table { margin: 18px 0; text-align: left; }
+.score-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin: 6px 0;
+  background: rgba(230,222,210,0.5);
+}
+.score-row.winner { background: rgba(179,58,42,0.1); }
+.score-row .player-name { font-size: 14px; color: #4a3a28; font-family: 'Ma Shan Zheng', serif; }
+.score-row .player-score { font-size: 14px; color: #4a3a28; }
+
+/* ========== OPPONENT HAND COUNTS ========== */
+.opp-hand-count {
+  font-size: 11px;
+  color: #8a7a6a;
+  margin-top: 2px;
+  text-align: center;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 600px) {
+  .tile { width: 34px; height: 46px; }
+  .tile .face { font-size: 20px; }
+  .hand-tray { bottom: 60px; padding: 6px 10px; }
+  .player-label { bottom: 116px; }
+  .action-bar { bottom: 12px; }
+  .melds-area.bottom { bottom: 120px; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="game-canvas"></canvas>
+
+<div id="ui-overlay">
+  <div class="top-bar">
+    <div class="round-pill">🀄 <span class="wind" id="round-wind">東風 Round 1</span></div>
+    <div class="top-btns">
+      <button class="menu-btn" id="btn-discards" title="View Discards">棄</button>
+      <button class="menu-btn" id="btn-sort-hand" title="Sort Hand">排</button>
+    </div>
+  </div>
+
+  <!-- Player bubbles -->
+  <div id="p-north" class="player-bubble">
+    <div class="bubble-avatar">🐱</div>
+    <div class="bubble-info">
+      <span class="name">Mochi</span><span class="wind-seat" id="seat-north">N</span><br>
+      <span class="score" id="score-north">25,000</span>
+    </div>
+    <div class="opp-hand-count" id="count-north">13</div>
+  </div>
+  <div id="p-west" class="player-bubble">
+    <div class="bubble-avatar">🦊</div>
+    <div class="bubble-info">
+      <span class="name">Kitsune</span><span class="wind-seat" id="seat-west">W</span><br>
+      <span class="score" id="score-west">25,000</span>
+    </div>
+    <div class="opp-hand-count" id="count-west">13</div>
+  </div>
+  <div id="p-east" class="player-bubble">
+    <div class="bubble-avatar">🐰</div>
+    <div class="bubble-info">
+      <span class="name">Usagi</span><span class="wind-seat" id="seat-east">E</span><br>
+      <span class="score" id="score-east">25,000</span>
+    </div>
+    <div class="opp-hand-count" id="count-east">13</div>
+  </div>
+  <div id="p-south" class="player-bubble">
+    <div class="bubble-avatar">🐼</div>
+    <div class="bubble-info">
+      <span class="name">You</span><span class="wind-seat" id="seat-south">S</span><br>
+      <span class="score" id="score-south">25,000</span>
+    </div>
+  </div>
+
+  <!-- Melds -->
+  <div id="melds-south" class="melds-area bottom"></div>
+  <div id="melds-north" class="melds-area top"></div>
+  <div id="melds-west" class="melds-area left"></div>
+  <div id="melds-east" class="melds-area right"></div>
+
+  <!-- Wall info -->
+  <div class="wall-info">
+    <span class="dealer" id="dealer-wind">東</span>
+    <span class="tiles-left" id="tiles-left">136</span>
+  </div>
+
+  <!-- Turn indicator -->
+  <div class="turn-indicator" id="turn-indicator">Your Turn</div>
+
+  <!-- Player label -->
+  <div class="player-label">
+    <div class="avatar">🐼</div>
+    <div class="info">
+      <span class="name">You</span>
+      <span class="score" id="player-score-display">25,000</span>
+    </div>
+  </div>
+
+  <!-- Player hand tray -->
+  <div class="hand-tray" id="hand-tray"></div>
+
+  <!-- Action buttons -->
+  <div class="action-bar" id="action-bar">
+    <button class="action-btn skip" id="btn-skip">Skip</button>
+    <button class="action-btn chi" id="btn-chi">Chi</button>
+    <button class="action-btn pong" id="btn-pong">Pong</button>
+    <button class="action-btn kong" id="btn-kong">Kong</button>
+    <button class="action-btn mahjong" id="btn-mahjong">Hu!</button>
+    <button class="action-btn discard" id="btn-discard">Discard</button>
+  </div>
+
+  <!-- Claim panel -->
+  <div class="claim-panel" id="claim-panel">
+    <div class="claim-panel-title" id="claim-panel-title">Choose action</div>
+    <div id="claim-options"></div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+  <div class="ai-toast" id="ai-toast"></div>
+</div>
+
+<!-- Discard overlay -->
+<div class="discard-overlay" id="discard-overlay">
+  <div class="discard-modal">
+    <h3 id="discard-overlay-title">All Discards</h3>
+    <div id="discard-overlay-content"></div>
+    <div class="discard-close-bar">
+      <button class="sort-btn" id="discard-sort-btn">Sort by Suit</button>
+      <button class="close-btn" id="discard-close-btn">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay show" id="modal">
+  <div class="modal">
+    <h2 id="modal-title">紙墨麻雀</h2>
+    <p id="modal-text">Paper & Ink Mahjong — Ready to play?</p>
+    <div id="modal-content"></div>
+    <button class="modal-btn" id="modal-btn">Play</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// PAPER & INK MAHJONG — Three.js 3D + HK Rules
+// ============================================================
+
+// ==================== TILE UNICODE MAP ====================
+const TILE_UNICODE = {
+  'bamboo-1': '🀐', 'bamboo-2': '🀑', 'bamboo-3': '🀒', 'bamboo-4': '🀓',
+  'bamboo-5': '🀔', 'bamboo-6': '🀕', 'bamboo-7': '🀖', 'bamboo-8': '🀗', 'bamboo-9': '🀘',
+  'dots-1': '🀙', 'dots-2': '🀚', 'dots-3': '🀛', 'dots-4': '🀜',
+  'dots-5': '🀝', 'dots-6': '🀞', 'dots-7': '🀟', 'dots-8': '🀠', 'dots-9': '🀡',
+  'characters-1': '🀇', 'characters-2': '🀈', 'characters-3': '🀉', 'characters-4': '🀊',
+  'characters-5': '🀋', 'characters-6': '🀌', 'characters-7': '🀍', 'characters-8': '🀎', 'characters-9': '🀏',
+  'winds-East': '🀀', 'winds-South': '🀁', 'winds-West': '🀂', 'winds-North': '🀃',
+  'dragons-Red': '🀄', 'dragons-Green': '🀅', 'dragons-White': '🀆',
+};
+
+// Ink-style text labels for tiles (used on canvas textures)
+const TILE_LABELS = {};
+for (let i = 1; i <= 9; i++) {
+  TILE_LABELS[`bamboo-${i}`] = { top: ['一','二','三','四','五','六','七','八','九'][i-1], bottom: '竹', color: '#2a5a3a' };
+  TILE_LABELS[`dots-${i}`] = { top: ['一','二','三','四','五','六','七','八','九'][i-1], bottom: '筒', color: '#2a3a6a' };
+  TILE_LABELS[`characters-${i}`] = { top: ['一','二','三','四','五','六','七','八','九'][i-1], bottom: '萬', color: '#6a2a2a' };
+}
+TILE_LABELS['winds-East'] = { top: '東', bottom: '', color: '#2a2a2a' };
+TILE_LABELS['winds-South'] = { top: '南', bottom: '', color: '#2a2a2a' };
+TILE_LABELS['winds-West'] = { top: '西', bottom: '', color: '#2a2a2a' };
+TILE_LABELS['winds-North'] = { top: '北', bottom: '', color: '#2a2a2a' };
+TILE_LABELS['dragons-Red'] = { top: '中', bottom: '', color: '#b33a2a' };
+TILE_LABELS['dragons-Green'] = { top: '發', bottom: '', color: '#2a6a3a' };
+TILE_LABELS['dragons-White'] = { top: '白', bottom: '', color: '#6a6a7a' };
+
+function getTileKey(tile) {
+  if (tile.num !== undefined) return `${tile.suit}-${tile.num}`;
+  if (tile.wind) return `winds-${tile.wind}`;
+  if (tile.dragon) return `dragons-${tile.dragon}`;
+  if (tile.flower) return `flower-${tile.flower}`;
+  if (tile.season) return `season-${tile.season}`;
+  return 'unknown';
+}
+
+function getTileDisplay(tile) {
+  const key = getTileKey(tile);
+  return TILE_UNICODE[key] || '🀫';
+}
+
+function getTileLabel(tile) {
+  const key = getTileKey(tile);
+  if (TILE_LABELS[key]) return TILE_LABELS[key];
+  if (tile.flower) return { top: ['梅','蘭','菊','竹'][['Plum','Orchid','Chrysanthemum','Bamboo'].indexOf(tile.flower)] || '花', bottom: '', color: '#8a3a5a' };
+  if (tile.season) return { top: ['春','夏','秋','冬'][['Spring','Summer','Autumn','Winter'].indexOf(tile.season)] || '季', bottom: '', color: '#5a6a3a' };
+  return { top: '?', bottom: '', color: '#888' };
+}
+
+// ==================== GAME STATE CLASS ====================
+const WINDS = ['East', 'South', 'West', 'North'];
+const WIND_CHARS = { East: '東', South: '南', West: '西', North: '北' };
+const DRAGONS = ['Red', 'Green', 'White'];
+const FLOWERS = ['Plum', 'Orchid', 'Chrysanthemum', 'Bamboo'];
+const SEASONS = ['Spring', 'Summer', 'Autumn', 'Winter'];
+const PLAYER_NAMES = { 0: 'Usagi', 1: 'You', 2: 'Kitsune', 3: 'Mochi' };
+const PLAYER_EMOJIS = { 0: '🐰', 1: '🐼', 2: '🦊', 3: '🐱' };
+const SEAT_MAP = { 0: 'east', 1: 'south', 2: 'west', 3: 'north' };
+
+class GameState {
+  constructor() {
+    this.reset();
+  }
+
+  reset() {
+    this.wall = [];
+    this.deadWall = [];
+    this.players = [
+      { seat: 'east', hand: [], melds: [], flowers: [], discards: [], score: 25000, isAI: true },
+      { seat: 'south', hand: [], melds: [], flowers: [], discards: [], score: 25000, isAI: false },
+      { seat: 'west', hand: [], melds: [], flowers: [], discards: [], score: 25000, isAI: true },
+      { seat: 'north', hand: [], melds: [], flowers: [], discards: [], score: 25000, isAI: true }
+    ];
+    this.currentPlayer = 0;
+    this.dealerSeat = 0;
+    this.roundWind = 'East';
+    this.lastDiscard = null;
+    this.lastDiscardPlayer = -1;
+    this.drawnTile = null;
+    this.phase = 'waiting'; // waiting, discard, claiming, ended
+    this.claimWindow = false;
+    this.possibleClaims = [];
+    this.selectedTileIndex = -1;
+    this.claimTimeoutId = null;
+    this.justClaimed = false;
+    this.kongInProgress = false;
+    this.pendingKongTile = null;
+    this.winType = null;
+  }
+
+  createTileSet() {
+    const tiles = [];
+    let id = 0;
+    for (const suit of ['bamboo', 'dots', 'characters']) {
+      for (let num = 1; num <= 9; num++) {
+        for (let i = 0; i < 4; i++) {
+          tiles.push({ id: id++, suit, num, type: 'suited' });
+        }
+      }
+    }
+    for (const wind of WINDS) {
+      for (let i = 0; i < 4; i++) {
+        tiles.push({ id: id++, suit: 'winds', wind, type: 'honor' });
+      }
+    }
+    for (const dragon of DRAGONS) {
+      for (let i = 0; i < 4; i++) {
+        tiles.push({ id: id++, suit: 'dragons', dragon, type: 'honor' });
+      }
+    }
+    for (const flower of FLOWERS) {
+      tiles.push({ id: id++, suit: 'flowers', flower, type: 'bonus' });
+    }
+    for (const season of SEASONS) {
+      tiles.push({ id: id++, suit: 'flowers', season, type: 'bonus' });
+    }
+    return tiles;
+  }
+
+  shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  getTileSortKey(tile) {
+    const suitOrder = { bamboo: 0, dots: 1, characters: 2, winds: 3, dragons: 4, flowers: 5 };
+    let key = (suitOrder[tile.suit] || 0) * 100;
+    if (tile.num) key += tile.num;
+    if (tile.wind) key += WINDS.indexOf(tile.wind);
+    if (tile.dragon) key += DRAGONS.indexOf(tile.dragon);
+    if (tile.flower) key += FLOWERS.indexOf(tile.flower);
+    if (tile.season) key += SEASONS.indexOf(tile.season) + 4;
+    return key;
+  }
+
+  sortHand(hand) {
+    return hand.sort((a, b) => this.getTileSortKey(a) - this.getTileSortKey(b));
+  }
+
+  tilesMatch(a, b) {
+    if (a.suit !== b.suit) return false;
+    if (a.num !== undefined) return a.num === b.num;
+    if (a.wind) return a.wind === b.wind;
+    if (a.dragon) return a.dragon === b.dragon;
+    return false;
+  }
+
+  countMatching(hand, tile) {
+    return hand.filter(t => this.tilesMatch(t, tile)).length;
+  }
+
+  dealTiles() {
+    const allTiles = this.shuffle(this.createTileSet());
+    this.deadWall = allTiles.splice(-14);
+    this.wall = allTiles;
+
+    for (let round = 0; round < 3; round++) {
+      for (let p = 0; p < 4; p++) {
+        for (let i = 0; i < 4; i++) this.drawTileToHand(p);
+      }
+    }
+    for (let p = 0; p < 4; p++) this.drawTileToHand(p);
+    this.drawTileToHand(this.dealerSeat);
+
+    for (const p of this.players) this.sortHand(p.hand);
+    for (let p = 0; p < 4; p++) this.handleFlowers(p);
+  }
+
+  drawTileToHand(pi) {
+    if (this.wall.length === 0) return null;
+    const tile = this.wall.shift();
+    this.players[pi].hand.push(tile);
+    return tile;
+  }
+
+  drawReplacementTile(pi) {
+    let tile;
+    if (this.deadWall.length > 0) tile = this.deadWall.shift();
+    else if (this.wall.length > 0) tile = this.wall.pop();
+    else return null;
+    this.players[pi].hand.push(tile);
+    return tile;
+  }
+
+  handleFlowers(pi) {
+    const player = this.players[pi];
+    let hadFlowers = false;
+    while (true) {
+      const fi = player.hand.findIndex(t => t.type === 'bonus');
+      if (fi === -1) break;
+      const flower = player.hand.splice(fi, 1)[0];
+      player.flowers.push(flower);
+      hadFlowers = true;
+      if (!this.drawReplacementTile(pi)) break;
+    }
+    if (hadFlowers) this.sortHand(player.hand);
+    return hadFlowers;
+  }
+
+  // ========== Winning logic ==========
+  canMahjong(pi, tile = null) {
+    const player = this.players[pi];
+    const hand = [...player.hand];
+    if (tile) hand.push(tile);
+    const setsNeeded = 4 - player.melds.length;
+    return this.checkWinningHand(hand, setsNeeded);
+  }
+
+  checkWinningHand(hand, setsNeeded = 4) {
+    const expected = setsNeeded * 3 + 2;
+    if (hand.length !== expected) return false;
+    const sorted = [...hand].sort((a, b) => this.getTileSortKey(a) - this.getTileSortKey(b));
+    for (let i = 0; i < sorted.length - 1; i++) {
+      if (this.tilesMatch(sorted[i], sorted[i + 1])) {
+        if (i > 0 && this.tilesMatch(sorted[i], sorted[i - 1])) continue;
+        const remaining = [...sorted];
+        remaining.splice(i, 2);
+        if (this.canFormSets(remaining, setsNeeded)) return true;
+      }
+    }
+    return false;
+  }
+
+  canFormSets(tiles, numSets) {
+    if (tiles.length === 0) return numSets === 0;
+    if (tiles.length !== numSets * 3) return false;
+    const sorted = [...tiles].sort((a, b) => this.getTileSortKey(a) - this.getTileSortKey(b));
+
+    // Try pung
+    if (sorted.length >= 3 && this.tilesMatch(sorted[0], sorted[1]) && this.tilesMatch(sorted[1], sorted[2])) {
+      if (this.canFormSets(sorted.slice(3), numSets - 1)) return true;
+    }
+    // Try chi
+    if (sorted[0].type === 'suited' && sorted.length >= 3) {
+      const t1 = sorted[0];
+      const t2i = sorted.findIndex((t, i) => i > 0 && t.suit === t1.suit && t.num === t1.num + 1);
+      const t3i = sorted.findIndex((t, i) => i > 0 && t.suit === t1.suit && t.num === t1.num + 2);
+      if (t2i > 0 && t3i > 0) {
+        const remaining = [...sorted];
+        for (const idx of [0, t2i, t3i].sort((a, b) => b - a)) remaining.splice(idx, 1);
+        if (this.canFormSets(remaining, numSets - 1)) return true;
+      }
+    }
+    return false;
+  }
+
+  // ========== Claiming ==========
+  getChiCombinations(pi, tile) {
+    if (tile.type !== 'suited') return [];
+    const leftPlayer = (pi + 3) % 4;
+    if (this.lastDiscardPlayer !== leftPlayer) return [];
+    const hand = this.players[pi].hand;
+    const suit = tile.suit, num = tile.num;
+    const combos = [];
+    const hasN = (n) => hand.some(t => t.suit === suit && t.num === n);
+    const findT = (n) => hand.find(t => t.suit === suit && t.num === n);
+
+    if (num >= 3 && hasN(num - 2) && hasN(num - 1))
+      combos.push({ type: 'chi', tiles: [findT(num - 2), findT(num - 1), tile] });
+    if (num >= 2 && num <= 8 && hasN(num - 1) && hasN(num + 1))
+      combos.push({ type: 'chi', tiles: [findT(num - 1), tile, findT(num + 1)] });
+    if (num <= 7 && hasN(num + 1) && hasN(num + 2))
+      combos.push({ type: 'chi', tiles: [tile, findT(num + 1), findT(num + 2)] });
+    return combos;
+  }
+
+  canChi(pi, tile) { return this.getChiCombinations(pi, tile).length > 0; }
+
+  canPong(pi, tile) {
+    if (this.lastDiscardPlayer === pi) return false;
+    return this.countMatching(this.players[pi].hand, tile) >= 2;
+  }
+
+  canKong(pi, tile) {
+    if (this.lastDiscardPlayer === pi) return false;
+    return this.countMatching(this.players[pi].hand, tile) >= 3;
+  }
+
+  getConcealedKongs(pi) {
+    const hand = this.players[pi].hand;
+    const counts = {};
+    const kongs = [];
+    for (const tile of hand) {
+      const key = getTileKey(tile);
+      counts[key] = (counts[key] || 0) + 1;
+      if (counts[key] === 4) kongs.push({ tile, key });
+    }
+    return kongs;
+  }
+
+  getAddKongs(pi) {
+    const player = this.players[pi];
+    const addKongs = [];
+    for (const meld of player.melds) {
+      if (meld.type === 'pong') {
+        const match = player.hand.find(t => this.tilesMatch(t, meld.tiles[0]));
+        if (match) addKongs.push({ meld, tile: match });
+      }
+    }
+    return addKongs;
+  }
+
+  // ========== AI ==========
+  evaluateTileValue(hand, tile) {
+    const matchCount = this.countMatching(hand, tile);
+    let value = 0;
+    if (matchCount >= 3) value += 50;
+    else if (matchCount >= 2) value += 30;
+    else if (matchCount === 1) value += 5;
+
+    if (tile.type === 'suited') {
+      const { num, suit } = tile;
+      const hasN = (n) => n >= 1 && n <= 9 && hand.some(t => t.suit === suit && t.num === n);
+      if (hasN(num - 1)) value += 15;
+      if (hasN(num + 1)) value += 15;
+      if (hasN(num - 2)) value += 8;
+      if (hasN(num + 2)) value += 8;
+      if (num >= 4 && num <= 6) value += 5;
+      if (num === 1 || num === 9) value -= 3;
+    }
+    if (tile.type === 'honor' && matchCount === 1) value -= 5;
+    return value;
+  }
+
+  aiChooseDiscard(pi) {
+    const hand = this.players[pi].hand;
+    if (hand.length === 0) return -1;
+    const evals = hand.map((tile, index) => ({ index, value: this.evaluateTileValue(hand, tile) }));
+    evals.sort((a, b) => a.value - b.value);
+    const cands = evals.slice(0, Math.min(3, evals.length));
+    return cands[Math.floor(Math.random() * cands.length)].index;
+  }
+}
+
+// ==================== THREE.JS RENDERER ====================
+class Renderer {
+  constructor() {
+    this.scene = new THREE.Scene();
+    this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+    this.renderer = new THREE.WebGLRenderer({
+      canvas: document.getElementById('game-canvas'),
+      antialias: true,
+      alpha: false
+    });
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    this.renderer.shadowMap.enabled = true;
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    this.renderer.toneMappingExposure = 1.45;
+
+    // Camera setup - slightly tilted view
+    this.camera.position.set(0, 8, 6);
+    this.camera.lookAt(0, 0, 0);
+
+    this.tileTextures = {};
+    this.tileMeshes = [];
+    this.discardMeshes = [];
+    this.animating = false;
+
+    this.setupScene();
+    this.animate();
+
+    window.addEventListener('resize', () => this.onResize());
+  }
+
+  setupScene() {
+    // Background - warm aged parchment with ink wash sky
+    this.createBackgroundSky();
+    this.scene.fog = new THREE.Fog(0xf5e8d0, 16, 30);
+
+    // Warm ambient light - lantern glow feel (~3500K)
+    const ambient = new THREE.AmbientLight(0xffe8cc, 0.75);
+    this.scene.add(ambient);
+
+    // Hemisphere light for natural sky/ground bounce
+    const hemiLight = new THREE.HemisphereLight(0xfff0d8, 0xe8d8c0, 0.35);
+    this.scene.add(hemiLight);
+
+    // Main directional light — warm, from above-front like a lantern
+    const dirLight = new THREE.DirectionalLight(0xffeedd, 1.1);
+    dirLight.position.set(2, 9, 5);
+    dirLight.castShadow = true;
+    dirLight.shadow.mapSize.width = 2048;
+    dirLight.shadow.mapSize.height = 2048;
+    dirLight.shadow.camera.near = 0.5;
+    dirLight.shadow.camera.far = 25;
+    dirLight.shadow.camera.left = -7;
+    dirLight.shadow.camera.right = 7;
+    dirLight.shadow.camera.top = 7;
+    dirLight.shadow.camera.bottom = -7;
+    dirLight.shadow.bias = -0.0005;
+    dirLight.shadow.normalBias = 0.02;
+    dirLight.shadow.radius = 3;
+    this.scene.add(dirLight);
+
+    // Warm fill light from opposite side
+    const fillLight = new THREE.DirectionalLight(0xfce4c8, 0.25);
+    fillLight.position.set(-4, 6, -3);
+    this.scene.add(fillLight);
+
+    // Subtle warm rim light from behind
+    const rimLight = new THREE.DirectionalLight(0xffd8a8, 0.15);
+    rimLight.position.set(0, 3, -6);
+    this.scene.add(rimLight);
+
+    // Table surface
+    this.createTable();
+
+    // Ink wash decorations on table
+    this.createInkDecorations();
+  }
+
+  createBackgroundSky() {
+    // Procedural background: aged parchment gradient with faint ink wash mountains
+    const canvas = document.createElement('canvas');
+    canvas.width = 1024;
+    canvas.height = 1024;
+    const ctx = canvas.getContext('2d');
+
+    // Base parchment gradient — warm and aged
+    const bgGrad = ctx.createLinearGradient(0, 0, 0, 1024);
+    bgGrad.addColorStop(0, '#e8d8b8');
+    bgGrad.addColorStop(0.15, '#ede0c8');
+    bgGrad.addColorStop(0.4, '#f2e8d4');
+    bgGrad.addColorStop(0.7, '#f0e4cc');
+    bgGrad.addColorStop(1, '#ecdcc0');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, 1024, 1024);
+
+    // Rice paper grain texture
+    for (let i = 0; i < 20000; i++) {
+      const x = Math.random() * 1024;
+      const y = Math.random() * 1024;
+      const alpha = Math.random() * 0.04;
+      ctx.fillStyle = `rgba(120,100,70,${alpha})`;
+      ctx.fillRect(x, y, Math.random() * 2 + 0.5, Math.random() * 2 + 0.5);
+    }
+
+    // Faint ink wash mountain silhouettes at top
+    ctx.save();
+    ctx.globalAlpha = 0.14;
+
+    // Far mountains
+    ctx.fillStyle = '#4a4038';
+    ctx.beginPath();
+    ctx.moveTo(0, 280);
+    ctx.bezierCurveTo(100, 180, 250, 140, 380, 200);
+    ctx.bezierCurveTo(450, 160, 550, 100, 700, 170);
+    ctx.bezierCurveTo(800, 120, 900, 150, 1024, 220);
+    ctx.lineTo(1024, 400);
+    ctx.lineTo(0, 400);
+    ctx.closePath();
+    ctx.fill();
+
+    // Near mountains — slightly darker
+    ctx.globalAlpha = 0.09;
+    ctx.fillStyle = '#3a3028';
+    ctx.beginPath();
+    ctx.moveTo(0, 340);
+    ctx.bezierCurveTo(150, 250, 300, 220, 450, 280);
+    ctx.bezierCurveTo(550, 230, 700, 200, 850, 260);
+    ctx.bezierCurveTo(950, 240, 1000, 270, 1024, 300);
+    ctx.lineTo(1024, 420);
+    ctx.lineTo(0, 420);
+    ctx.closePath();
+    ctx.fill();
+
+    // Subtle cloud wisps
+    ctx.globalAlpha = 0.07;
+    ctx.strokeStyle = '#6a5a48';
+    ctx.lineWidth = 2;
+    for (let i = 0; i < 5; i++) {
+      ctx.beginPath();
+      const y = 160 + i * 40 + Math.random() * 30;
+      const x1 = Math.random() * 300;
+      ctx.moveTo(x1, y);
+      ctx.bezierCurveTo(x1 + 100, y - 15, x1 + 200, y + 10, x1 + 350, y - 5);
+      ctx.stroke();
+    }
+
+    ctx.restore();
+
+    const texture = new THREE.CanvasTexture(canvas);
+    this.scene.background = texture;
+  }
+
+  createTable() {
+    // Procedural rice paper texture for table surface
+    const texCanvas = document.createElement('canvas');
+    texCanvas.width = 1024;
+    texCanvas.height = 1024;
+    const tctx = texCanvas.getContext('2d');
+
+    // Base warm cream
+    const baseGrad = tctx.createRadialGradient(512, 512, 0, 512, 512, 600);
+    baseGrad.addColorStop(0, '#f5e6c8');
+    baseGrad.addColorStop(0.6, '#f0dfc0');
+    baseGrad.addColorStop(1, '#e8d5b0');
+    tctx.fillStyle = baseGrad;
+    tctx.fillRect(0, 0, 1024, 1024);
+
+    // Rice paper fiber grain — horizontal
+    for (let i = 0; i < 30000; i++) {
+      const x = Math.random() * 1024;
+      const y = Math.random() * 1024;
+      const w = Math.random() * 6 + 1;
+      const h = Math.random() * 1.5 + 0.3;
+      const alpha = Math.random() * 0.035 + 0.005;
+      tctx.fillStyle = `rgba(160,140,100,${alpha})`;
+      tctx.fillRect(x, y, w, h);
+    }
+
+    // Vertical fibers (fewer)
+    for (let i = 0; i < 8000; i++) {
+      const x = Math.random() * 1024;
+      const y = Math.random() * 1024;
+      const w = Math.random() * 1 + 0.3;
+      const h = Math.random() * 5 + 1;
+      const alpha = Math.random() * 0.025;
+      tctx.fillStyle = `rgba(140,120,80,${alpha})`;
+      tctx.fillRect(x, y, w, h);
+    }
+
+    // Subtle warm splotches for aged feel
+    for (let i = 0; i < 15; i++) {
+      const x = Math.random() * 1024;
+      const y = Math.random() * 1024;
+      const r = Math.random() * 80 + 30;
+      const sGrad = tctx.createRadialGradient(x, y, 0, x, y, r);
+      sGrad.addColorStop(0, `rgba(180,150,100,${Math.random() * 0.04})`);
+      sGrad.addColorStop(1, 'rgba(180,150,100,0)');
+      tctx.fillStyle = sGrad;
+      tctx.fillRect(x - r, y - r, r * 2, r * 2);
+    }
+
+    const tableTexture = new THREE.CanvasTexture(texCanvas);
+    tableTexture.wrapS = THREE.RepeatWrapping;
+    tableTexture.wrapT = THREE.RepeatWrapping;
+
+    // Main table surface
+    const tableGeo = new THREE.BoxGeometry(14, 0.15, 14);
+    const tableMat = new THREE.MeshStandardMaterial({
+      map: tableTexture,
+      color: 0xffffff,
+      roughness: 0.88,
+      metalness: 0.0,
+    });
+    const table = new THREE.Mesh(tableGeo, tableMat);
+    table.position.y = -0.075;
+    table.receiveShadow = true;
+    this.scene.add(table);
+
+    // Table border/frame — dark lacquered wood
+    const borderGeo = new THREE.BoxGeometry(14.5, 0.22, 14.5);
+    const borderMat = new THREE.MeshStandardMaterial({
+      color: 0x5a4838,
+      roughness: 0.6,
+      metalness: 0.12,
+    });
+    const border = new THREE.Mesh(borderGeo, borderMat);
+    border.position.y = -0.16;
+    border.receiveShadow = true;
+    this.scene.add(border);
+
+    // Inner playing area — slightly lighter rice paper overlay
+    const innerGeo = new THREE.PlaneGeometry(10.5, 10.5);
+    const innerMat = new THREE.MeshStandardMaterial({
+      color: 0xfaf4e6,
+      roughness: 0.92,
+      metalness: 0.0,
+      transparent: true,
+      opacity: 0.35,
+    });
+    const inner = new THREE.Mesh(innerGeo, innerMat);
+    inner.rotation.x = -Math.PI / 2;
+    inner.position.y = 0.002;
+    inner.receiveShadow = true;
+    this.scene.add(inner);
+
+    // Thin decorative border lines on playing area (ink brush feel)
+    const lineCanvas = document.createElement('canvas');
+    lineCanvas.width = 512;
+    lineCanvas.height = 512;
+    const lctx = lineCanvas.getContext('2d');
+    lctx.clearRect(0, 0, 512, 512);
+    lctx.strokeStyle = 'rgba(80,60,40,0.18)';
+    lctx.lineWidth = 2;
+    lctx.strokeRect(20, 20, 472, 472);
+    lctx.strokeStyle = 'rgba(80,60,40,0.12)';
+    lctx.lineWidth = 1;
+    lctx.strokeRect(30, 30, 452, 452);
+    const lineTexture = new THREE.CanvasTexture(lineCanvas);
+    const lineGeo = new THREE.PlaneGeometry(11, 11);
+    const lineMat = new THREE.MeshStandardMaterial({
+      map: lineTexture,
+      transparent: true,
+      roughness: 1,
+      metalness: 0,
+    });
+    const lineOverlay = new THREE.Mesh(lineGeo, lineMat);
+    lineOverlay.rotation.x = -Math.PI / 2;
+    lineOverlay.position.y = 0.004;
+    this.scene.add(lineOverlay);
+  }
+
+  createInkDecorations() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1024;
+    canvas.height = 1024;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, 1024, 1024);
+
+    // === Bold Ens\u014d circle ink brush stroke ===
+    ctx.save();
+    ctx.translate(512, 512);
+    const ensoR = 180, nSteps = 200, gapA = 0.4;
+    for (let pass = 0; pass < 3; pass++) {
+      ctx.beginPath();
+      const alpha = [0.12, 0.07, 0.04][pass];
+      const lw = [12, 18, 24][pass];
+      for (let i = 0; i < nSteps; i++) {
+        const t = i / nSteps;
+        const ang = gapA + t * (Math.PI * 2 - gapA * 2);
+        const wobble = Math.sin(t * 17) * 1.5 + Math.cos(t * 23) * 1;
+        const r = ensoR + pass * 2 + wobble;
+        const x = Math.cos(ang) * r, y = Math.sin(ang) * r;
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = 'rgba(60,45,30,' + alpha + ')';
+      ctx.lineWidth = lw;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.stroke();
+    }
+    for (let i = 0; i < 8; i++) {
+      const ang = gapA + Math.random() * 0.3;
+      const r = ensoR + (Math.random() - 0.5) * 30;
+      ctx.beginPath();
+      ctx.arc(Math.cos(ang) * r, Math.sin(ang) * r, Math.random() * 3 + 1, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(60,45,30,' + (Math.random() * 0.08 + 0.02) + ')';
+      ctx.fill();
+    }
+    ctx.restore();
+
+    // Corner bamboo motif
+    ctx.save();
+    ctx.globalAlpha = 0.035;
+    ctx.strokeStyle = '#4a6a4a';
+    ctx.lineWidth = 2;
+    for (let i = 0; i < 3; i++) {
+      const bx = 80 + i * 25;
+      ctx.beginPath(); ctx.moveTo(bx, 40); ctx.lineTo(bx + 3, 200); ctx.stroke();
+      for (let n = 0; n < 3; n++) { const ny = 60 + n * 50; ctx.beginPath(); ctx.moveTo(bx - 4, ny); ctx.lineTo(bx + 7, ny); ctx.stroke(); }
+    }
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(105, 80); ctx.bezierCurveTo(130, 60, 150, 55, 160, 65); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(80, 120); ctx.bezierCurveTo(55, 100, 40, 95, 35, 105); ctx.stroke();
+    ctx.strokeStyle = '#6a5a48';
+    ctx.beginPath(); ctx.moveTo(860, 920); ctx.bezierCurveTo(880, 900, 920, 895, 940, 910); ctx.bezierCurveTo(960, 890, 980, 895, 990, 915); ctx.stroke();
+    ctx.restore();
+
+    // Vermillion seal stamp
+    ctx.save();
+    ctx.translate(920, 920);
+    ctx.fillStyle = 'rgba(179,58,42,0.06)';
+    ctx.fillRect(-20, -20, 40, 40);
+    ctx.strokeStyle = 'rgba(179,58,42,0.08)';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(-18, -18, 36, 36);
+    ctx.fillStyle = 'rgba(179,58,42,0.07)';
+    ctx.font = 'bold 20px "Ma Shan Zheng", serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('\u96C0', 0, 0);
+    ctx.restore();
+
+    const texture = new THREE.CanvasTexture(canvas);
+    const decoGeo = new THREE.PlaneGeometry(10, 10);
+    const decoMat = new THREE.MeshStandardMaterial({
+      map: texture, transparent: true, roughness: 1, metalness: 0, depthWrite: false,
+    });
+    const deco = new THREE.Mesh(decoGeo, decoMat);
+    deco.rotation.x = -Math.PI / 2;
+    deco.position.y = 0.005;
+    this.scene.add(deco);
+  }
+
+  createTileTexture(tile) {
+    const key = getTileKey(tile);
+    if (this.tileTextures[key]) return this.tileTextures[key];
+
+    // Higher resolution for crisp characters
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 352;
+    const ctx = canvas.getContext('2d');
+
+    // Tile face — clean white with subtle warm gradient
+    const faceGrad = ctx.createLinearGradient(0, 0, 0, 352);
+    faceGrad.addColorStop(0, '#fafaf5');
+    faceGrad.addColorStop(0.5, '#fafaf5');
+    faceGrad.addColorStop(1, '#f5f0e8');
+    ctx.fillStyle = faceGrad;
+    ctx.fillRect(0, 0, 256, 352);
+
+    // Subtle warm edge tint
+    const edgeGrad = ctx.createLinearGradient(0, 0, 256, 0);
+    edgeGrad.addColorStop(0, 'rgba(220,200,170,0.15)');
+    edgeGrad.addColorStop(0.1, 'rgba(220,200,170,0)');
+    edgeGrad.addColorStop(0.9, 'rgba(220,200,170,0)');
+    edgeGrad.addColorStop(1, 'rgba(220,200,170,0.15)');
+    ctx.fillStyle = edgeGrad;
+    ctx.fillRect(0, 0, 256, 352);
+
+    // Fine border
+    ctx.strokeStyle = 'rgba(160,140,110,0.25)';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(2, 2, 252, 348);
+
+    const label = getTileLabel(tile);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    if (label.bottom) {
+      // Suited tiles: number on top, suit character below — crisp ink
+      ctx.fillStyle = label.color;
+      ctx.font = 'bold 100px "Ma Shan Zheng", serif';
+      ctx.fillText(label.top, 128, 120);
+      ctx.fillStyle = label.color;
+      ctx.font = 'bold 84px "Ma Shan Zheng", serif';
+      ctx.fillText(label.bottom, 128, 254);
+    } else {
+      // Honor/bonus tiles: single large character
+      ctx.fillStyle = label.color;
+      ctx.font = 'bold 140px "Ma Shan Zheng", serif';
+      ctx.fillText(label.top, 128, 180);
+    }
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.anisotropy = 8;
+    this.tileTextures[key] = texture;
+    return texture;
+  }
+
+  createTileBackTexture() {
+    if (this._backTex) return this._backTex;
+    const canvas = document.createElement('canvas');
+    canvas.width = 128;
+    canvas.height = 176;
+    const ctx = canvas.getContext('2d');
+
+    // Back — warm ivory gradient
+    const bgG = ctx.createLinearGradient(0, 0, 128, 176);
+    bgG.addColorStop(0, '#ede4d4');
+    bgG.addColorStop(0.5, '#e8dcc8');
+    bgG.addColorStop(1, '#e2d6c0');
+    ctx.fillStyle = bgG;
+    ctx.fillRect(0, 0, 128, 176);
+
+    // Double border frame
+    ctx.strokeStyle = 'rgba(120,100,70,0.22)';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(6, 6, 116, 164);
+    ctx.strokeStyle = 'rgba(120,100,70,0.12)';
+    ctx.lineWidth = 0.8;
+    ctx.strokeRect(12, 12, 104, 152);
+
+    // Cherry blossom petals
+    const drawPetal = (cx, cy, sz, al) => {
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.globalAlpha = al;
+      for (let p = 0; p < 5; p++) {
+        const a = (p / 5) * Math.PI * 2 - Math.PI / 2;
+        ctx.beginPath();
+        ctx.ellipse(Math.cos(a) * sz, Math.sin(a) * sz, sz * 0.65, sz * 0.4, a, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(200,120,140,0.55)';
+        ctx.fill();
+      }
+      ctx.beginPath();
+      ctx.arc(0, 0, sz * 0.25, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(179,58,42,0.4)';
+      ctx.fill();
+      ctx.restore();
+    };
+    drawPetal(40, 50, 8, 0.16);
+    drawPetal(88, 42, 6, 0.13);
+    drawPetal(64, 88, 10, 0.19);
+    drawPetal(35, 125, 7, 0.14);
+    drawPetal(95, 130, 5, 0.11);
+
+    // Branch connecting blossoms
+    ctx.strokeStyle = 'rgba(100,70,50,0.12)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(30, 140);
+    ctx.bezierCurveTo(50, 100, 60, 70, 90, 40);
+    ctx.stroke();
+
+    this._backTex = new THREE.CanvasTexture(canvas);
+    return this._backTex;
+  }
+
+  create3DTile(tile, faceDown = false) {
+    const W = 0.38, H = 0.52, D = 0.22;
+    const group = new THREE.Group();
+
+    // Main tile body
+    const bodyGeo = new THREE.BoxGeometry(W, D, H);
+    const faceTex = faceDown ? this.createTileBackTexture() : this.createTileTexture(tile);
+
+    const materials = [
+      new THREE.MeshStandardMaterial({ color: 0xe0d4bc, roughness: 0.6 }), // right
+      new THREE.MeshStandardMaterial({ color: 0xe0d4bc, roughness: 0.6 }), // left
+      new THREE.MeshStandardMaterial({ map: faceTex, roughness: 0.4 }), // top (face)
+      new THREE.MeshStandardMaterial({ color: 0xc8bca8, roughness: 0.7 }), // bottom
+      new THREE.MeshStandardMaterial({ color: 0xe0d4bc, roughness: 0.6 }), // front
+      new THREE.MeshStandardMaterial({ color: 0xe0d4bc, roughness: 0.6 }), // back
+    ];
+
+    const body = new THREE.Mesh(bodyGeo, materials);
+    body.castShadow = true;
+    body.receiveShadow = true;
+    group.add(body);
+
+    // Slight bevel effect using edge highlight
+    const edgeGeo = new THREE.BoxGeometry(W + 0.01, D + 0.01, H + 0.01);
+    const edgeMat = new THREE.MeshStandardMaterial({
+      color: 0xe0d8c8,
+      roughness: 0.5,
+      transparent: true,
+      opacity: 0.3,
+    });
+    const edge = new THREE.Mesh(edgeGeo, edgeMat);
+    group.add(edge);
+
+    group.userData = { tile, faceDown };
+    return group;
+  }
+
+  clearDiscards() {
+    for (const m of this.discardMeshes) {
+      this.scene.remove(m);
+    }
+    this.discardMeshes = [];
+  }
+
+  clearTiles() {
+    for (const m of this.tileMeshes) {
+      this.scene.remove(m);
+    }
+    this.tileMeshes = [];
+  }
+
+  // Render 3D discards in center of table
+  renderDiscards(allDiscards) {
+    this.clearDiscards();
+
+    let totalCount = 0;
+    for (const discards of allDiscards) totalCount += discards.length;
+
+    const allFlat = [];
+    for (const discards of allDiscards) {
+      for (const tile of discards) allFlat.push(tile);
+    }
+
+    const cols = 8;
+    const spacing = 0.44;
+    const zSpacing = 0.58;
+
+    for (let i = 0; i < allFlat.length; i++) {
+      const col = i % cols;
+      const row = Math.floor(i / cols);
+      const x = (col - cols / 2 + 0.5) * spacing;
+      const z = (row - 1) * zSpacing;
+
+      const mesh = this.create3DTile(allFlat[i], false);
+      mesh.position.set(x, 0.11, z);
+      // Slight random rotation for natural look
+      mesh.rotation.y = (Math.random() - 0.5) * 0.06;
+      mesh.scale.set(0.8, 0.8, 0.8);
+      this.scene.add(mesh);
+      this.discardMeshes.push(mesh);
+    }
+  }
+
+  // Render opponent tiles as face-down 3D tiles
+  renderOpponentTiles(playerIndex, tileCount) {
+    // Positions for opponents around the table
+    const positions = {
+      0: { x: 4.5, z: 0, rotY: Math.PI / 2 },     // East (right)
+      2: { x: -4.5, z: 0, rotY: -Math.PI / 2 },    // West (left)
+      3: { x: 0, z: -3.5, rotY: Math.PI },           // North (top)
+    };
+
+    const pos = positions[playerIndex];
+    if (!pos) return;
+
+    const spacing = 0.42;
+    const count = Math.min(tileCount, 14);
+
+    for (let i = 0; i < count; i++) {
+      const mesh = this.create3DTile({}, true);
+      const offset = (i - count / 2 + 0.5) * spacing;
+
+      if (playerIndex === 3) {
+        mesh.position.set(offset, 0.11, pos.z);
+        mesh.rotation.y = pos.rotY;
+      } else {
+        mesh.position.set(pos.x, 0.11, offset);
+        mesh.rotation.y = pos.rotY;
+      }
+
+      mesh.scale.set(0.75, 0.75, 0.75);
+      this.scene.add(mesh);
+      this.tileMeshes.push(mesh);
+    }
+  }
+
+  onResize() {
+    this.camera.aspect = window.innerWidth / window.innerHeight;
+    this.camera.updateProjectionMatrix();
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+  }
+
+  animate() {
+    requestAnimationFrame(() => this.animate());
+    this.renderer.render(this.scene, this.camera);
+  }
+}
+
+// ==================== GAME CONTROLLER ====================
+class GameController {
+  constructor() {
+    this.gs = new GameState();
+    this.renderer = new Renderer();
+    this.discardSorted = false;
+
+    this.bindEvents();
+  }
+
+  bindEvents() {
+    document.getElementById('modal-btn').addEventListener('click', () => this.startGame());
+    document.getElementById('btn-skip').addEventListener('click', () => this.skipClaim());
+    document.getElementById('btn-chi').addEventListener('click', () => this.showChiOptions());
+    document.getElementById('btn-pong').addEventListener('click', () => this.claimPong());
+    document.getElementById('btn-kong').addEventListener('click', () => this.showKongOptions());
+    document.getElementById('btn-mahjong').addEventListener('click', () => this.claimMahjong());
+    document.getElementById('btn-discard').addEventListener('click', () => this.discardSelected());
+    document.getElementById('btn-discards').addEventListener('click', () => this.toggleDiscardOverlay());
+    document.getElementById('btn-sort-hand').addEventListener('click', () => this.sortPlayerHand());
+    document.getElementById('discard-close-btn').addEventListener('click', () => this.closeDiscardOverlay());
+    document.getElementById('discard-sort-btn').addEventListener('click', () => this.toggleDiscardSort());
+  }
+
+  startGame() {
+    this.hideModal();
+    this.gs.reset();
+    this.gs.phase = 'waiting';
+    this.gs.currentPlayer = this.gs.dealerSeat;
+    this.gs.dealTiles();
+    this.renderAll();
+
+    setTimeout(() => {
+      if (this.gs.players[this.gs.currentPlayer].isAI) {
+        this.gs.phase = 'discard';
+        setTimeout(() => this.aiTurn(), 800);
+      } else {
+        this.gs.phase = 'discard';
+        this.gs.drawnTile = this.gs.players[1].hand[this.gs.players[1].hand.length - 1];
+        this.renderAll();
+      }
+    }, 500);
+  }
+
+  // ========== RENDERING ==========
+  renderAll() {
+    this.renderPlayerHand();
+    this.render3DScene();
+    this.renderMelds();
+    this.updatePlayerBubbles();
+    this.updateWallInfo();
+    this.updateTurnIndicator();
+    this.updateActionButtons();
+  }
+
+  render3DScene() {
+    this.renderer.clearTiles();
+    this.renderer.clearDiscards();
+
+    // Render discards in center
+    const allDiscards = this.gs.players.map(p => p.discards);
+    this.renderer.renderDiscards(allDiscards);
+
+    // Render opponent face-down tiles
+    for (let i = 0; i < 4; i++) {
+      if (i === 1) continue; // skip human
+      this.renderer.renderOpponentTiles(i, this.gs.players[i].hand.length);
+    }
+  }
+
+  renderPlayerHand() {
+    const tray = document.getElementById('hand-tray');
+    tray.innerHTML = '';
+    const hand = this.gs.players[1].hand;
+
+    hand.forEach((tile, index) => {
+      const el = document.createElement('div');
+      el.className = 'tile';
+      if (index === this.gs.selectedTileIndex) el.classList.add('selected');
+      if (this.gs.drawnTile && tile.id === this.gs.drawnTile.id) el.classList.add('drawn');
+
+      const label = getTileLabel(tile);
+      const body = document.createElement('div');
+      body.className = 'tile-body';
+
+      const face = document.createElement('div');
+      face.className = 'face';
+
+      if (label.bottom) {
+        face.innerHTML = `<div class="tile-content">
+          <span class="char-top" style="color:${label.color}">${label.top}</span>
+          <span class="char-bottom" style="color:${label.color}">${label.bottom}</span>
+        </div>`;
+      } else {
+        face.innerHTML = `<div class="tile-content">
+          <span style="font-size:28px;font-family:'Ma Shan Zheng',serif;color:${label.color}">${label.top}</span>
+        </div>`;
+      }
+
+      body.appendChild(face);
+      el.appendChild(body);
+      el.addEventListener('click', () => this.selectTile(index));
+      tray.appendChild(el);
+    });
+  }
+
+  renderMelds() {
+    const seatPositions = { 1: 'south', 3: 'north', 2: 'west', 0: 'east' };
+
+    for (let pi = 0; pi < 4; pi++) {
+      const seat = seatPositions[pi];
+      const container = document.getElementById(`melds-${seat}`);
+      if (!container) continue;
+      container.innerHTML = '';
+
+      const player = this.gs.players[pi];
+      for (const meld of player.melds) {
+        const group = document.createElement('div');
+        group.className = 'meld-group' + (meld.concealed ? ' concealed' : '');
+
+        for (let i = 0; i < meld.tiles.length; i++) {
+          const mt = document.createElement('div');
+          mt.className = 'meld-tile';
+          if (meld.concealed && (i === 0 || i === 3)) {
+            mt.classList.add('facedown');
+          } else {
+            const label = getTileLabel(meld.tiles[i]);
+            mt.style.fontSize = '10px';
+            mt.style.color = label.color;
+            mt.style.fontFamily = "'Ma Shan Zheng', serif";
+            mt.textContent = label.top;
+          }
+          group.appendChild(mt);
+        }
+        container.appendChild(group);
+      }
+
+      // Show flowers
+      for (const flower of player.flowers) {
+        const group = document.createElement('div');
+        group.className = 'meld-group';
+        const ft = document.createElement('div');
+        ft.className = 'meld-tile';
+        const label = getTileLabel(flower);
+        ft.style.fontSize = '10px';
+        ft.style.color = label.color;
+        ft.style.fontFamily = "'Ma Shan Zheng', serif";
+        ft.textContent = label.top;
+        group.appendChild(ft);
+        container.appendChild(group);
+      }
+    }
+  }
+
+  updatePlayerBubbles() {
+    const seatIds = { 0: 'east', 1: 'south', 2: 'west', 3: 'north' };
+    for (let i = 0; i < 4; i++) {
+      const seat = seatIds[i];
+      const bubble = document.getElementById(`p-${seat}`);
+      if (!bubble) continue;
+
+      const isActive = (i === this.gs.currentPlayer);
+      bubble.classList.toggle('active', isActive);
+
+      const scoreEl = document.getElementById(`score-${seat}`);
+      if (scoreEl) scoreEl.textContent = this.gs.players[i].score.toLocaleString();
+
+      // Opponent hand counts
+      if (i !== 1) {
+        const countEl = document.getElementById(`count-${seat}`);
+        if (countEl) countEl.textContent = `${this.gs.players[i].hand.length} tiles`;
+      }
+    }
+
+    document.getElementById('player-score-display').textContent = this.gs.players[1].score.toLocaleString();
+  }
+
+  updateWallInfo() {
+    document.getElementById('tiles-left').textContent = this.gs.wall.length;
+    document.getElementById('dealer-wind').textContent = WIND_CHARS[WINDS[this.gs.dealerSeat]];
+  }
+
+  updateTurnIndicator() {
+    const el = document.getElementById('turn-indicator');
+    const isYourTurn = this.gs.currentPlayer === 1;
+    const name = PLAYER_NAMES[this.gs.currentPlayer];
+    el.textContent = isYourTurn ? 'Your Turn' : `${name}'s Turn`;
+    el.classList.toggle('your-turn', isYourTurn);
+  }
+
+  updateActionButtons() {
+    const btns = {
+      skip: document.getElementById('btn-skip'),
+      chi: document.getElementById('btn-chi'),
+      pong: document.getElementById('btn-pong'),
+      kong: document.getElementById('btn-kong'),
+      mahjong: document.getElementById('btn-mahjong'),
+      discard: document.getElementById('btn-discard'),
+    };
+
+    // Hide all first
+    for (const b of Object.values(btns)) b.classList.remove('visible');
+
+    const gs = this.gs;
+
+    // Claiming phase
+    if (gs.phase === 'claiming' && gs.claimWindow) {
+      const humanClaim = gs.possibleClaims.find(c => c.player === 1);
+      if (humanClaim) {
+        btns.skip.classList.add('visible');
+        if (humanClaim.claims.includes('chi')) btns.chi.classList.add('visible');
+        if (humanClaim.claims.includes('pong')) btns.pong.classList.add('visible');
+        if (humanClaim.claims.includes('kong')) btns.kong.classList.add('visible');
+        if (humanClaim.claims.includes('mahjong')) btns.mahjong.classList.add('visible');
+      }
+      return;
+    }
+
+    // Discard phase - human's turn
+    if (gs.phase === 'discard' && gs.currentPlayer === 1) {
+      if (gs.selectedTileIndex >= 0) {
+        btns.discard.classList.add('visible');
+      }
+
+      // Check for self-kong or tsumo
+      if (this.gs.canMahjong(1)) btns.mahjong.classList.add('visible');
+
+      const concealedKongs = gs.getConcealedKongs(1);
+      const addKongs = gs.getAddKongs(1);
+      if (concealedKongs.length > 0 || addKongs.length > 0) {
+        btns.kong.classList.add('visible');
+      }
+    }
+  }
+
+  // ========== PLAYER ACTIONS ==========
+  selectTile(index) {
+    if (this.gs.currentPlayer !== 1 || this.gs.phase !== 'discard') return;
+    if (this.gs.selectedTileIndex === index) {
+      this.discardSelected();
+    } else {
+      this.gs.selectedTileIndex = index;
+      this.renderPlayerHand();
+      this.updateActionButtons();
+    }
+  }
+
+  discardSelected() {
+    if (this.gs.selectedTileIndex < 0) return;
+    this.discardTile(1, this.gs.selectedTileIndex);
+  }
+
+  sortPlayerHand() {
+    this.gs.sortHand(this.gs.players[1].hand);
+    this.gs.selectedTileIndex = -1;
+    this.renderPlayerHand();
+    this.showToast('Hand sorted');
+  }
+
+  discardTile(pi, tileIndex) {
+    const player = this.gs.players[pi];
+    const tile = player.hand.splice(tileIndex, 1)[0];
+    player.discards.push(tile);
+    this.gs.lastDiscard = tile;
+    this.gs.lastDiscardPlayer = pi;
+    this.gs.drawnTile = null;
+    this.gs.selectedTileIndex = -1;
+    this.gs.sortHand(player.hand);
+    this.renderAll();
+    this.checkForClaims();
+  }
+
+  drawPhase(pi) {
+    if (this.gs.wall.length === 0) {
+      this.endGame('draw');
+      return;
+    }
+    const tile = this.gs.drawTileToHand(pi);
+    this.gs.drawnTile = tile;
+    if (this.gs.handleFlowers(pi)) {
+      this.gs.drawnTile = this.gs.players[pi].hand[this.gs.players[pi].hand.length - 1];
+    }
+    this.gs.phase = 'discard';
+    this.gs.justClaimed = false;
+    this.renderAll();
+  }
+
+  nextTurn() {
+    this.gs.currentPlayer = (this.gs.currentPlayer + 1) % 4;
+    this.gs.phase = 'draw';
+    this.gs.claimWindow = false;
+    this.gs.possibleClaims = [];
+    this.gs.justClaimed = false;
+    this.clearClaimTimer();
+    this.hideClaimPanel();
+    this.renderAll();
+
+    if (this.gs.players[this.gs.currentPlayer].isAI) {
+      setTimeout(() => {
+        this.drawPhase(this.gs.currentPlayer);
+        setTimeout(() => this.aiTurn(), 700);
+      }, 400);
+    } else {
+      setTimeout(() => this.drawPhase(this.gs.currentPlayer), 300);
+    }
+  }
+
+  // ========== CLAIMING ==========
+  checkForClaims() {
+    this.gs.possibleClaims = [];
+    const tile = this.gs.lastDiscard;
+
+    for (let i = 0; i < 4; i++) {
+      if (i === this.gs.lastDiscardPlayer) continue;
+      const claims = [];
+      if (this.gs.canMahjong(i, tile)) claims.push('mahjong');
+      if (this.gs.canKong(i, tile)) claims.push('kong');
+      if (this.gs.canPong(i, tile)) claims.push('pong');
+      if (this.gs.canChi(i, tile)) claims.push('chi');
+      if (claims.length > 0) this.gs.possibleClaims.push({ player: i, claims });
+    }
+
+    if (this.gs.possibleClaims.length > 0) {
+      this.gs.phase = 'claiming';
+      this.gs.claimWindow = true;
+
+      const humanClaim = this.gs.possibleClaims.find(c => c.player === 1);
+      if (humanClaim) {
+        this.updateActionButtons();
+        this.startClaimTimer(() => this.skipClaim());
+        return;
+      }
+      setTimeout(() => this.processAIClaims(), 700);
+    } else {
+      this.nextTurn();
+    }
+  }
+
+  startClaimTimer(onTimeout) {
+    this.clearClaimTimer();
+    this.gs.claimTimeRemaining = 10;
+    this.gs.claimTimeoutId = setInterval(() => {
+      this.gs.claimTimeRemaining--;
+      if (this.gs.claimTimeRemaining <= 0) {
+        this.clearClaimTimer();
+        onTimeout();
+      }
+    }, 1000);
+  }
+
+  clearClaimTimer() {
+    if (this.gs.claimTimeoutId) {
+      clearInterval(this.gs.claimTimeoutId);
+      this.gs.claimTimeoutId = null;
+    }
+  }
+
+  skipClaim() {
+    this.clearClaimTimer();
+    this.hideClaimPanel();
+    this.gs.claimWindow = false;
+    this.updateActionButtons();
+    setTimeout(() => this.processAIClaims(), 300);
+  }
+
+  processAIClaims() {
+    if (!this.gs.claimWindow) return;
+    const tile = this.gs.lastDiscard;
+
+    // Priority: mahjong > kong > pong > chi
+    for (const claim of this.gs.possibleClaims) {
+      if (claim.player === 1) continue;
+      if (claim.claims.includes('mahjong')) {
+        this.aiClaimMahjong(claim.player);
+        return;
+      }
+    }
+    for (const claim of this.gs.possibleClaims) {
+      if (claim.player === 1) continue;
+      if (claim.claims.includes('kong')) {
+        this.aiClaimKong(claim.player, tile);
+        return;
+      }
+    }
+    for (const claim of this.gs.possibleClaims) {
+      if (claim.player === 1) continue;
+      if (claim.claims.includes('pong') && Math.random() > 0.3) {
+        this.aiClaimPong(claim.player, tile);
+        return;
+      }
+    }
+    for (const claim of this.gs.possibleClaims) {
+      if (claim.player === 1) continue;
+      if (claim.claims.includes('chi') && Math.random() > 0.5) {
+        const combos = this.gs.getChiCombinations(claim.player, tile);
+        if (combos.length > 0) {
+          this.aiClaimChi(claim.player, tile, combos[0]);
+          return;
+        }
+      }
+    }
+
+    this.gs.claimWindow = false;
+    this.nextTurn();
+  }
+
+  aiClaimPong(pi, tile) {
+    const player = this.gs.players[pi];
+    const pongTiles = [tile];
+    for (let i = 0; i < 2; i++) {
+      const idx = player.hand.findIndex(t => this.gs.tilesMatch(t, tile));
+      if (idx >= 0) pongTiles.push(player.hand.splice(idx, 1)[0]);
+    }
+    this.gs.players[this.gs.lastDiscardPlayer].discards.pop();
+    player.melds.push({ type: 'pong', tiles: pongTiles, exposed: true });
+    this.gs.sortHand(player.hand);
+    this.gs.claimWindow = false;
+    this.gs.currentPlayer = pi;
+    this.gs.phase = 'discard';
+    this.gs.lastDiscard = null;
+    this.gs.justClaimed = true;
+    this.showAIToast(`${PLAYER_EMOJIS[pi]} ${PLAYER_NAMES[pi]} — Pong!`);
+    this.renderAll();
+    setTimeout(() => this.aiTurn(), 800);
+  }
+
+  aiClaimChi(pi, tile, combo) {
+    const player = this.gs.players[pi];
+    const chiTiles = [tile];
+    for (const t of combo.tiles) {
+      if (t.id !== tile.id) {
+        const idx = player.hand.findIndex(h => h.id === t.id);
+        if (idx >= 0) chiTiles.push(player.hand.splice(idx, 1)[0]);
+      }
+    }
+    this.gs.players[this.gs.lastDiscardPlayer].discards.pop();
+    chiTiles.sort((a, b) => (a.num || 0) - (b.num || 0));
+    player.melds.push({ type: 'chi', tiles: chiTiles, exposed: true });
+    this.gs.sortHand(player.hand);
+    this.gs.claimWindow = false;
+    this.gs.currentPlayer = pi;
+    this.gs.phase = 'discard';
+    this.gs.lastDiscard = null;
+    this.gs.justClaimed = true;
+    this.showAIToast(`${PLAYER_EMOJIS[pi]} ${PLAYER_NAMES[pi]} — Chi!`);
+    this.renderAll();
+    setTimeout(() => this.aiTurn(), 800);
+  }
+
+  aiClaimKong(pi, tile) {
+    const player = this.gs.players[pi];
+    const kongTiles = [tile];
+    for (let i = 0; i < 3; i++) {
+      const idx = player.hand.findIndex(t => this.gs.tilesMatch(t, tile));
+      if (idx >= 0) kongTiles.push(player.hand.splice(idx, 1)[0]);
+    }
+    this.gs.players[this.gs.lastDiscardPlayer].discards.pop();
+    player.melds.push({ type: 'kong', tiles: kongTiles, exposed: true });
+    this.gs.sortHand(player.hand);
+    this.gs.claimWindow = false;
+    this.gs.currentPlayer = pi;
+
+    const replacement = this.gs.drawReplacementTile(pi);
+    if (replacement) {
+      this.gs.drawnTile = replacement;
+      this.gs.handleFlowers(pi);
+      this.gs.sortHand(player.hand);
+    }
+    this.gs.phase = 'discard';
+    this.gs.lastDiscard = null;
+    this.showAIToast(`${PLAYER_EMOJIS[pi]} ${PLAYER_NAMES[pi]} — Kong!`);
+    this.renderAll();
+    setTimeout(() => this.aiTurn(), 1000);
+  }
+
+  aiClaimMahjong(pi) {
+    const player = this.gs.players[pi];
+    player.hand.push(this.gs.lastDiscard);
+    this.gs.players[this.gs.lastDiscardPlayer].discards.pop();
+    this.gs.claimWindow = false;
+    this.gs.winType = 'ron';
+    this.endGame('win', pi);
+  }
+
+  // ========== AI TURN ==========
+  aiTurn() {
+    if (this.gs.phase !== 'discard') return;
+    const pi = this.gs.currentPlayer;
+    const player = this.gs.players[pi];
+    if (!player.isAI) return;
+
+    // Check tsumo
+    if (this.gs.canMahjong(pi)) {
+      this.gs.winType = 'tsumo';
+      this.endGame('win', pi);
+      return;
+    }
+
+    // Concealed kong
+    const cKongs = this.gs.getConcealedKongs(pi);
+    if (cKongs.length > 0 && Math.random() > 0.3) {
+      this.declareConcealedKong(pi, cKongs[0].tile);
+      return;
+    }
+
+    // Add kong
+    const aKongs = this.gs.getAddKongs(pi);
+    if (aKongs.length > 0 && Math.random() > 0.4) {
+      this.declareAddKong(pi, aKongs[0]);
+      return;
+    }
+
+    const discardIdx = this.gs.aiChooseDiscard(pi);
+    if (discardIdx >= 0) this.discardTile(pi, discardIdx);
+  }
+
+  declareConcealedKong(pi, tile) {
+    const player = this.gs.players[pi];
+    const kongTiles = [];
+    for (let i = 0; i < 4; i++) {
+      const idx = player.hand.findIndex(t => this.gs.tilesMatch(t, tile));
+      if (idx >= 0) kongTiles.push(player.hand.splice(idx, 1)[0]);
+    }
+    player.melds.push({ type: 'kong', tiles: kongTiles, exposed: false, concealed: true });
+    this.gs.sortHand(player.hand);
+
+    const replacement = this.gs.drawReplacementTile(pi);
+    if (replacement) {
+      this.gs.drawnTile = replacement;
+      this.gs.handleFlowers(pi);
+      this.gs.sortHand(player.hand);
+    }
+
+    if (player.isAI) {
+      this.showAIToast(`${PLAYER_EMOJIS[pi]} ${PLAYER_NAMES[pi]} — Concealed Kong!`);
+      this.renderAll();
+      setTimeout(() => this.aiTurn(), 1000);
+    } else {
+      this.showToast('Concealed Kong!');
+      this.renderAll();
+    }
+  }
+
+  declareAddKong(pi, addKong) {
+    const player = this.gs.players[pi];
+    const { meld, tile } = addKong;
+
+    // Skip rob-the-kong for simplicity in this prototype
+    this.completeAddKong(pi, meld, tile);
+  }
+
+  completeAddKong(pi, meld, tile) {
+    const player = this.gs.players[pi];
+    const tileIdx = player.hand.findIndex(t => t.id === tile.id);
+    if (tileIdx >= 0) player.hand.splice(tileIdx, 1);
+
+    meld.type = 'kong';
+    meld.tiles.push(tile);
+    this.gs.sortHand(player.hand);
+
+    const replacement = this.gs.drawReplacementTile(pi);
+    if (replacement) {
+      this.gs.drawnTile = replacement;
+      this.gs.handleFlowers(pi);
+      this.gs.sortHand(player.hand);
+    }
+
+    if (player.isAI) {
+      this.showAIToast(`${PLAYER_EMOJIS[pi]} ${PLAYER_NAMES[pi]} — Kong!`);
+      this.renderAll();
+      setTimeout(() => this.aiTurn(), 1000);
+    } else {
+      this.showToast('Kong!');
+      this.renderAll();
+    }
+  }
+
+  // ========== HUMAN CLAIM ACTIONS ==========
+  showChiOptions() {
+    this.clearClaimTimer();
+    const tile = this.gs.lastDiscard;
+    const combos = this.gs.getChiCombinations(1, tile);
+    if (combos.length === 1) {
+      this.executeChi(combos[0]);
+      return;
+    }
+    this.showClaimPanel('Chi — Choose sequence:', combos.map(combo => ({
+      label: 'Chi',
+      tiles: combo.tiles,
+      claimedTile: tile,
+      action: () => this.executeChi(combo)
+    })));
+  }
+
+  executeChi(combo) {
+    this.clearClaimTimer();
+    this.hideClaimPanel();
+    const tile = this.gs.lastDiscard;
+    const player = this.gs.players[1];
+    const chiTiles = [tile];
+    for (const t of combo.tiles) {
+      if (t.id !== tile.id) {
+        const idx = player.hand.findIndex(h => h.id === t.id);
+        if (idx >= 0) chiTiles.push(player.hand.splice(idx, 1)[0]);
+      }
+    }
+    this.gs.players[this.gs.lastDiscardPlayer].discards.pop();
+    chiTiles.sort((a, b) => (a.num || 0) - (b.num || 0));
+    player.melds.push({ type: 'chi', tiles: chiTiles, exposed: true });
+    this.gs.sortHand(player.hand);
+    this.gs.claimWindow = false;
+    this.gs.currentPlayer = 1;
+    this.gs.phase = 'discard';
+    this.gs.lastDiscard = null;
+    this.gs.justClaimed = true;
+    this.showToast('Chi!');
+    this.renderAll();
+  }
+
+  claimPong() {
+    this.clearClaimTimer();
+    this.hideClaimPanel();
+    const tile = this.gs.lastDiscard;
+    const player = this.gs.players[1];
+    const pongTiles = [tile];
+    for (let i = 0; i < 2; i++) {
+      const idx = player.hand.findIndex(t => this.gs.tilesMatch(t, tile));
+      if (idx >= 0) pongTiles.push(player.hand.splice(idx, 1)[0]);
+    }
+    this.gs.players[this.gs.lastDiscardPlayer].discards.pop();
+    player.melds.push({ type: 'pong', tiles: pongTiles, exposed: true });
+    this.gs.sortHand(player.hand);
+    this.gs.claimWindow = false;
+    this.gs.currentPlayer = 1;
+    this.gs.phase = 'discard';
+    this.gs.lastDiscard = null;
+    this.gs.justClaimed = true;
+    this.showToast('Pong!');
+    this.renderAll();
+  }
+
+  showKongOptions() {
+    this.clearClaimTimer();
+    const options = [];
+
+    if (this.gs.lastDiscard && this.gs.canKong(1, this.gs.lastDiscard)) {
+      options.push({
+        label: 'Kong (Exposed)',
+        tiles: [this.gs.lastDiscard],
+        action: () => this.executeKong(this.gs.lastDiscard)
+      });
+    }
+    const cKongs = this.gs.getConcealedKongs(1);
+    for (const k of cKongs) {
+      options.push({
+        label: 'Kong (Concealed)',
+        tiles: [k.tile],
+        action: () => { this.hideClaimPanel(); this.declareConcealedKong(1, k.tile); }
+      });
+    }
+    const aKongs = this.gs.getAddKongs(1);
+    for (const a of aKongs) {
+      options.push({
+        label: 'Kong (Add)',
+        tiles: [a.tile],
+        action: () => { this.hideClaimPanel(); this.declareAddKong(1, a); }
+      });
+    }
+
+    if (options.length === 1) {
+      options[0].action();
+    } else if (options.length > 1) {
+      this.showClaimPanel('Kong — Choose type:', options);
+    }
+  }
+
+  executeKong(tile) {
+    this.hideClaimPanel();
+    const player = this.gs.players[1];
+    const kongTiles = [tile];
+    for (let i = 0; i < 3; i++) {
+      const idx = player.hand.findIndex(t => this.gs.tilesMatch(t, tile));
+      if (idx >= 0) kongTiles.push(player.hand.splice(idx, 1)[0]);
+    }
+    if (this.gs.lastDiscard) this.gs.players[this.gs.lastDiscardPlayer].discards.pop();
+    player.melds.push({ type: 'kong', tiles: kongTiles, exposed: true });
+    this.gs.sortHand(player.hand);
+    this.gs.claimWindow = false;
+    this.gs.currentPlayer = 1;
+
+    const replacement = this.gs.drawReplacementTile(1);
+    if (replacement) {
+      this.gs.drawnTile = replacement;
+      this.gs.handleFlowers(1);
+      this.gs.sortHand(player.hand);
+    }
+    this.gs.phase = 'discard';
+    this.gs.lastDiscard = null;
+    this.showToast('Kong!');
+    this.renderAll();
+  }
+
+  claimMahjong() {
+    this.clearClaimTimer();
+    this.hideClaimPanel();
+    const player = this.gs.players[1];
+
+    if (this.gs.lastDiscard && this.gs.claimWindow) {
+      player.hand.push(this.gs.lastDiscard);
+      this.gs.players[this.gs.lastDiscardPlayer].discards.pop();
+      this.gs.winType = 'ron';
+    } else {
+      this.gs.winType = 'tsumo';
+    }
+    this.gs.claimWindow = false;
+    this.endGame('win', 1);
+  }
+
+  // ========== GAME END ==========
+  endGame(result, winner = -1) {
+    this.gs.phase = 'ended';
+    this.clearClaimTimer();
+    this.renderAll();
+
+    if (result === 'draw') {
+      this.showModal('流局 — Draw', 'No tiles remaining.', 'Play Again');
+    } else {
+      const name = PLAYER_NAMES[winner];
+      const emoji = PLAYER_EMOJIS[winner];
+      const winLabel = this.gs.winType === 'tsumo' ? '自摸 Tsumo' : this.gs.winType === 'rob' ? '搶槓 Rob Kong' : '食糊 Ron';
+
+      let content = `<p>${emoji} ${name} wins by ${winLabel}!</p>`;
+      content += '<div class="score-table">';
+      for (let i = 0; i < 4; i++) {
+        const isWinner = i === winner;
+        content += `<div class="score-row${isWinner ? ' winner' : ''}">
+          <span class="player-name">${PLAYER_EMOJIS[i]} ${PLAYER_NAMES[i]}</span>
+          <span class="player-score">${this.gs.players[i].score.toLocaleString()}</span>
+        </div>`;
+      }
+      content += '</div>';
+
+      this.showModal(`${emoji} ${name} Wins!`, '', 'Play Again', content);
+    }
+  }
+
+  // ========== DISCARD OVERLAY ==========
+  toggleDiscardOverlay() {
+    const overlay = document.getElementById('discard-overlay');
+    overlay.classList.toggle('show');
+    if (overlay.classList.contains('show')) {
+      this.renderDiscardOverlay();
+    }
+  }
+
+  closeDiscardOverlay() {
+    document.getElementById('discard-overlay').classList.remove('show');
+  }
+
+  toggleDiscardSort() {
+    this.discardSorted = !this.discardSorted;
+    document.getElementById('discard-sort-btn').textContent = this.discardSorted ? 'By Player' : 'Sort by Suit';
+    this.renderDiscardOverlay();
+  }
+
+  renderDiscardOverlay() {
+    const content = document.getElementById('discard-overlay-content');
+    content.innerHTML = '';
+
+    if (this.discardSorted) {
+      // Sort by suit
+      const allDiscards = [];
+      for (const p of this.gs.players) {
+        for (const t of p.discards) allDiscards.push(t);
+      }
+      allDiscards.sort((a, b) => this.gs.getTileSortKey(a) - this.gs.getTileSortKey(b));
+
+      const groups = { bamboo: [], dots: [], characters: [], winds: [], dragons: [], flowers: [] };
+      for (const t of allDiscards) {
+        const suit = t.suit || 'flowers';
+        if (groups[suit]) groups[suit].push(t);
+      }
+
+      const suitNames = { bamboo: '竹 Bamboo', dots: '筒 Dots', characters: '萬 Characters', winds: '風 Winds', dragons: '箭 Dragons', flowers: '花 Flowers' };
+      for (const [suit, tiles] of Object.entries(groups)) {
+        if (tiles.length === 0) continue;
+        const section = document.createElement('div');
+        section.className = 'discard-section';
+        section.innerHTML = `<div class="discard-section-title">${suitNames[suit]}</div>`;
+        const grid = document.createElement('div');
+        grid.className = 'discard-grid';
+        for (const t of tiles) {
+          const dt = document.createElement('div');
+          dt.className = 'dtile';
+          const label = getTileLabel(t);
+          dt.style.color = label.color;
+          dt.style.fontFamily = "'Ma Shan Zheng', serif";
+          dt.innerHTML = label.bottom ? `<div style="font-size:13px;line-height:1">${label.top}<br><span style="font-size:11px">${label.bottom}</span></div>` : label.top;
+          grid.appendChild(dt);
+        }
+        section.appendChild(grid);
+        content.appendChild(section);
+      }
+    } else {
+      // By player
+      for (let i = 0; i < 4; i++) {
+        const discards = this.gs.players[i].discards;
+        if (discards.length === 0) continue;
+        const section = document.createElement('div');
+        section.className = 'discard-section';
+        section.innerHTML = `<div class="discard-section-title">${PLAYER_EMOJIS[i]} ${PLAYER_NAMES[i]}</div>`;
+        const grid = document.createElement('div');
+        grid.className = 'discard-grid';
+        for (const t of discards) {
+          const dt = document.createElement('div');
+          dt.className = 'dtile';
+          const label = getTileLabel(t);
+          dt.style.color = label.color;
+          dt.style.fontFamily = "'Ma Shan Zheng', serif";
+          dt.innerHTML = label.bottom ? `<div style="font-size:13px;line-height:1">${label.top}<br><span style="font-size:11px">${label.bottom}</span></div>` : label.top;
+          grid.appendChild(dt);
+        }
+        section.appendChild(grid);
+        content.appendChild(section);
+      }
+    }
+
+    if (content.children.length === 0) {
+      content.innerHTML = '<p style="text-align:center;color:#8a7a6a;padding:20px">No discards yet</p>';
+    }
+  }
+
+  // ========== CLAIM PANEL ==========
+  showClaimPanel(title, options) {
+    const panel = document.getElementById('claim-panel');
+    const titleEl = document.getElementById('claim-panel-title');
+    const optionsEl = document.getElementById('claim-options');
+
+    titleEl.textContent = title;
+    optionsEl.innerHTML = '';
+
+    for (const opt of options) {
+      const el = document.createElement('div');
+      el.className = 'claim-option';
+
+      const preview = document.createElement('div');
+      preview.className = 'tiles-preview';
+      for (const t of opt.tiles) {
+        const pt = document.createElement('div');
+        pt.className = 'preview-tile';
+        if (opt.claimedTile && t.id === opt.claimedTile.id) pt.classList.add('claimed');
+        const label = getTileLabel(t);
+        pt.style.color = label.color;
+        pt.style.fontFamily = "'Ma Shan Zheng', serif";
+        pt.textContent = label.top;
+        preview.appendChild(pt);
+      }
+
+      const labelEl = document.createElement('span');
+      labelEl.className = 'action-label';
+      labelEl.textContent = opt.label;
+
+      el.appendChild(preview);
+      el.appendChild(labelEl);
+      el.addEventListener('click', () => opt.action());
+      optionsEl.appendChild(el);
+    }
+
+    panel.classList.add('visible');
+  }
+
+  hideClaimPanel() {
+    document.getElementById('claim-panel').classList.remove('visible');
+  }
+
+  // ========== UI HELPERS ==========
+  showToast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 1500);
+  }
+
+  showAIToast(msg) {
+    const el = document.getElementById('ai-toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 1200);
+  }
+
+  showModal(title, text, btnText, extraHTML = '') {
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-text').textContent = text;
+    document.getElementById('modal-content').innerHTML = extraHTML;
+    document.getElementById('modal-btn').textContent = btnText;
+    document.getElementById('modal').classList.add('show');
+  }
+
+  hideModal() {
+    document.getElementById('modal').classList.remove('show');
+  }
+}
+
+// ==================== INITIALIZE ====================
+window.addEventListener('DOMContentLoaded', () => {
+  // Wait for fonts to load, then start
+  document.fonts.ready.then(() => {
+    window.gameController = new GameController();
+  });
+});
+</script>
+</body>
+</html>
