@@ -12,7 +12,7 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html, body {
   height: 100%; width: 100%;
-  background: linear-gradient(170deg, #e8dcc8 0%, #ddd0ba 30%, #d5c5a8 70%, #cbb898 100%);
+  background: linear-gradient(170deg, #a08050 0%, #927045 30%, #8B7355 70%, #7a6348 100%);
   font-family: 'ZCOOL XiaoWei', 'Ma Shan Zheng', serif;
   color: #3a3028;
   overflow: hidden;
@@ -1102,7 +1102,7 @@ class Renderer {
   setupScene() {
     // Background - warm aged parchment with ink wash sky
     this.createBackgroundSky();
-    this.scene.fog = new THREE.Fog(0xf2e4c8, 22, 45);
+    this.scene.fog = new THREE.Fog(0x9a7a55, 22, 45);
 
     // Warm ambient light - lantern glow feel (~3500K)
     const ambient = new THREE.AmbientLight(0xffe8cc, 0.55);
@@ -1150,114 +1150,81 @@ class Renderer {
   }
 
   createBackgroundSky() {
-    // Ink-wash sumi-e mountain landscape background
+    // Warm wood panel background texture
     const canvas = document.createElement('canvas');
     canvas.width = 1024;
     canvas.height = 1024;
     const ctx = canvas.getContext('2d');
 
-    // Warm parchment/cream base with vertical gradient
+    // Rich honey-amber wood base gradient
     const bgGrad = ctx.createLinearGradient(0, 0, 0, 1024);
-    bgGrad.addColorStop(0, '#ede3d2');
-    bgGrad.addColorStop(0.3, '#e8dcc8');
-    bgGrad.addColorStop(0.6, '#e4d8c2');
-    bgGrad.addColorStop(1, '#ddd0b8');
+    bgGrad.addColorStop(0, '#a8845a');
+    bgGrad.addColorStop(0.25, '#9a7850');
+    bgGrad.addColorStop(0.5, '#a08055');
+    bgGrad.addColorStop(0.75, '#8e7048');
+    bgGrad.addColorStop(1, '#96784e');
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, 1024, 1024);
 
-    // Subtle parchment texture noise
-    for (let i = 0; i < 8000; i++) {
+    // Horizontal wood grain lines — many fine strokes
+    for (let i = 0; i < 300; i++) {
+      const y = Math.random() * 1024;
+      const width = 200 + Math.random() * 824;
+      const x = Math.random() * (1024 - width);
+      const lightOrDark = Math.random() > 0.5;
+      const alpha = 0.03 + Math.random() * 0.06;
+      if (lightOrDark) {
+        ctx.strokeStyle = `rgba(190,160,110,${alpha})`;
+      } else {
+        ctx.strokeStyle = `rgba(100,70,35,${alpha})`;
+      }
+      ctx.lineWidth = 0.5 + Math.random() * 1.5;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      // Slight waviness for natural grain
+      const midX = x + width / 2;
+      const drift = (Math.random() - 0.5) * 4;
+      ctx.quadraticCurveTo(midX, y + drift, x + width, y + (Math.random() - 0.5) * 2);
+      ctx.stroke();
+    }
+
+    // Broader grain bands for depth
+    for (let i = 0; i < 40; i++) {
+      const y = Math.random() * 1024;
+      const alpha = 0.02 + Math.random() * 0.04;
+      const dark = Math.random() > 0.4;
+      ctx.fillStyle = dark
+        ? `rgba(90,62,30,${alpha})`
+        : `rgba(180,150,100,${alpha})`;
+      ctx.fillRect(0, y, 1024, 2 + Math.random() * 6);
+    }
+
+    // Subtle knot-like darker patches
+    for (let i = 0; i < 5; i++) {
+      const kx = Math.random() * 1024;
+      const ky = Math.random() * 1024;
+      const kr = 20 + Math.random() * 40;
+      const knotGrad = ctx.createRadialGradient(kx, ky, 0, kx, ky, kr);
+      knotGrad.addColorStop(0, 'rgba(80,55,28,0.08)');
+      knotGrad.addColorStop(0.6, 'rgba(80,55,28,0.03)');
+      knotGrad.addColorStop(1, 'rgba(80,55,28,0)');
+      ctx.fillStyle = knotGrad;
+      ctx.fillRect(kx - kr, ky - kr, kr * 2, kr * 2);
+    }
+
+    // Fine noise for texture
+    for (let i = 0; i < 6000; i++) {
       const x = Math.random() * 1024;
       const y = Math.random() * 1024;
-      const alpha = Math.random() * 0.03;
-      ctx.fillStyle = `rgba(140,120,90,${alpha})`;
+      const alpha = Math.random() * 0.025;
+      ctx.fillStyle = `rgba(70,48,20,${alpha})`;
       ctx.fillRect(x, y, Math.random() * 2 + 0.5, Math.random() * 2 + 0.5);
     }
 
-    // Helper: draw a mountain silhouette layer
-    function drawMountainLayer(ctx, baseY, maxHeight, color, opacity, segments) {
-      ctx.save();
-      ctx.globalAlpha = opacity;
-      ctx.fillStyle = color;
-      ctx.beginPath();
-      ctx.moveTo(0, baseY);
-      const segW = 1024 / segments;
-      // Generate peak heights with smooth variation
-      const peaks = [];
-      for (let i = 0; i <= segments; i++) {
-        const h = Math.random() * maxHeight * 0.6 + maxHeight * 0.2;
-        // Create a few dominant peaks
-        const peakBoost = (Math.sin(i * 0.8) * 0.5 + 0.5) * maxHeight * 0.3;
-        peaks.push(h + peakBoost);
-      }
-      // Draw mountain ridge with quadratic curves for soft ink-wash look
-      for (let i = 0; i <= segments; i++) {
-        const x = i * segW;
-        const y = baseY - peaks[i];
-        if (i === 0) {
-          ctx.lineTo(x, y);
-        } else {
-          const cpx = (i - 0.5) * segW;
-          const cpy = baseY - (peaks[i - 1] + peaks[i]) / 2 - Math.random() * 15;
-          ctx.quadraticCurveTo(cpx, cpy, x, y);
-        }
-      }
-      ctx.lineTo(1024, baseY + 50);
-      ctx.lineTo(0, baseY + 50);
-      ctx.closePath();
-      ctx.fill();
-      ctx.restore();
-    }
-
-    // Layer 1: Far distant mountains — very faint, high up
-    drawMountainLayer(ctx, 420, 180, '#a89888', 0.06, 8);
-
-    // Atmospheric mist between layers 1 and 2
-    const mist1 = ctx.createLinearGradient(0, 350, 0, 480);
-    mist1.addColorStop(0, 'rgba(232,220,200,0)');
-    mist1.addColorStop(0.4, 'rgba(232,220,200,0.5)');
-    mist1.addColorStop(1, 'rgba(232,220,200,0)');
-    ctx.fillStyle = mist1;
-    ctx.fillRect(0, 350, 1024, 130);
-
-    // Layer 2: Mid-distance mountains — slightly stronger
-    drawMountainLayer(ctx, 500, 160, '#9a8a7a', 0.09, 10);
-
-    // Atmospheric mist between layers 2 and 3
-    const mist2 = ctx.createLinearGradient(0, 440, 0, 560);
-    mist2.addColorStop(0, 'rgba(228,216,194,0)');
-    mist2.addColorStop(0.5, 'rgba(228,216,194,0.45)');
-    mist2.addColorStop(1, 'rgba(228,216,194,0)');
-    ctx.fillStyle = mist2;
-    ctx.fillRect(0, 440, 1024, 120);
-
-    // Layer 3: Nearest mountains — most visible, warm dark wash
-    drawMountainLayer(ctx, 580, 140, '#8a7a68', 0.13, 12);
-
-    // Soft mist pooling at the base of mountains
-    const baseMist = ctx.createLinearGradient(0, 540, 0, 650);
-    baseMist.addColorStop(0, 'rgba(232,220,200,0)');
-    baseMist.addColorStop(0.5, 'rgba(232,220,200,0.6)');
-    baseMist.addColorStop(1, 'rgba(232,220,200,0.3)');
-    ctx.fillStyle = baseMist;
-    ctx.fillRect(0, 540, 1024, 110);
-
-    // Very faint ink wash spatter for aged paper feel
-    for (let i = 0; i < 3000; i++) {
-      const x = Math.random() * 1024;
-      const y = Math.random() * 1024;
-      const alpha = Math.random() * 0.015;
-      ctx.fillStyle = `rgba(100,85,65,${alpha})`;
-      const r = Math.random() * 1.2 + 0.2;
-      ctx.beginPath();
-      ctx.arc(x, y, r, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    // Warm atmospheric glow from center
-    const glow = ctx.createRadialGradient(512, 350, 50, 512, 450, 550);
-    glow.addColorStop(0, 'rgba(240,230,210,0.12)');
-    glow.addColorStop(1, 'rgba(240,230,210,0)');
+    // Warm center glow — like overhead lamp reflection on polished wood
+    const glow = ctx.createRadialGradient(512, 450, 50, 512, 450, 500);
+    glow.addColorStop(0, 'rgba(200,170,120,0.1)');
+    glow.addColorStop(1, 'rgba(200,170,120,0)');
     ctx.fillStyle = glow;
     ctx.fillRect(0, 0, 1024, 1024);
 
