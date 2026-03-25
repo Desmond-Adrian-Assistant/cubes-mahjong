@@ -1504,9 +1504,9 @@ class Renderer {
 
     // Corner bamboo motif — top-left
     ctx.save();
-    ctx.globalAlpha = 0.55;
-    ctx.strokeStyle = '#3a5a3a';
-    ctx.lineWidth = 5;
+    ctx.globalAlpha = 0.45;
+    ctx.strokeStyle = 'rgba(50,40,30,1)';
+    ctx.lineWidth = 7.5;
     // Bamboo stalks
     for (let i = 0; i < 3; i++) {
       const bx = 70 + i * 28;
@@ -1514,14 +1514,14 @@ class Renderer {
       // Node lines
       for (let n = 0; n < 4; n++) {
         const ny = 50 + n * 45;
-        ctx.lineWidth = 3.5;
-        ctx.beginPath(); ctx.moveTo(bx - 5, ny); ctx.lineTo(bx + 9, ny); ctx.stroke();
         ctx.lineWidth = 5;
+        ctx.beginPath(); ctx.moveTo(bx - 5, ny); ctx.lineTo(bx + 9, ny); ctx.stroke();
+        ctx.lineWidth = 7.5;
       }
     }
     // Bamboo leaves — sweeping strokes
-    ctx.lineWidth = 4;
-    ctx.fillStyle = '#3a5a3a';
+    ctx.lineWidth = 6;
+    ctx.fillStyle = 'rgba(50,40,30,1)';
     const drawLeaf = (x, y, angle, len) => {
       ctx.save();
       ctx.translate(x, y);
@@ -1543,18 +1543,18 @@ class Renderer {
 
     // Corner bamboo motif — bottom-right
     ctx.save();
-    ctx.globalAlpha = 0.55;
-    ctx.strokeStyle = '#3a5a3a';
-    ctx.fillStyle = '#3a5a3a';
-    ctx.lineWidth = 5;
+    ctx.globalAlpha = 0.45;
+    ctx.strokeStyle = 'rgba(50,40,30,1)';
+    ctx.fillStyle = 'rgba(50,40,30,1)';
+    ctx.lineWidth = 7.5;
     for (let i = 0; i < 2; i++) {
       const bx = 890 + i * 28;
       ctx.beginPath(); ctx.moveTo(bx, 800); ctx.lineTo(bx + 3, 1000); ctx.stroke();
       for (let n = 0; n < 3; n++) {
         const ny = 830 + n * 50;
-        ctx.lineWidth = 3.5;
-        ctx.beginPath(); ctx.moveTo(bx - 5, ny); ctx.lineTo(bx + 8, ny); ctx.stroke();
         ctx.lineWidth = 5;
+        ctx.beginPath(); ctx.moveTo(bx - 5, ny); ctx.lineTo(bx + 8, ny); ctx.stroke();
+        ctx.lineWidth = 7.5;
       }
     }
     drawLeaf(910, 860, -0.4, 65);
