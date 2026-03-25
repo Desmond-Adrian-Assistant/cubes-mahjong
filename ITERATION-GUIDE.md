@@ -99,3 +99,22 @@ Adrian specifically wants PICTORIAL tile artwork, NOT Chinese characters:
 - EVERY change must make the game look MORE like mockup-reference.png
 - If a change would deviate from the mockup, DO NOT make it
 - The mockup is the ONLY source of truth for visual decisions
+
+## ⚠️ SVG vs Image Generation
+DO NOT use hand-coded SVG for artistic/stylistic elements. They look generic and stiff.
+
+**Use Nano Banana / image generation for:**
+- Player avatar portraits (ink wash characters with traditional clothing)
+- Table surface decorative textures (parchment, ink wash motifs)
+- Decorative corner elements (bamboo paintings, cloud motifs)
+- Any element that needs artistic quality
+
+**Use procedural canvas/SVG for:**
+- Tile suit symbols (dots, bamboo sticks, characters) — geometric/precise
+- UI elements (buttons, panels, overlays)
+- Simple geometric patterns (lattice, borders)
+
+**How to generate with Nano Banana:**
+Use the image generation capabilities available in the session. Prompt style: "sumi-e ink wash painting style, traditional East Asian, [subject], on transparent/cream background, minimalist brush strokes"
+
+Save generated images to /Users/adrianai/Projects/cubes-mahjong/assets/ and reference as relative paths in the HTML.

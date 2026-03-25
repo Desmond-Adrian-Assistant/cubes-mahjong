@@ -1,8 +1,8 @@
 {
-  "iteration": 3,
+  "iteration": 4,
   "maxIterations": 15,
   "startedAt": "2026-03-25T08:05:00-05:00",
-  "lastCompleted": "2026-03-25T08:57:00-05:00",
+  "lastCompleted": "2026-03-25T09:06:00-05:00",
   "changes": [
     {
       "iteration": 1,
@@ -21,6 +21,12 @@
       "delta": "D",
       "description": "Bigger hand tiles: 64x84→82x108px, face font 36→46px, char-top 27→34px, char-bottom 22→28px. Hand tray padding/gap adjusted. Tiles now dominate bottom screen with large readable calligraphy.",
       "commit": "3efd5ec"
+    },
+    {
+      "iteration": 4,
+      "delta": "A",
+      "description": "Player avatars: Renamed Yuki→Keni with new qipao/cheongsam SVG portrait (bun, flower ornament, mandarin collar, frog button). Avatars 110→120px. Added 'PLAYER N' labels above each name. Player-label updated to 'PLAYER 4: Chen'.",
+      "commit": "2475f74"
     }
   ],
   "status": "running",
