@@ -1,8 +1,8 @@
 {
-  "iteration": 14,
+  "iteration": 15,
   "maxIterations": 15,
   "startedAt": "2026-03-25T08:05:00-05:00",
-  "lastCompleted": "2026-03-25T15:03:00-05:00",
+  "lastCompleted": "2026-03-25T15:20:00-05:00",
   "changes": [
     {
       "iteration": 1,
@@ -87,10 +87,16 @@
       "delta": "D",
       "description": "Even bigger hand tiles: 82x108→92x120px, face font 46→52px, char-top 34→38px, char-bottom 28→32px, tile-body radius 12→14px, face radius 10→12px. Hand tray padding 12px 18px. Responsive font bumped 36→40px. Tiles now THE dominant 2D element with large readable calligraphy.",
       "commit": "b882d64"
+    },
+    {
+      "iteration": 15,
+      "delta": "B",
+      "description": "Richer wood panel background: base color #d4be98→#9B7830 (deep honey-brown), CSS repeating-linear-gradient wood grain (fine 1px/7px, medium/25px, broad/70px bands), canvas texture rewritten with per-pixel horizontal grain lines + dark grain bands + panel seam divisions. Vignette tightened (30%→25%) and warmed (rgba(45,25,5,0.55)). Background now clearly reads as warm wood panels.",
+      "commit": "1591cc5"
     }
   ],
-  "status": "active",
-  "notes": "Iteration 14: Hand tiles now significantly larger and more visually dominant. All 10 deltas addressed, D refined twice (iter 3+14), C refined twice (iter 2+13). 1 iteration remaining. Game is highly polished — approaching mockup fidelity.",
+  "status": "done",
+  "notes": "ROUND 2 COMPLETE (15/15 iterations). All 10 deltas addressed across 15 iterations. Key refinements: B (background) x2 (iter 1+15), C (walls) x2 (iter 2+13), D (hand tiles) x2 (iter 3+14), F+G (decorations) x2 (iter 5+12), plus user feedback iteration (rounded tiles). Game is highly polished with warm wood background, chunky 3D walls, large calligraphy tiles, ink-wash avatars, cloud wisps, bamboo corners, and aged parchment table.",
   "user_feedback": [
     "Tiles must have ROUNDED edges and corners like the mockup",
     "Tiles need TWO-TONE look (cream face, darker sides)",
