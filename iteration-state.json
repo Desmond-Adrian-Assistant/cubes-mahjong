@@ -1,9 +1,15 @@
 {
-  "iteration": 0,
+  "iteration": 1,
   "maxIterations": 20,
   "startedAt": "2026-03-25T16:15:00-05:00",
-  "lastCompleted": null,
-  "changes": [],
+  "lastCompleted": "2026-03-25T16:25:00-05:00",
+  "changes": [
+    {
+      "iteration": 1,
+      "fix": "Increased wall tile gaps: scale 0.88→0.78/0.82, tilt Math.PI→Math.PI*0.92 for two-tone visibility",
+      "result": "Wall tiles now show visible individual separation and slight top-face reveal"
+    }
+  ],
   "status": "running",
   "notes": "Round 3 — ONE GOAL: match mockup-reference.png exactly. Compare screenshot every iteration."
 }
