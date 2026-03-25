@@ -1834,27 +1834,37 @@ class Renderer {
     canvas.height = 352;
     const ctx = canvas.getContext('2d');
 
-    // Tile face — clean white with subtle warm gradient
+    // Tile side/edge color (visible around the rounded face)
+    ctx.fillStyle = '#c8b898';
+    ctx.fillRect(0, 0, 256, 352);
+
+    // Rounded face rectangle — matches CSS hand tile appearance
+    const r = 20; // corner radius
+    const m = 6;  // margin from edge (shows the tan border)
+    ctx.beginPath();
+    ctx.moveTo(m + r, m);
+    ctx.lineTo(256 - m - r, m);
+    ctx.arcTo(256 - m, m, 256 - m, m + r, r);
+    ctx.lineTo(256 - m, 352 - m - r);
+    ctx.arcTo(256 - m, 352 - m, 256 - m - r, 352 - m, r);
+    ctx.lineTo(m + r, 352 - m);
+    ctx.arcTo(m, 352 - m, m, 352 - m - r, r);
+    ctx.lineTo(m, m + r);
+    ctx.arcTo(m, m, m + r, m, r);
+    ctx.closePath();
+
+    // Fill with white-cream gradient
     const faceGrad = ctx.createLinearGradient(0, 0, 0, 352);
-    faceGrad.addColorStop(0, '#fafaf5');
-    faceGrad.addColorStop(0.5, '#fafaf5');
-    faceGrad.addColorStop(1, '#f5f0e8');
+    faceGrad.addColorStop(0, '#fefefe');
+    faceGrad.addColorStop(0.4, '#fafaf5');
+    faceGrad.addColorStop(1, '#f2ece0');
     ctx.fillStyle = faceGrad;
-    ctx.fillRect(0, 0, 256, 352);
+    ctx.fill();
 
-    // Subtle warm edge tint
-    const edgeGrad = ctx.createLinearGradient(0, 0, 256, 0);
-    edgeGrad.addColorStop(0, 'rgba(220,200,170,0.15)');
-    edgeGrad.addColorStop(0.1, 'rgba(220,200,170,0)');
-    edgeGrad.addColorStop(0.9, 'rgba(220,200,170,0)');
-    edgeGrad.addColorStop(1, 'rgba(220,200,170,0.15)');
-    ctx.fillStyle = edgeGrad;
-    ctx.fillRect(0, 0, 256, 352);
-
-    // Fine border
-    ctx.strokeStyle = 'rgba(160,140,110,0.25)';
-    ctx.lineWidth = 3;
-    ctx.strokeRect(2, 2, 252, 348);
+    // Fine border on the rounded face
+    ctx.strokeStyle = 'rgba(160,140,110,0.35)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
 
     if (key.startsWith('dots-')) {
       // Draw actual circles for dots tiles instead of text
@@ -3001,7 +3011,7 @@ class Renderer {
     const faceTex = faceDown ? this.createTileBackTexture() : this.createTileTexture(tile);
 
     // Two-tone: bright cream face on top, darker tan sides for depth
-    const faceColor = faceDown ? 0xc8b890 : 0xf5ead8;
+    const faceColor = faceDown ? 0xc8b890 : 0xffffff;
     const sideColor = faceDown ? 0x7a6038 : 0xa89068;
     const bottomColor = faceDown ? 0x5a4828 : 0x8a7858;
 
