@@ -2637,16 +2637,16 @@ class Renderer {
     canvas.height = 176;
     const ctx = canvas.getContext('2d');
 
-    // Back — warm taupe/ivory (traditional mahjong tile back)
+    // Back — light cream/ivory (traditional mahjong tile back)
     const bgG = ctx.createLinearGradient(0, 0, 128, 176);
-    bgG.addColorStop(0, '#8a7a68');
-    bgG.addColorStop(0.5, '#7d6e5c');
-    bgG.addColorStop(1, '#6e5f4e');
+    bgG.addColorStop(0, '#ede4d0');
+    bgG.addColorStop(0.5, '#ddd4c0');
+    bgG.addColorStop(1, '#d0c8b4');
     ctx.fillStyle = bgG;
     ctx.fillRect(0, 0, 128, 176);
 
     // Diamond lattice / crosshatch pattern
-    ctx.strokeStyle = 'rgba(255,245,230,0.12)';
+    ctx.strokeStyle = 'rgba(255,255,245,0.35)';
     ctx.lineWidth = 0.8;
     const step = 10;
     for (let x = -176; x < 128 + 176; x += step) {
@@ -2659,7 +2659,7 @@ class Renderer {
       ctx.lineTo(x + 176, 0);
       ctx.stroke();
     }
-    ctx.strokeStyle = 'rgba(50,40,30,0.08)';
+    ctx.strokeStyle = 'rgba(50,40,30,0.12)';
     for (let x = -176; x < 128 + 176; x += step) {
       ctx.beginPath();
       ctx.moveTo(x + 1, 0);
@@ -2708,9 +2708,9 @@ class Renderer {
     const faceTex = faceDown ? this.createTileBackTexture() : this.createTileTexture(tile);
 
     // Side/edge materials — darker for face-down tiles to contrast with table
-    const sideColor = faceDown ? 0xc8c0b0 : 0xe8dcc8;
-    const bottomColor = faceDown ? 0xa8a090 : 0xd8d0c0;
-    const frontColor = faceDown ? 0xd0c8b8 : 0xece4d4;
+    const sideColor = faceDown ? 0xe0d8c8 : 0xe8dcc8;
+    const bottomColor = faceDown ? 0xd0c8b8 : 0xd8d0c0;
+    const frontColor = faceDown ? 0xe8e0d0 : 0xece4d4;
     const sideMat = new THREE.MeshStandardMaterial({ color: sideColor, roughness: 0.55, metalness: 0.02 });
     const bottomMat = new THREE.MeshStandardMaterial({ color: bottomColor, roughness: 0.7, metalness: 0.0 });
     const faceMat = new THREE.MeshStandardMaterial({ map: faceTex, roughness: 0.35, metalness: 0.0 });
