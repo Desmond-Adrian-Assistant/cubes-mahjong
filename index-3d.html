@@ -3059,7 +3059,7 @@ class Renderer {
     // TWO-TONE: Bright white face vs MUCH darker tan/brown sides
     // TWO-TONE: White face on top, warm beige/tan base visible from camera
     const faceColor = faceDown ? 0xF5F0E6 : 0xffffff;
-    const sideColor = faceDown ? 0xC8B8A0 : 0xC0AC90;  // Warm beige — clearly different from white
+    const sideColor = faceDown ? 0xA08860 : 0x9C8060;  // Warm medium brown — clearly darker than face
 
     const faceMat = new THREE.MeshStandardMaterial({ map: faceTex, color: faceColor, roughness: 0.35, metalness: 0.0 });
     const sideMat = new THREE.MeshStandardMaterial({ color: sideColor, roughness: 0.5, metalness: 0.0 });
