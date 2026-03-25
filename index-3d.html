@@ -3069,12 +3069,14 @@ class Renderer {
     const layers = 2;
     let tileIdx = 0;
 
-    // Wall sides: North(z=-3.6), East(x=3.6), South(z=3.6), West(x=-3.6)
+    // Wall sides: offset from center, with corners that don't overlap
+    // Each wall starts/ends leaving room for the perpendicular wall tile depth (H)
+    const wallDist = 3.6;
     const sides = [
-      { dir: 'north', baseX: 0, baseZ: -3.6, along: 'x', rot: 0 },
-      { dir: 'east',  baseX: 3.6, baseZ: 0,  along: 'z', rot: Math.PI / 2 },
-      { dir: 'south', baseX: 0, baseZ: 3.6,  along: 'x', rot: Math.PI },
-      { dir: 'west',  baseX: -3.6, baseZ: 0, along: 'z', rot: -Math.PI / 2 },
+      { dir: 'north', baseX: 0, baseZ: -wallDist, along: 'x', rot: 0, offsetStart: -wallDist + H/2, offsetEnd: wallDist - H/2 },
+      { dir: 'east',  baseX: wallDist, baseZ: 0,  along: 'z', rot: Math.PI / 2, offsetStart: -wallDist + H/2, offsetEnd: wallDist - H/2 },
+      { dir: 'south', baseX: 0, baseZ: wallDist,  along: 'x', rot: Math.PI, offsetStart: -wallDist + H/2, offsetEnd: wallDist - H/2 },
+      { dir: 'west',  baseX: -wallDist, baseZ: 0, along: 'z', rot: -Math.PI / 2, offsetStart: -wallDist + H/2, offsetEnd: wallDist - H/2 },
     ];
 
     // Drop shadow material (shared across all wall sections)
@@ -3102,7 +3104,10 @@ class Renderer {
           const mesh = this.create3DTile(wallTiles[tileIdx], true);
           tileIdx++;
 
-          const offset = (i - tilesPerSide / 2 + 0.5) * (W + 0.015);
+          // Distribute tiles evenly within the shortened wall range (avoids corner overlap)
+          const wallLen = side.offsetEnd - side.offsetStart;
+          const tileSpacing = wallLen / tilesPerSide;
+          const offset = side.offsetStart + (i + 0.5) * tileSpacing;
           const yPos = 0.02 + D / 2 + layer * (D + 0.02);
 
           if (side.along === 'x') {
