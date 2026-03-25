@@ -1,8 +1,8 @@
 {
-  "iteration": 7,
+  "iteration": 8,
   "maxIterations": 25,
   "startedAt": "2026-03-24T22:55:00-05:00",
-  "lastCompleted": "2026-03-25T00:32:00-05:00",
+  "lastCompleted": "2026-03-25T00:52:00-05:00",
   "changes": [
     "Iteration 1: Replaced dots tiles (dots-1 through dots-9) with drawn circular artwork. Each dot is rendered as a teal circle with concentric ring effect and subtle highlight, arranged in traditional mahjong patterns.",
     "Iteration 2: Drew bamboo stick artwork (bam-2 to bam-9 as green sticks with segment nodes, bam-1 as stylized bird/sparrow). Character tiles now show Chinese numerals + 萬 in deep red-black ink with a traditional red seal/chop mark.",
@@ -10,7 +10,8 @@
     "Iteration 4: Bonus tiles and dots-1 upgrade. Flower tiles (梅蘭菊竹) now have ink wash botanical artwork - Plum with pink blossoms on dark branches, Orchid with curved leaves and purple flowers, Chrysanthemum with layered orange petals, Bamboo with green stalks and pointed leaves. Season tiles (春夏秋冬) have themed scenes - Spring cherry blossoms with sprouts, Summer sun with lush leaves, Autumn falling maple leaves, Winter bare branches with snowflakes. Dots-1 enhanced with ornate multi-ring concentric design (rays, decorative dots, teal/blue palette). All bonus tiles show corner number and Chinese name.",
     "Iteration 5: Green felt table surface replacing rice paper (dark green #1a5c2e with fiber texture), procedural wood grain texture on border frame (dark walnut with grain lines, wavy curves, and knot details), brass corner brackets at all 4 corners of the table (L-shaped with metallic finish). Inner overlay tinted green, decorative border lines changed to warm gold contrast.",
     "Iteration 6: Reverted table surface from green felt back to correct cream/parchment (#f5eed6) per mockup reference. Added warm wood panel wall background with honey-gold tones and vertical grain pattern. Inner overlay tint corrected to warm cream. Wood border frame and brass corners preserved.",
-    "Iteration 7: Enhanced lighting and atmosphere. Reduced ambient light (0.75→0.55) and boosted directional light (1.1→1.35) for stronger shadow contrast. Increased shadow radius to 4. Added warm CSS vignette overlay darkening screen edges. Boosted ink decoration visibility (ensō strokes +30%, bamboo motifs 0.18→0.25, cloud wisps 0.12→0.18). Added subtle ambient occlusion gradient to table edges. Darkened tile edge color for better contrast against table."
+    "Iteration 7: Enhanced lighting and atmosphere. Reduced ambient light (0.75→0.55) and boosted directional light (1.1→1.35) for stronger shadow contrast. Increased shadow radius to 4. Added warm CSS vignette overlay darkening screen edges. Boosted ink decoration visibility (ensō strokes +30%, bamboo motifs 0.18→0.25, cloud wisps 0.12→0.18). Added subtle ambient occlusion gradient to table edges. Darkened tile edge color for better contrast against table.",
+    "Iteration 8: Changed tile backs from jade green (#3a5c4a) to warm taupe/brown (#8a7a68 → #6e5f4e gradient) matching mockup's ivory tile back look. Added diamond lattice crosshatch pattern with light highlight and dark shadow lines for woven texture effect. Wall tiles now blend harmoniously with the cream parchment table surface."
   ],
   "status": "running"
 }
