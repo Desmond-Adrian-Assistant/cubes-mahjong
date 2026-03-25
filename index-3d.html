@@ -2637,15 +2637,41 @@ class Renderer {
     canvas.height = 176;
     const ctx = canvas.getContext('2d');
 
-    // Back — dark jade green (traditional mahjong tile back)
+    // Back — warm taupe/ivory (traditional mahjong tile back)
     const bgG = ctx.createLinearGradient(0, 0, 128, 176);
-    bgG.addColorStop(0, '#3a5c4a');
-    bgG.addColorStop(0.5, '#2e4f3e');
-    bgG.addColorStop(1, '#264434');
+    bgG.addColorStop(0, '#8a7a68');
+    bgG.addColorStop(0.5, '#7d6e5c');
+    bgG.addColorStop(1, '#6e5f4e');
     ctx.fillStyle = bgG;
     ctx.fillRect(0, 0, 128, 176);
 
-    // Double border frame — gold-ish
+    // Diamond lattice / crosshatch pattern
+    ctx.strokeStyle = 'rgba(255,245,230,0.12)';
+    ctx.lineWidth = 0.8;
+    const step = 10;
+    for (let x = -176; x < 128 + 176; x += step) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x + 176, 176);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x, 176);
+      ctx.lineTo(x + 176, 0);
+      ctx.stroke();
+    }
+    ctx.strokeStyle = 'rgba(50,40,30,0.08)';
+    for (let x = -176; x < 128 + 176; x += step) {
+      ctx.beginPath();
+      ctx.moveTo(x + 1, 0);
+      ctx.lineTo(x + 177, 176);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x + 1, 176);
+      ctx.lineTo(x + 177, 0);
+      ctx.stroke();
+    }
+
+    // Double border frame — warm brown
     ctx.strokeStyle = 'rgba(200,180,120,0.35)';
     ctx.lineWidth = 2;
     ctx.strokeRect(6, 6, 116, 164);
