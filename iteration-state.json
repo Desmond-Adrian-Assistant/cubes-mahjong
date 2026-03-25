@@ -1,8 +1,8 @@
 {
-  "iteration": 23,
+  "iteration": 24,
   "maxIterations": 25,
   "startedAt": "2026-03-24T22:55:00-05:00",
-  "lastCompleted": "2026-03-25T06:25:00-05:00",
+  "lastCompleted": "2026-03-25T06:32:00-05:00",
   "changes": [
     "Iteration 1: Replaced dots tiles (dots-1 through dots-9) with drawn circular artwork. Each dot is rendered as a teal circle with concentric ring effect and subtle highlight, arranged in traditional mahjong patterns.",
     "Iteration 2: Drew bamboo stick artwork (bam-2 to bam-9 as green sticks with segment nodes, bam-1 as stylized bird/sparrow). Character tiles now show Chinese numerals + 萬 in deep red-black ink with a traditional red seal/chop mark.",
@@ -26,7 +26,8 @@
     "Iteration 20: Added icon-style toolbar buttons matching mockup. Bottom-right toolbar with 4 buttons (Discard, Mahjong, Settings, Help) — warm ivory squares with icons and uppercase labels. Top-right toolbar expanded from 2 to 4 buttons (Discard, Sort, Settings, Help) in same icon-square style. All buttons use toolbar-btn class: 56x56px, rounded corners, cream background, subtle shadow. Wired Discard to toggle discard overlay, Mahjong to claim win, Help shows toast. Matches mockup's distinctive icon toolbar layout.",
     "Iteration 21: Boosted bamboo corner motif visibility on table surface. Changed bamboo ink color from muted green (#3a5a3a) to warm dark brown ink (rgba(50,40,30)) so motifs no longer blend into the cream table. Thickened stalk lineWidth 5→7.5 (+50%), node lineWidth 3.5→5, leaf lineWidth 4→6. Alpha adjusted 0.55→0.45. Bamboo brush paintings are now clearly visible in table corners, matching mockup's decorative ink elements.",
     "Iteration 22: Boosted tile contrast against table surface. Darkened faceDown edge colors (sides 0xd8ceb8→0xb8a890, bottom 0xd0c8b8→0xa89878, front 0xdcd4c0→0xc8c0b0). Reduced ambient light 0.55→0.4, boosted directional 1.35→1.5, tightened shadow radius 4→3. Added EdgesGeometry dark brown outlines (0x8a7a6a) to all tiles. Darkened tile back gradient and boosted lattice pattern visibility. Wall tiles now clearly defined against cream table.",
-    "Iteration 23: Camera closer to table — FOV 45→50, camera Y 12→9, camera Z 12→8. Table now fills significantly more of the viewport. Tiles, walls, and center discards all much more visible and detailed. Matches mockup's tighter framing."
+    "Iteration 23: Camera closer to table — FOV 45→50, camera Y 12→9, camera Z 12→8. Table now fills significantly more of the viewport. Tiles, walls, and center discards all much more visible and detailed. Matches mockup's tighter framing.",
+    "Iteration 24: Lightened background from dark brown (#a08050→#7a6348) to warm cream/parchment (#d4c4a8→#c4b490). Added procedural ink-wash mountain silhouettes in background — 3 layers of faint misty mountains using bezier curves at different heights with warm gray-brown tones (opacity 0.04-0.08). Added subtle paper grain texture overlay. Background now matches mockup's light, warm, atmospheric feel."
   ],
   "status": "running"
 }
