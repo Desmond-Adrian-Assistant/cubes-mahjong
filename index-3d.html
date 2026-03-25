@@ -1404,11 +1404,11 @@ class Renderer {
     // === Bold Ens\u014d circle ink brush stroke ===
     ctx.save();
     ctx.translate(512, 512);
-    const ensoR = 180, nSteps = 200, gapA = 0.4;
+    const ensoR = 126, nSteps = 200, gapA = 0.4;
     for (let pass = 0; pass < 3; pass++) {
       ctx.beginPath();
-      const alpha = [0.65, 0.45, 0.30][pass];
-      const lw = [16, 22, 30][pass];
+      const alpha = [0.22, 0.17, 0.12][pass];
+      const lw = [10, 13, 18][pass];
       for (let i = 0; i < nSteps; i++) {
         const t = i / nSteps;
         const ang = gapA + t * (Math.PI * 2 - gapA * 2);
@@ -1417,7 +1417,7 @@ class Renderer {
         const x = Math.cos(ang) * r, y = Math.sin(ang) * r;
         i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
       }
-      ctx.strokeStyle = 'rgba(60,45,30,' + alpha + ')';
+      ctx.strokeStyle = 'rgba(90,80,70,' + alpha + ')';
       ctx.lineWidth = lw;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
@@ -1428,7 +1428,7 @@ class Renderer {
       const r = ensoR + (Math.random() - 0.5) * 30;
       ctx.beginPath();
       ctx.arc(Math.cos(ang) * r, Math.sin(ang) * r, Math.random() * 3 + 1, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(60,45,30,' + (Math.random() * 0.2 + 0.1) + ')';
+      ctx.fillStyle = 'rgba(90,80,70,' + (Math.random() * 0.1 + 0.05) + ')';
       ctx.fill();
     }
     ctx.restore();
