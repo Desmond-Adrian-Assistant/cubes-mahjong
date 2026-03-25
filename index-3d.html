@@ -1233,11 +1233,11 @@ class Renderer {
 
     // Rich honey-amber wood base gradient
     const bgGrad = ctx.createLinearGradient(0, 0, 0, 1024);
-    bgGrad.addColorStop(0, '#a8845a');
-    bgGrad.addColorStop(0.25, '#9a7850');
-    bgGrad.addColorStop(0.5, '#a08055');
-    bgGrad.addColorStop(0.75, '#8e7048');
-    bgGrad.addColorStop(1, '#96784e');
+    bgGrad.addColorStop(0, '#c8b898');
+    bgGrad.addColorStop(0.25, '#c0b090');
+    bgGrad.addColorStop(0.5, '#c4b494');
+    bgGrad.addColorStop(0.75, '#b8a888');
+    bgGrad.addColorStop(1, '#c0b090');
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, 1024, 1024);
 
@@ -1249,9 +1249,9 @@ class Renderer {
       const lightOrDark = Math.random() > 0.5;
       const alpha = 0.03 + Math.random() * 0.06;
       if (lightOrDark) {
-        ctx.strokeStyle = `rgba(190,160,110,${alpha})`;
+        ctx.strokeStyle = `rgba(210,195,170,${alpha})`;
       } else {
-        ctx.strokeStyle = `rgba(100,70,35,${alpha})`;
+        ctx.strokeStyle = `rgba(160,140,110,${alpha})`;
       }
       ctx.lineWidth = 0.5 + Math.random() * 1.5;
       ctx.beginPath();
@@ -1269,8 +1269,8 @@ class Renderer {
       const alpha = 0.02 + Math.random() * 0.04;
       const dark = Math.random() > 0.4;
       ctx.fillStyle = dark
-        ? `rgba(90,62,30,${alpha})`
-        : `rgba(180,150,100,${alpha})`;
+        ? `rgba(150,130,105,${alpha})`
+        : `rgba(210,195,170,${alpha})`;
       ctx.fillRect(0, y, 1024, 2 + Math.random() * 6);
     }
 
@@ -1280,9 +1280,9 @@ class Renderer {
       const ky = Math.random() * 1024;
       const kr = 20 + Math.random() * 40;
       const knotGrad = ctx.createRadialGradient(kx, ky, 0, kx, ky, kr);
-      knotGrad.addColorStop(0, 'rgba(80,55,28,0.08)');
-      knotGrad.addColorStop(0.6, 'rgba(80,55,28,0.03)');
-      knotGrad.addColorStop(1, 'rgba(80,55,28,0)');
+      knotGrad.addColorStop(0, 'rgba(140,120,95,0.08)');
+      knotGrad.addColorStop(0.6, 'rgba(140,120,95,0.03)');
+      knotGrad.addColorStop(1, 'rgba(140,120,95,0)');
       ctx.fillStyle = knotGrad;
       ctx.fillRect(kx - kr, ky - kr, kr * 2, kr * 2);
     }
@@ -1292,7 +1292,7 @@ class Renderer {
       const x = Math.random() * 1024;
       const y = Math.random() * 1024;
       const alpha = Math.random() * 0.025;
-      ctx.fillStyle = `rgba(70,48,20,${alpha})`;
+      ctx.fillStyle = `rgba(130,110,85,${alpha})`;
       ctx.fillRect(x, y, Math.random() * 2 + 0.5, Math.random() * 2 + 0.5);
     }
 
@@ -1302,6 +1302,32 @@ class Renderer {
     glow.addColorStop(1, 'rgba(200,170,120,0)');
     ctx.fillStyle = glow;
     ctx.fillRect(0, 0, 1024, 1024);
+
+    // Faint ink-wash mountain silhouettes
+    const mtLayers = [
+      { yBase: 730, opacity: 0.05, color: '120,105,85' },
+      { yBase: 790, opacity: 0.04, color: '110,95,75' },
+      { yBase: 840, opacity: 0.03, color: '130,115,95' }
+    ];
+    for (const layer of mtLayers) {
+      ctx.beginPath();
+      ctx.moveTo(0, 1024);
+      ctx.lineTo(0, layer.yBase);
+      const peaks = 5;
+      const segW = 1024 / peaks;
+      for (let i = 0; i < peaks; i++) {
+        const x1 = segW * i + segW * 0.3;
+        const x2 = segW * i + segW * 0.7;
+        const x3 = segW * (i + 1);
+        const peakY = layer.yBase - (20 + Math.random() * 50);
+        const valleyY = layer.yBase + (5 + Math.random() * 20);
+        ctx.bezierCurveTo(x1, peakY, x2, peakY + 12, x3, valleyY);
+      }
+      ctx.lineTo(1024, 1024);
+      ctx.closePath();
+      ctx.fillStyle = `rgba(${layer.color},${layer.opacity})`;
+      ctx.fill();
+    }
 
     const texture = new THREE.CanvasTexture(canvas);
     this.scene.background = texture;
