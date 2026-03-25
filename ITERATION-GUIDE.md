@@ -57,3 +57,36 @@ The file `mockup-reference.png` is the TARGET visual style. Every iteration shou
 
 ## Nano Banana Usage (for image generation)
 When procedural rendering isn't enough (e.g., stylized avatar portraits), generate images using the image generation tool. Style prompt should include: "ink wash painting style, traditional East Asian, simple, minimalist, warm cream background"
+
+## CRITICAL — Tile Suit Artwork Must Be VISUAL, Not Text!
+Adrian specifically wants PICTORIAL tile artwork, NOT Chinese characters:
+
+### Dots (筒) — Draw colored CIRCLES/BALLS
+- 1-dot: One large colored circle
+- 2-dot: Two circles arranged vertically
+- 3-dot: Three circles in triangle
+- 4-dot: Four circles in 2x2 grid
+- 5-dot: Five circles (4 corners + 1 center)
+- 6-dot: Six circles in 2x3 grid
+- 7-dot: Seven circles (3-1-3 pattern)
+- 8-dot: Eight circles (2-2-2-2 pattern)
+- 9-dot: Nine circles in 3x3 grid
+- Colors: Use red/green/blue multicolored circles like real mahjong tiles
+
+### Bamboo (條) — Draw actual BAMBOO STICKS
+- 1-bamboo: A stylized bird/sparrow (traditional)
+- 2-bamboo: Two green bamboo sticks
+- 3-bamboo: Three bamboo sticks
+- 4-bamboo: Four bamboo sticks (2+2 crossed)
+- 5-bamboo: Five bamboo sticks
+- 6-bamboo: Six bamboo sticks (3+3)
+- 7-bamboo: Seven bamboo sticks
+- 8-bamboo: Eight bamboo sticks (4+4)
+- 9-bamboo: Nine bamboo sticks
+- Each stick: Green tube with segment nodes/joints, slight shading
+
+### Characters (萬) — These CAN use Chinese text
+- Show the number (一二三四五六七八九) + 萬 below
+- This is correct for Characters suit — they use text traditionally
+
+### DO NOT just show "六竹" or "1" — draw the ACTUAL pictures!

@@ -1543,30 +1543,112 @@ class Renderer {
       const layout = layouts[dotNum];
       if (layout) {
         const { r, pos } = layout;
-        for (const [cx, cy] of pos) {
-          // Outer filled circle
+        if (dotNum === 1) {
+          // Ornate 1-dot: elaborate multi-ring concentric design
+          const cx = 128, cy = 176, R = 56;
+
+          // Outermost ring - deep teal
           ctx.beginPath();
-          ctx.arc(cx, cy, r, 0, Math.PI * 2);
-          ctx.fillStyle = '#3a8a7a';
+          ctx.arc(cx, cy, R, 0, Math.PI * 2);
+          ctx.fillStyle = '#1a5a6a';
           ctx.fill();
-          ctx.strokeStyle = '#2a6a5a';
-          ctx.lineWidth = r * 0.15;
+          ctx.strokeStyle = '#0e3e4e';
+          ctx.lineWidth = 3;
           ctx.stroke();
 
-          // Inner concentric ring
+          // Decorative ray pattern between rings
+          ctx.save();
+          ctx.translate(cx, cy);
+          for (let i = 0; i < 16; i++) {
+            const angle = (i / 16) * Math.PI * 2;
+            ctx.beginPath();
+            ctx.moveTo(Math.cos(angle) * R * 0.65, Math.sin(angle) * R * 0.65);
+            ctx.lineTo(Math.cos(angle) * R * 0.88, Math.sin(angle) * R * 0.88);
+            ctx.strokeStyle = '#5ababa';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+          }
+          ctx.restore();
+
+          // Second ring
           ctx.beginPath();
-          ctx.arc(cx, cy, r * 0.55, 0, Math.PI * 2);
-          ctx.fillStyle = '#4a9a8a';
-          ctx.fill();
-          ctx.strokeStyle = '#2a6a5a';
-          ctx.lineWidth = r * 0.1;
+          ctx.arc(cx, cy, R * 0.72, 0, Math.PI * 2);
+          ctx.strokeStyle = '#3a9aaa';
+          ctx.lineWidth = 2.5;
           ctx.stroke();
 
-          // Subtle highlight for depth
+          // Middle filled band
           ctx.beginPath();
-          ctx.arc(cx - r * 0.15, cy - r * 0.18, r * 0.22, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(255,255,255,0.2)';
+          ctx.arc(cx, cy, R * 0.6, 0, Math.PI * 2);
+          ctx.fillStyle = '#2a7a8a';
           ctx.fill();
+          ctx.strokeStyle = '#1a5a6a';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+
+          // Third concentric ring
+          ctx.beginPath();
+          ctx.arc(cx, cy, R * 0.45, 0, Math.PI * 2);
+          ctx.strokeStyle = '#4abaca';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+
+          // Inner decorative dots around center
+          for (let i = 0; i < 8; i++) {
+            const angle = (i / 8) * Math.PI * 2;
+            ctx.beginPath();
+            ctx.arc(
+              cx + Math.cos(angle) * R * 0.33,
+              cy + Math.sin(angle) * R * 0.33,
+              2.5, 0, Math.PI * 2
+            );
+            ctx.fillStyle = '#6adaea';
+            ctx.fill();
+          }
+
+          // Inner core
+          ctx.beginPath();
+          ctx.arc(cx, cy, R * 0.2, 0, Math.PI * 2);
+          ctx.fillStyle = '#4abaca';
+          ctx.fill();
+
+          // Center highlight dot
+          ctx.beginPath();
+          ctx.arc(cx, cy, R * 0.08, 0, Math.PI * 2);
+          ctx.fillStyle = '#8aeafa';
+          ctx.fill();
+
+          // Specular highlight for 3D feel
+          ctx.beginPath();
+          ctx.arc(cx - R * 0.18, cy - R * 0.2, R * 0.15, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(255,255,255,0.12)';
+          ctx.fill();
+        } else {
+          for (const [cx, cy] of pos) {
+            // Outer filled circle
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, 0, Math.PI * 2);
+            ctx.fillStyle = '#3a8a7a';
+            ctx.fill();
+            ctx.strokeStyle = '#2a6a5a';
+            ctx.lineWidth = r * 0.15;
+            ctx.stroke();
+
+            // Inner concentric ring
+            ctx.beginPath();
+            ctx.arc(cx, cy, r * 0.55, 0, Math.PI * 2);
+            ctx.fillStyle = '#4a9a8a';
+            ctx.fill();
+            ctx.strokeStyle = '#2a6a5a';
+            ctx.lineWidth = r * 0.1;
+            ctx.stroke();
+
+            // Subtle highlight for depth
+            ctx.beginPath();
+            ctx.arc(cx - r * 0.15, cy - r * 0.18, r * 0.22, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255,255,255,0.2)';
+            ctx.fill();
+          }
         }
       }
     } else if (key.startsWith('bamboo-')) {
@@ -1936,6 +2018,544 @@ class Renderer {
         ctx.font = 'bold 60px "Ma Shan Zheng", serif';
         ctx.fillStyle = 'rgba(140, 135, 130, 0.18)';
         ctx.fillText(label.top, cx, cy);
+        ctx.restore();
+
+      } else if (key.startsWith('flower-')) {
+        // Ink wash style botanical flower artwork
+        const flowerName = key.split('-')[1];
+        const flowerNames = ['Plum', 'Orchid', 'Chrysanthemum', 'Bamboo'];
+        const flowerNum = flowerNames.indexOf(flowerName) + 1;
+        const flowerChars = ['梅', '蘭', '菊', '竹'];
+        const flowerChar = flowerChars[flowerNum - 1] || '花';
+
+        ctx.save();
+        if (flowerName === 'Plum') {
+          // Dark branches with pink/red blossoms
+          ctx.strokeStyle = '#3a2a1a';
+          ctx.lineWidth = 5;
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.moveTo(40, 280);
+          ctx.bezierCurveTo(75, 230, 95, 190, 135, 155);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(95, 215);
+          ctx.bezierCurveTo(130, 185, 160, 170, 200, 130);
+          ctx.stroke();
+          ctx.lineWidth = 3.5;
+          ctx.beginPath();
+          ctx.moveTo(135, 155);
+          ctx.bezierCurveTo(155, 125, 165, 95, 175, 75);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(120, 175);
+          ctx.bezierCurveTo(80, 140, 70, 110, 60, 80);
+          ctx.stroke();
+
+          // 5-petal blossoms
+          const blossoms = [[135, 145], [195, 125], [170, 75], [65, 80], [90, 120]];
+          for (const [bx, by] of blossoms) {
+            for (let p = 0; p < 5; p++) {
+              const a = (p / 5) * Math.PI * 2 - Math.PI / 2;
+              ctx.beginPath();
+              ctx.ellipse(bx + Math.cos(a) * 10, by + Math.sin(a) * 10, 8, 5, a, 0, Math.PI * 2);
+              ctx.fillStyle = `rgba(220, 80, 100, ${0.7 + p * 0.04})`;
+              ctx.fill();
+            }
+            ctx.beginPath();
+            ctx.arc(bx, by, 3, 0, Math.PI * 2);
+            ctx.fillStyle = '#e8c040';
+            ctx.fill();
+          }
+
+        } else if (flowerName === 'Orchid') {
+          // Elegant curved leaves with small purple flowers
+          ctx.strokeStyle = '#2a5a2a';
+          ctx.lineWidth = 3;
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.moveTo(60, 275);
+          ctx.bezierCurveTo(80, 195, 130, 125, 180, 65);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(80, 265);
+          ctx.bezierCurveTo(120, 205, 160, 155, 210, 95);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(50, 255);
+          ctx.bezierCurveTo(60, 185, 100, 145, 130, 85);
+          ctx.stroke();
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(90, 245);
+          ctx.bezierCurveTo(140, 195, 165, 165, 155, 115);
+          ctx.stroke();
+
+          // Flower stem
+          ctx.strokeStyle = '#4a7a4a';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(100, 235);
+          ctx.bezierCurveTo(108, 185, 112, 145, 118, 115);
+          ctx.stroke();
+
+          // Purple orchid flowers
+          const orchids = [[113, 120], [123, 150], [106, 165]];
+          for (const [ox, oy] of orchids) {
+            for (let p = 0; p < 5; p++) {
+              const a = (p / 5) * Math.PI * 2 - Math.PI / 2;
+              ctx.beginPath();
+              ctx.ellipse(ox + Math.cos(a) * 7, oy + Math.sin(a) * 7, 6, 3.5, a, 0, Math.PI * 2);
+              ctx.fillStyle = `rgba(140, 80, 180, ${0.6 + p * 0.05})`;
+              ctx.fill();
+            }
+            ctx.beginPath();
+            ctx.arc(ox, oy, 2.5, 0, Math.PI * 2);
+            ctx.fillStyle = '#e8d060';
+            ctx.fill();
+          }
+
+        } else if (flowerName === 'Chrysanthemum') {
+          // Layered petals radiating from center
+          const cx = 128, cy = 150;
+          for (let ring = 0; ring < 3; ring++) {
+            const count = [16, 12, 8][ring];
+            const rad = 52 - ring * 15;
+            const pLen = 24 - ring * 5;
+            const pW = 5 - ring * 0.8;
+            for (let p = 0; p < count; p++) {
+              const a = (p / count) * Math.PI * 2 + ring * 0.15;
+              ctx.save();
+              ctx.translate(cx, cy);
+              ctx.rotate(a);
+              ctx.beginPath();
+              ctx.ellipse(rad - pLen / 2, 0, pLen, pW, 0, 0, Math.PI * 2);
+              ctx.fillStyle = `hsl(${35 + ring * 8}, 80%, ${55 + ring * 8}%)`;
+              ctx.fill();
+              ctx.strokeStyle = `hsl(${35 + ring * 8}, 60%, 40%)`;
+              ctx.lineWidth = 0.5;
+              ctx.stroke();
+              ctx.restore();
+            }
+          }
+          // Dark center
+          ctx.beginPath();
+          ctx.arc(cx, cy, 10, 0, Math.PI * 2);
+          ctx.fillStyle = '#5a3a1a';
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+          ctx.fillStyle = '#7a5a2a';
+          ctx.fill();
+          // Stem and leaf
+          ctx.strokeStyle = '#3a6a2a';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(128, 200);
+          ctx.bezierCurveTo(125, 230, 130, 260, 125, 285);
+          ctx.stroke();
+          ctx.fillStyle = '#4a8a3a';
+          ctx.beginPath();
+          ctx.moveTo(127, 240);
+          ctx.bezierCurveTo(150, 225, 170, 230, 175, 245);
+          ctx.bezierCurveTo(160, 240, 140, 245, 127, 240);
+          ctx.fill();
+
+        } else if (flowerName === 'Bamboo') {
+          // Green stalks with detailed leaves
+          ctx.strokeStyle = '#2a6a3a';
+          ctx.lineWidth = 8;
+          ctx.lineCap = 'butt';
+          ctx.beginPath();
+          ctx.moveTo(110, 285);
+          ctx.lineTo(110, 70);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(155, 285);
+          ctx.lineTo(155, 100);
+          ctx.stroke();
+
+          // Node marks
+          ctx.strokeStyle = '#1a5a2a';
+          ctx.lineWidth = 2;
+          for (const x of [110, 155]) {
+            const top = x === 110 ? 70 : 100;
+            for (let y = 280; y > top; y -= 50) {
+              ctx.beginPath();
+              ctx.moveTo(x - 6, y);
+              ctx.lineTo(x + 6, y);
+              ctx.stroke();
+            }
+          }
+
+          // Pointed leaves
+          ctx.fillStyle = '#3a8a4a';
+          const leaves = [
+            [110, 90, -0.4], [110, 90, 0.3],
+            [110, 140, -0.5], [110, 140, 0.6],
+            [110, 190, -0.3],
+            [155, 120, 0.4], [155, 120, -0.3],
+            [155, 170, 0.5], [155, 170, -0.4],
+            [155, 220, 0.3],
+          ];
+          for (const [lx, ly, a] of leaves) {
+            ctx.save();
+            ctx.translate(lx, ly);
+            ctx.rotate(a);
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.bezierCurveTo(15, -6, 35, -5, 45, 0);
+            ctx.bezierCurveTo(35, 5, 15, 6, 0, 0);
+            ctx.fill();
+            ctx.restore();
+          }
+        }
+        ctx.restore();
+
+        // Flower number in top-left corner
+        ctx.save();
+        ctx.font = 'bold 28px serif';
+        ctx.fillStyle = '#8a3a5a';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        ctx.fillText(String(flowerNum), 14, 12);
+        ctx.restore();
+
+        // Chinese name at bottom
+        ctx.save();
+        ctx.font = '26px "Ma Shan Zheng", serif';
+        ctx.fillStyle = '#8a3a5a';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(flowerChar, 128, 340);
+        ctx.restore();
+
+      } else if (key.startsWith('season-')) {
+        // Themed season artwork
+        const seasonName = key.split('-')[1];
+        const seasonNames = ['Spring', 'Summer', 'Autumn', 'Winter'];
+        const seasonNum = seasonNames.indexOf(seasonName) + 1;
+        const seasonChars = ['春', '夏', '秋', '冬'];
+        const seasonChar = seasonChars[seasonNum - 1] || '季';
+
+        ctx.save();
+        if (seasonName === 'Spring') {
+          // Cherry blossoms with soft pink, green sprouts
+          // Green ground / sprouts at bottom
+          ctx.fillStyle = '#6aaa5a';
+          ctx.beginPath();
+          ctx.moveTo(0, 300);
+          ctx.bezierCurveTo(60, 280, 196, 280, 256, 300);
+          ctx.lineTo(256, 320);
+          ctx.lineTo(0, 320);
+          ctx.closePath();
+          ctx.fill();
+
+          // Small green sprouts
+          ctx.strokeStyle = '#5a9a4a';
+          ctx.lineWidth = 2;
+          ctx.lineCap = 'round';
+          const sprouts = [30, 70, 120, 165, 210];
+          for (const sx of sprouts) {
+            ctx.beginPath();
+            ctx.moveTo(sx, 290);
+            ctx.lineTo(sx - 3, 275);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(sx, 290);
+            ctx.lineTo(sx + 4, 278);
+            ctx.stroke();
+          }
+
+          // Branch with cherry blossoms
+          ctx.strokeStyle = '#5a3a2a';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(20, 180);
+          ctx.bezierCurveTo(80, 140, 150, 120, 240, 110);
+          ctx.stroke();
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(120, 130);
+          ctx.bezierCurveTo(140, 100, 150, 80, 160, 60);
+          ctx.stroke();
+
+          // Floating cherry blossoms
+          const petals = [
+            [80, 130], [140, 110], [190, 105], [155, 62],
+            [60, 160], [100, 80], [200, 140], [45, 100],
+            [170, 170], [230, 95],
+          ];
+          for (const [px, py] of petals) {
+            for (let p = 0; p < 5; p++) {
+              const a = (p / 5) * Math.PI * 2;
+              ctx.beginPath();
+              ctx.ellipse(px + Math.cos(a) * 6, py + Math.sin(a) * 6, 5, 3, a, 0, Math.PI * 2);
+              ctx.fillStyle = `rgba(245, 180, 200, ${0.6 + p * 0.06})`;
+              ctx.fill();
+            }
+            ctx.beginPath();
+            ctx.arc(px, py, 2, 0, Math.PI * 2);
+            ctx.fillStyle = '#e8a0b0';
+            ctx.fill();
+          }
+
+        } else if (seasonName === 'Summer') {
+          // Bright sun, green leaves, warm golden tones
+          // Warm golden sky gradient
+          const skyGrad = ctx.createLinearGradient(0, 40, 0, 200);
+          skyGrad.addColorStop(0, 'rgba(255, 210, 80, 0.25)');
+          skyGrad.addColorStop(1, 'rgba(255, 240, 180, 0.05)');
+          ctx.fillStyle = skyGrad;
+          ctx.fillRect(10, 40, 236, 160);
+
+          // Sun with rays
+          const sx = 128, sy = 90;
+          // Rays
+          ctx.save();
+          ctx.translate(sx, sy);
+          for (let i = 0; i < 12; i++) {
+            const a = (i / 12) * Math.PI * 2;
+            ctx.beginPath();
+            ctx.moveTo(Math.cos(a) * 28, Math.sin(a) * 28);
+            ctx.lineTo(Math.cos(a) * 50, Math.sin(a) * 50);
+            ctx.strokeStyle = '#e8a030';
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+          }
+          ctx.restore();
+          // Sun disc
+          ctx.beginPath();
+          ctx.arc(sx, sy, 25, 0, Math.PI * 2);
+          ctx.fillStyle = '#f0c040';
+          ctx.fill();
+          ctx.strokeStyle = '#d0a020';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          // Inner glow
+          ctx.beginPath();
+          ctx.arc(sx, sy, 15, 0, Math.PI * 2);
+          ctx.fillStyle = '#f8e070';
+          ctx.fill();
+
+          // Lush green leaves
+          ctx.fillStyle = '#3a8a3a';
+          const leafSets = [
+            [50, 200, -0.6, 1.0], [50, 200, 0.3, 0.9],
+            [128, 180, -0.4, 1.1], [128, 180, 0.5, 1.0],
+            [200, 195, -0.3, 0.9], [200, 195, 0.6, 1.0],
+            [85, 220, -0.5, 0.8], [170, 215, 0.4, 0.85],
+          ];
+          for (const [lx, ly, a, s] of leafSets) {
+            ctx.save();
+            ctx.translate(lx, ly);
+            ctx.rotate(a);
+            ctx.scale(s, s);
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.bezierCurveTo(12, -8, 35, -7, 50, 0);
+            ctx.bezierCurveTo(35, 7, 12, 8, 0, 0);
+            ctx.fill();
+            // Leaf vein
+            ctx.strokeStyle = '#2a6a2a';
+            ctx.lineWidth = 0.8;
+            ctx.beginPath();
+            ctx.moveTo(2, 0);
+            ctx.lineTo(45, 0);
+            ctx.stroke();
+            ctx.restore();
+          }
+
+          // Ground
+          ctx.fillStyle = '#6aaa5a';
+          ctx.beginPath();
+          ctx.moveTo(0, 270);
+          ctx.bezierCurveTo(80, 255, 176, 255, 256, 270);
+          ctx.lineTo(256, 310);
+          ctx.lineTo(0, 310);
+          ctx.closePath();
+          ctx.fill();
+
+        } else if (seasonName === 'Autumn') {
+          // Falling maple leaves in red/orange/gold
+          const mapleLeaf = (cx, cy, size, rot, color) => {
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(rot);
+            ctx.scale(size, size);
+            ctx.fillStyle = color;
+            // Simplified maple leaf shape using triangular points
+            ctx.beginPath();
+            ctx.moveTo(0, -12);
+            ctx.lineTo(-3, -4);
+            ctx.lineTo(-10, -6);
+            ctx.lineTo(-6, 0);
+            ctx.lineTo(-11, 4);
+            ctx.lineTo(-4, 3);
+            ctx.lineTo(-2, 10);
+            ctx.lineTo(0, 5);
+            ctx.lineTo(2, 10);
+            ctx.lineTo(4, 3);
+            ctx.lineTo(11, 4);
+            ctx.lineTo(6, 0);
+            ctx.lineTo(10, -6);
+            ctx.lineTo(3, -4);
+            ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(80,30,10,0.4)';
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+            // Stem
+            ctx.beginPath();
+            ctx.moveTo(0, 5);
+            ctx.lineTo(0, 14);
+            ctx.strokeStyle = '#6a3a1a';
+            ctx.lineWidth = 0.8;
+            ctx.stroke();
+            ctx.restore();
+          };
+
+          // Bare branch
+          ctx.strokeStyle = '#5a3a1a';
+          ctx.lineWidth = 4;
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.moveTo(20, 260);
+          ctx.bezierCurveTo(60, 200, 100, 160, 160, 120);
+          ctx.stroke();
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(110, 170);
+          ctx.bezierCurveTo(80, 140, 60, 100, 50, 70);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(140, 135);
+          ctx.bezierCurveTo(170, 100, 200, 80, 220, 60);
+          ctx.stroke();
+
+          // Scattered maple leaves
+          const leaves = [
+            [65, 80, 1.5, 0.3, '#c83020'], [55, 120, 1.0, 0.5, '#d86830'],
+            [100, 100, 0.8, 0.35, '#e8a030'], [145, 110, 1.2, 0.4, '#c84020'],
+            [200, 70, 0.6, 0.45, '#d87030'], [180, 130, 1.8, 0.35, '#b83020'],
+            [80, 170, 2.0, 0.3, '#e8a030'], [160, 165, 0.4, 0.4, '#d86020'],
+            [210, 150, 1.4, 0.3, '#c84830'], [120, 200, 2.5, 0.35, '#d88030'],
+            [40, 200, 1.7, 0.25, '#e8a840'], [185, 200, 0.9, 0.3, '#c85030'],
+            [75, 240, 2.2, 0.25, '#d87830'], [150, 240, 1.1, 0.3, '#b84020'],
+            [220, 230, 0.5, 0.25, '#e89030'],
+          ];
+          for (const [lx, ly, rot, sz, col] of leaves) {
+            mapleLeaf(lx, ly, sz, rot, col);
+          }
+
+        } else if (seasonName === 'Winter') {
+          // Bare branches, snowflakes, cool blue-gray tones
+          // Cool wash background
+          const winterGrad = ctx.createLinearGradient(0, 40, 0, 310);
+          winterGrad.addColorStop(0, 'rgba(180, 200, 220, 0.15)');
+          winterGrad.addColorStop(1, 'rgba(200, 210, 225, 0.08)');
+          ctx.fillStyle = winterGrad;
+          ctx.fillRect(10, 40, 236, 270);
+
+          // Bare dark branches
+          ctx.strokeStyle = '#4a3a3a';
+          ctx.lineWidth = 4;
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.moveTo(60, 300);
+          ctx.bezierCurveTo(70, 240, 90, 190, 120, 140);
+          ctx.stroke();
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(100, 190);
+          ctx.bezierCurveTo(70, 160, 50, 120, 40, 80);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(115, 155);
+          ctx.bezierCurveTo(140, 130, 170, 100, 195, 70);
+          ctx.stroke();
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(55, 130);
+          ctx.bezierCurveTo(40, 110, 30, 95, 25, 70);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(170, 100);
+          ctx.bezierCurveTo(190, 85, 210, 75, 225, 60);
+          ctx.stroke();
+
+          // Snowflakes - six-pointed star patterns
+          const snowflake = (sx, sy, size) => {
+            ctx.save();
+            ctx.translate(sx, sy);
+            ctx.strokeStyle = 'rgba(160, 190, 220, 0.7)';
+            ctx.lineWidth = 1.2;
+            ctx.lineCap = 'round';
+            for (let i = 0; i < 6; i++) {
+              const a = (i / 6) * Math.PI * 2;
+              ctx.beginPath();
+              ctx.moveTo(0, 0);
+              ctx.lineTo(Math.cos(a) * size, Math.sin(a) * size);
+              ctx.stroke();
+              // Small branches on each arm
+              const bx = Math.cos(a) * size * 0.6;
+              const by = Math.sin(a) * size * 0.6;
+              const pa = a + Math.PI / 4;
+              const pb = a - Math.PI / 4;
+              ctx.beginPath();
+              ctx.moveTo(bx, by);
+              ctx.lineTo(bx + Math.cos(pa) * size * 0.3, by + Math.sin(pa) * size * 0.3);
+              ctx.stroke();
+              ctx.beginPath();
+              ctx.moveTo(bx, by);
+              ctx.lineTo(bx + Math.cos(pb) * size * 0.3, by + Math.sin(pb) * size * 0.3);
+              ctx.stroke();
+            }
+            // Center dot
+            ctx.beginPath();
+            ctx.arc(0, 0, 1.5, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(200, 220, 240, 0.6)';
+            ctx.fill();
+            ctx.restore();
+          };
+          snowflake(55, 70, 12);
+          snowflake(180, 55, 10);
+          snowflake(140, 170, 14);
+          snowflake(35, 180, 9);
+          snowflake(210, 160, 11);
+          snowflake(90, 250, 10);
+          snowflake(195, 240, 8);
+          snowflake(128, 100, 7);
+
+          // Snow on ground
+          ctx.fillStyle = 'rgba(220, 230, 240, 0.3)';
+          ctx.beginPath();
+          ctx.moveTo(0, 290);
+          ctx.bezierCurveTo(60, 278, 196, 278, 256, 290);
+          ctx.lineTo(256, 320);
+          ctx.lineTo(0, 320);
+          ctx.closePath();
+          ctx.fill();
+        }
+        ctx.restore();
+
+        // Season number in top-left corner
+        ctx.save();
+        ctx.font = 'bold 28px serif';
+        ctx.fillStyle = '#5a6a3a';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        ctx.fillText(String(seasonNum), 14, 12);
+        ctx.restore();
+
+        // Chinese name at bottom
+        ctx.save();
+        ctx.font = '26px "Ma Shan Zheng", serif';
+        ctx.fillStyle = '#5a6a3a';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(seasonChar, 128, 340);
         ctx.restore();
 
       } else {
