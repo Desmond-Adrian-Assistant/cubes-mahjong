@@ -3045,8 +3045,8 @@ class Renderer {
     const bodyGeo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
 
     // TWO-TONE: Bright white face vs MUCH darker tan/brown sides
-    const faceColor = faceDown ? 0xffffff : 0xffffff;
-    const sideColor = faceDown ? 0x4a3515 : 0x5a3a18;
+    const faceColor = faceDown ? 0xF5F0E6 : 0xffffff;
+    const sideColor = faceDown ? 0xB8A894 : 0x5a3a18;
 
     const faceMat = new THREE.MeshStandardMaterial({ map: faceTex, color: faceColor, roughness: 0.4, metalness: 0.0 });
     const sideMat = new THREE.MeshStandardMaterial({ color: sideColor, roughness: 0.55, metalness: 0.0 });
@@ -3145,7 +3145,7 @@ class Renderer {
           // Tilt tiles face-down (rotate around x so top faces away from center)
           mesh.rotation.x = Math.PI * 0.78;
 
-          mesh.scale.set(0.68, 0.75, 0.68);
+          mesh.scale.set(0.88, 0.92, 0.88);
           this.scene.add(mesh);
           this.wallMeshes.push(mesh);
         }

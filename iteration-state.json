@@ -1,8 +1,8 @@
 {
-  "iteration": 7,
+  "iteration": 8,
   "maxIterations": 20,
   "startedAt": "2026-03-25T16:15:00-05:00",
-  "lastCompleted": "2026-03-25T17:16:00-05:00",
+  "lastCompleted": "2026-03-25T17:24:00-05:00",
   "changes": [
     {
       "iteration": 1,
@@ -38,8 +38,13 @@
       "iteration": 7,
       "fix": "Wall tile tilt Math.PI*0.92→0.78 (more upright), sides 0x5a3f1a→0x4a3515 (darker), face 0xf5ead0→0xfff8ef (brighter), depth 0.28→0.35 (thicker)",
       "result": "Wall tiles now show pronounced two-tone 3D block effect — bright cream top vs dark brown sides clearly visible from isometric camera. Tiles look like real mahjong blocks instead of flat slabs."
+    },
+    {
+      "iteration": 8,
+      "fix": "Table surface 0xf5ead0→0xe0c898 (golden parchment); inner overlay 0xf5eed6→0xdcc890 at 0.45 opacity; face-up sides 0x7a5830→0x5a3a18; face-down tops 0xfff8ef→0xffffff",
+      "result": "Table surface is now visibly warmer golden parchment, creating better contrast with bright white tile faces. Face-up tiles have deeper two-tone with darker sides."
     }
   ],
   "status": "running",
-  "notes": "Round 7 — Wall two-tone dramatically improved. Next priorities from mockup comparison: (1) discard tile face artwork still hard to see at camera distance, (2) wall tile arrangement could be tighter/more uniform."
+  "notes": "Round 8 — Table-to-tile contrast improved. Next priorities: (1) wall tile tops still blend somewhat with table — may need even more table warmth or tile brightness, (2) discard tiles in center still small/hard to read at camera distance, (3) table could use subtle paper grain texture."
 }
