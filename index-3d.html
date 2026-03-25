@@ -1179,7 +1179,7 @@ class Renderer {
     this.scene.fog = new THREE.Fog(0x9a7a55, 22, 45);
 
     // Warm ambient light - lantern glow feel (~3500K)
-    const ambient = new THREE.AmbientLight(0xffe8cc, 0.55);
+    const ambient = new THREE.AmbientLight(0xffe8cc, 0.4);
     this.scene.add(ambient);
 
     // Hemisphere light for natural sky/ground bounce
@@ -1187,7 +1187,7 @@ class Renderer {
     this.scene.add(hemiLight);
 
     // Main directional light — warm, from above-front like a lantern
-    const dirLight = new THREE.DirectionalLight(0xffeedd, 1.35);
+    const dirLight = new THREE.DirectionalLight(0xffeedd, 1.5);
     dirLight.position.set(2, 9, 5);
     dirLight.castShadow = true;
     dirLight.shadow.mapSize.width = 2048;
@@ -1198,9 +1198,9 @@ class Renderer {
     dirLight.shadow.camera.right = 7;
     dirLight.shadow.camera.top = 7;
     dirLight.shadow.camera.bottom = -7;
-    dirLight.shadow.bias = -0.0005;
+    dirLight.shadow.bias = -0.001;
     dirLight.shadow.normalBias = 0.02;
-    dirLight.shadow.radius = 4;
+    dirLight.shadow.radius = 3;
     this.scene.add(dirLight);
 
     // Warm fill light from opposite side
@@ -2745,17 +2745,17 @@ class Renderer {
     canvas.height = 176;
     const ctx = canvas.getContext('2d');
 
-    // Back — light cream/ivory (traditional mahjong tile back)
+    // Back — warm cream/ivory (traditional mahjong tile back, darker for contrast)
     const bgG = ctx.createLinearGradient(0, 0, 128, 176);
-    bgG.addColorStop(0, '#ede4d0');
-    bgG.addColorStop(0.5, '#ddd4c0');
-    bgG.addColorStop(1, '#d0c8b4');
+    bgG.addColorStop(0, '#ddd4b8');
+    bgG.addColorStop(0.5, '#cdc4a8');
+    bgG.addColorStop(1, '#c0b89c');
     ctx.fillStyle = bgG;
     ctx.fillRect(0, 0, 128, 176);
 
     // Diamond lattice / crosshatch pattern
-    ctx.strokeStyle = 'rgba(255,255,245,0.35)';
-    ctx.lineWidth = 0.8;
+    ctx.strokeStyle = 'rgba(255,255,240,0.55)';
+    ctx.lineWidth = 1.0;
     const step = 10;
     for (let x = -176; x < 128 + 176; x += step) {
       ctx.beginPath();
@@ -2767,7 +2767,7 @@ class Renderer {
       ctx.lineTo(x + 176, 0);
       ctx.stroke();
     }
-    ctx.strokeStyle = 'rgba(50,40,30,0.12)';
+    ctx.strokeStyle = 'rgba(50,40,30,0.22)';
     for (let x = -176; x < 128 + 176; x += step) {
       ctx.beginPath();
       ctx.moveTo(x + 1, 0);
@@ -2780,11 +2780,11 @@ class Renderer {
     }
 
     // Double border frame — warm brown
-    ctx.strokeStyle = 'rgba(200,180,120,0.35)';
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(180,155,100,0.55)';
+    ctx.lineWidth = 2.5;
     ctx.strokeRect(6, 6, 116, 164);
-    ctx.strokeStyle = 'rgba(200,180,120,0.2)';
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(180,155,100,0.35)';
+    ctx.lineWidth = 1.2;
     ctx.strokeRect(12, 12, 104, 152);
 
     // Vermillion seal in center
@@ -2816,9 +2816,9 @@ class Renderer {
     const faceTex = faceDown ? this.createTileBackTexture() : this.createTileTexture(tile);
 
     // Side/edge materials — darker for face-down tiles to contrast with table
-    const sideColor = faceDown ? 0xd8ceb8 : 0xe8dcc8;
-    const bottomColor = faceDown ? 0xd0c8b8 : 0xd8d0c0;
-    const frontColor = faceDown ? 0xdcd4c0 : 0xece4d4;
+    const sideColor = faceDown ? 0xb8a890 : 0xe8dcc8;
+    const bottomColor = faceDown ? 0xa89878 : 0xd8d0c0;
+    const frontColor = faceDown ? 0xc8c0b0 : 0xece4d4;
     const sideMat = new THREE.MeshStandardMaterial({ color: sideColor, roughness: 0.55, metalness: 0.02 });
     const bottomMat = new THREE.MeshStandardMaterial({ color: bottomColor, roughness: 0.7, metalness: 0.0 });
     const faceMat = new THREE.MeshStandardMaterial({ map: faceTex, roughness: 0.35, metalness: 0.0 });
@@ -2849,6 +2849,12 @@ class Renderer {
     const bevel = new THREE.Mesh(bevelGeo, bevelMat);
     bevel.position.y = D / 2 + 0.002;
     group.add(bevel);
+
+    // Dark edge outline for contrast against table
+    const edgesGeo = new THREE.EdgesGeometry(bodyGeo);
+    const edgesMat = new THREE.LineBasicMaterial({ color: 0x8a7a6a, transparent: true, opacity: 0.5 });
+    const edges = new THREE.LineSegments(edgesGeo, edgesMat);
+    group.add(edges);
 
     group.userData = { tile, faceDown };
     return group;
