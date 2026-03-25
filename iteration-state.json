@@ -1,8 +1,8 @@
 {
-  "iteration": 2,
+  "iteration": 3,
   "maxIterations": 20,
   "startedAt": "2026-03-25T16:15:00-05:00",
-  "lastCompleted": "2026-03-25T16:30:00-05:00",
+  "lastCompleted": "2026-03-25T16:24:00-05:00",
   "changes": [
     {
       "iteration": 1,
@@ -13,8 +13,13 @@
       "iteration": 2,
       "fix": "Added bevel (0.03 thickness/size, 3 segments) to tile extrusion for rounded 3D edges; darkened side colors (0x6b4f2a/0x7a5830)",
       "result": "Tiles have softer rounded edges; two-tone contrast is stronger"
+    },
+    {
+      "iteration": 3,
+      "fix": "Darkened background from light golden #c4a87a to rich warm brown #7a5c30; darkened fog 0xc4a87a→0x7a5c30; darkened CSS body #9B7830→#6b4e28",
+      "result": "Background is now darker warm brown wood — closer to mockup's medium-dark wood grain"
     }
   ],
   "status": "running",
-  "notes": "Round 3 — ONE GOAL: match mockup-reference.png exactly. Compare screenshot every iteration."
+  "notes": "Round 3 — Background darkened. Next: compare for remaining visual gaps."
 }

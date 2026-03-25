@@ -12,7 +12,7 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html, body {
   height: 100%; width: 100%;
-  background: #6b4e28;
+  background: #B89A6A;
   background-image:
     repeating-linear-gradient(
       0deg,
@@ -37,13 +37,13 @@ html, body {
     ),
     linear-gradient(
       180deg,
-      #7a5c30 0%,
-      #6b4e28 15%,
-      #70522a 35%,
-      #7a5c30 50%,
-      #6b4e28 65%,
-      #70522a 80%,
-      #6b4e28 100%
+      #C4A882 0%,
+      #B89A6A 15%,
+      #BB9570 35%,
+      #C4A882 50%,
+      #B89A6A 65%,
+      #BB9570 80%,
+      #B89A6A 100%
     );
   background-size: auto;
   font-family: 'ZCOOL XiaoWei', 'Ma Shan Zheng', serif;
@@ -1254,7 +1254,7 @@ class Renderer {
   setupScene() {
     // Background - warm aged parchment with ink wash sky
     this.createBackgroundSky();
-    this.scene.fog = new THREE.Fog(0x7a5c30, 22, 45);
+    this.scene.fog = new THREE.Fog(0xC4A882, 22, 45);
 
     // Ambient light — lower for toon shading contrast
     const ambient = new THREE.AmbientLight(0xfff5e0, 0.3);
@@ -1310,11 +1310,11 @@ class Renderer {
 
     // Rich honey-amber wood base gradient
     const bgGrad = ctx.createLinearGradient(0, 0, 0, 1024);
-    bgGrad.addColorStop(0, '#7a5c30');
-    bgGrad.addColorStop(0.25, '#8a6838');
-    bgGrad.addColorStop(0.5, '#7a5c30');
-    bgGrad.addColorStop(0.75, '#70522a');
-    bgGrad.addColorStop(1, '#6b4e28');
+    bgGrad.addColorStop(0, '#C4A882');
+    bgGrad.addColorStop(0.25, '#C9B08E');
+    bgGrad.addColorStop(0.5, '#C4A882');
+    bgGrad.addColorStop(0.75, '#BB9570');
+    bgGrad.addColorStop(1, '#B89A6A');
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, 1024, 1024);
 
@@ -1420,11 +1420,11 @@ class Renderer {
 
     // Base warm honey-brown wood fill
     const baseGrad = ctx.createLinearGradient(0, 0, 0, h);
-    baseGrad.addColorStop(0, '#7a5c30');
-    baseGrad.addColorStop(0.3, '#6b4e28');
-    baseGrad.addColorStop(0.5, '#70522a');
-    baseGrad.addColorStop(0.7, '#6b4e28');
-    baseGrad.addColorStop(1, '#5e4420');
+    baseGrad.addColorStop(0, '#C4A882');
+    baseGrad.addColorStop(0.3, '#B89A6A');
+    baseGrad.addColorStop(0.5, '#BB9570');
+    baseGrad.addColorStop(0.7, '#B89A6A');
+    baseGrad.addColorStop(1, '#A88A5E');
     ctx.fillStyle = baseGrad;
     ctx.fillRect(0, 0, w, h);
 
