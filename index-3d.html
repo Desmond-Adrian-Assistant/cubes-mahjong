@@ -2843,15 +2843,15 @@ class Renderer {
 
     // Back — warm cream/ivory (traditional mahjong tile back, darker for contrast)
     const bgG = ctx.createLinearGradient(0, 0, 128, 176);
-    bgG.addColorStop(0, '#ddd4b8');
-    bgG.addColorStop(0.5, '#cdc4a8');
-    bgG.addColorStop(1, '#c0b89c');
+    bgG.addColorStop(0, '#e0d4b0');
+    bgG.addColorStop(0.5, '#d4c8a4');
+    bgG.addColorStop(1, '#ccbf98');
     ctx.fillStyle = bgG;
     ctx.fillRect(0, 0, 128, 176);
 
     // Diamond lattice / crosshatch pattern
-    ctx.strokeStyle = 'rgba(255,255,240,0.55)';
-    ctx.lineWidth = 1.0;
+    ctx.strokeStyle = 'rgba(255,255,240,0.7)';
+    ctx.lineWidth = 1.2;
     const step = 10;
     for (let x = -176; x < 128 + 176; x += step) {
       ctx.beginPath();
@@ -2863,7 +2863,7 @@ class Renderer {
       ctx.lineTo(x + 176, 0);
       ctx.stroke();
     }
-    ctx.strokeStyle = 'rgba(50,40,30,0.22)';
+    ctx.strokeStyle = 'rgba(50,40,30,0.35)';
     for (let x = -176; x < 128 + 176; x += step) {
       ctx.beginPath();
       ctx.moveTo(x + 1, 0);
@@ -2876,11 +2876,11 @@ class Renderer {
     }
 
     // Double border frame — warm brown
-    ctx.strokeStyle = 'rgba(180,155,100,0.55)';
-    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = 'rgba(180,155,100,0.7)';
+    ctx.lineWidth = 3.0;
     ctx.strokeRect(6, 6, 116, 164);
-    ctx.strokeStyle = 'rgba(180,155,100,0.35)';
-    ctx.lineWidth = 1.2;
+    ctx.strokeStyle = 'rgba(180,155,100,0.5)';
+    ctx.lineWidth = 1.5;
     ctx.strokeRect(12, 12, 104, 152);
 
     // Vermillion seal in center
@@ -2904,7 +2904,7 @@ class Renderer {
   }
 
   create3DTile(tile, faceDown = false) {
-    const W = 0.38, H = 0.52, D = 0.38;
+    const W = 0.60, H = 0.78, D = 0.55;
     const group = new THREE.Group();
 
     // Main tile body
@@ -2912,9 +2912,9 @@ class Renderer {
     const faceTex = faceDown ? this.createTileBackTexture() : this.createTileTexture(tile);
 
     // Side/edge materials — darker for face-down tiles to contrast with table
-    const sideColor = faceDown ? 0xb8a890 : 0xe8dcc8;
-    const bottomColor = faceDown ? 0xa89878 : 0xd8d0c0;
-    const frontColor = faceDown ? 0xc8c0b0 : 0xece4d4;
+    const sideColor = faceDown ? 0xd4c4a0 : 0xe8dcc8;
+    const bottomColor = faceDown ? 0xc4b488 : 0xd8d0c0;
+    const frontColor = faceDown ? 0xe0d8bc : 0xece4d4;
     const sideMat = new THREE.MeshStandardMaterial({ color: sideColor, roughness: 0.55, metalness: 0.02 });
     const bottomMat = new THREE.MeshStandardMaterial({ color: bottomColor, roughness: 0.7, metalness: 0.0 });
     const faceMat = new THREE.MeshStandardMaterial({ map: faceTex, roughness: 0.35, metalness: 0.0 });
@@ -2948,7 +2948,7 @@ class Renderer {
 
     // Dark edge outline for contrast against table
     const edgesGeo = new THREE.EdgesGeometry(bodyGeo);
-    const edgesMat = new THREE.LineBasicMaterial({ color: 0x8a7a6a, transparent: true, opacity: 0.5 });
+    const edgesMat = new THREE.LineBasicMaterial({ color: 0x6a5a4a, transparent: true, opacity: 0.8 });
     const edges = new THREE.LineSegments(edgesGeo, edgesMat);
     group.add(edges);
 
@@ -2979,17 +2979,17 @@ class Renderer {
 
   createWalls(wallTiles) {
     this.clearWalls();
-    const W = 0.38, H = 0.52, D = 0.38;
+    const W = 0.60, H = 0.78, D = 0.55;
     const tilesPerSide = 17;
     const layers = 2;
     let tileIdx = 0;
 
-    // Wall sides: North(z=-4), East(x=4), South(z=4), West(x=-4)
+    // Wall sides: North(z=-3.6), East(x=3.6), South(z=3.6), West(x=-3.6)
     const sides = [
-      { dir: 'north', baseX: 0, baseZ: -4, along: 'x', rot: 0 },
-      { dir: 'east',  baseX: 4, baseZ: 0,  along: 'z', rot: Math.PI / 2 },
-      { dir: 'south', baseX: 0, baseZ: 4,  along: 'x', rot: Math.PI },
-      { dir: 'west',  baseX: -4, baseZ: 0, along: 'z', rot: -Math.PI / 2 },
+      { dir: 'north', baseX: 0, baseZ: -3.6, along: 'x', rot: 0 },
+      { dir: 'east',  baseX: 3.6, baseZ: 0,  along: 'z', rot: Math.PI / 2 },
+      { dir: 'south', baseX: 0, baseZ: 3.6,  along: 'x', rot: Math.PI },
+      { dir: 'west',  baseX: -3.6, baseZ: 0, along: 'z', rot: -Math.PI / 2 },
     ];
 
     for (const side of sides) {
@@ -2999,7 +2999,7 @@ class Renderer {
           const mesh = this.create3DTile(wallTiles[tileIdx], true);
           tileIdx++;
 
-          const offset = (i - tilesPerSide / 2 + 0.5) * (W + 0.02);
+          const offset = (i - tilesPerSide / 2 + 0.5) * (W + 0.015);
           const yPos = 0.02 + D / 2 + layer * (D + 0.02);
 
           if (side.along === 'x') {
@@ -3012,7 +3012,7 @@ class Renderer {
           // Tilt tiles face-down (rotate around x so top faces away from center)
           mesh.rotation.x = Math.PI;
 
-          mesh.scale.set(0.95, 0.95, 0.95);
+          mesh.scale.set(1.0, 1.0, 1.0);
           this.scene.add(mesh);
           this.wallMeshes.push(mesh);
         }
