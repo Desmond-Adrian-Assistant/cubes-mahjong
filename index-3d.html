@@ -3041,9 +3041,9 @@ class Renderer {
     const gradMap = this._toonGradientMap;
 
     // Two-tone: bright white face on top, warm tan sides for depth
-    const faceColor = faceDown ? 0xc8b890 : 0xffffff;
-    const sideColor = faceDown ? 0x7a6038 : 0xb89870;
-    const bottomColor = faceDown ? 0x5a4828 : 0x9a8058;
+    const faceColor = faceDown ? 0xf0e8d4 : 0xffffff;
+    const sideColor = faceDown ? 0x8a7050 : 0xb89870;
+    const bottomColor = faceDown ? 0x6a5838 : 0x9a8058;
 
     const faceMat = new THREE.MeshToonMaterial({ map: faceTex, color: faceColor, gradientMap: gradMap });
     const sideMat = new THREE.MeshToonMaterial({ color: sideColor, gradientMap: gradMap });
@@ -3151,7 +3151,7 @@ class Renderer {
           // Tilt tiles face-down (rotate around x so top faces away from center)
           mesh.rotation.x = Math.PI;
 
-          mesh.scale.set(1.02, 1.02, 1.02);
+          mesh.scale.set(0.92, 0.92, 0.92);
           this.scene.add(mesh);
           this.wallMeshes.push(mesh);
         }
