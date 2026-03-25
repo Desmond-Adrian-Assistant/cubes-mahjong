@@ -1,13 +1,18 @@
 {
-  "iteration": 1,
+  "iteration": 2,
   "maxIterations": 20,
   "startedAt": "2026-03-25T16:15:00-05:00",
-  "lastCompleted": "2026-03-25T16:25:00-05:00",
+  "lastCompleted": "2026-03-25T16:30:00-05:00",
   "changes": [
     {
       "iteration": 1,
       "fix": "Increased wall tile gaps: scale 0.88→0.78/0.82, tilt Math.PI→Math.PI*0.92 for two-tone visibility",
       "result": "Wall tiles now show visible individual separation and slight top-face reveal"
+    },
+    {
+      "iteration": 2,
+      "fix": "Added bevel (0.03 thickness/size, 3 segments) to tile extrusion for rounded 3D edges; darkened side colors (0x6b4f2a/0x7a5830)",
+      "result": "Tiles have softer rounded edges; two-tone contrast is stronger"
     }
   ],
   "status": "running",
