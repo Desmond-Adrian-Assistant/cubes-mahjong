@@ -1388,8 +1388,8 @@ class Renderer {
     const ensoR = 180, nSteps = 200, gapA = 0.4;
     for (let pass = 0; pass < 3; pass++) {
       ctx.beginPath();
-      const alpha = [0.50, 0.32, 0.20][pass];
-      const lw = [12, 18, 24][pass];
+      const alpha = [0.65, 0.45, 0.30][pass];
+      const lw = [16, 22, 30][pass];
       for (let i = 0; i < nSteps; i++) {
         const t = i / nSteps;
         const ang = gapA + t * (Math.PI * 2 - gapA * 2);
@@ -1416,9 +1416,9 @@ class Renderer {
 
     // Corner bamboo motif — top-left
     ctx.save();
-    ctx.globalAlpha = 0.25;
+    ctx.globalAlpha = 0.55;
     ctx.strokeStyle = '#3a5a3a';
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 5;
     // Bamboo stalks
     for (let i = 0; i < 3; i++) {
       const bx = 70 + i * 28;
@@ -1426,13 +1426,13 @@ class Renderer {
       // Node lines
       for (let n = 0; n < 4; n++) {
         const ny = 50 + n * 45;
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 3.5;
         ctx.beginPath(); ctx.moveTo(bx - 5, ny); ctx.lineTo(bx + 9, ny); ctx.stroke();
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 5;
       }
     }
     // Bamboo leaves — sweeping strokes
-    ctx.lineWidth = 2.5;
+    ctx.lineWidth = 4;
     ctx.fillStyle = '#3a5a3a';
     const drawLeaf = (x, y, angle, len) => {
       ctx.save();
@@ -1445,45 +1445,45 @@ class Renderer {
       ctx.fill();
       ctx.restore();
     };
-    drawLeaf(100, 70, -0.5, 50);
-    drawLeaf(95, 90, -0.8, 40);
-    drawLeaf(75, 110, -2.4, 45);
-    drawLeaf(70, 130, -2.6, 35);
-    drawLeaf(110, 55, -0.3, 55);
-    drawLeaf(130, 60, 0.2, 40);
+    drawLeaf(100, 70, -0.5, 65);
+    drawLeaf(95, 90, -0.8, 52);
+    drawLeaf(75, 110, -2.4, 59);
+    drawLeaf(70, 130, -2.6, 46);
+    drawLeaf(110, 55, -0.3, 72);
+    drawLeaf(130, 60, 0.2, 52);
     ctx.restore();
 
     // Corner bamboo motif — bottom-right
     ctx.save();
-    ctx.globalAlpha = 0.25;
+    ctx.globalAlpha = 0.55;
     ctx.strokeStyle = '#3a5a3a';
     ctx.fillStyle = '#3a5a3a';
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 5;
     for (let i = 0; i < 2; i++) {
       const bx = 890 + i * 28;
       ctx.beginPath(); ctx.moveTo(bx, 800); ctx.lineTo(bx + 3, 1000); ctx.stroke();
       for (let n = 0; n < 3; n++) {
         const ny = 830 + n * 50;
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 3.5;
         ctx.beginPath(); ctx.moveTo(bx - 5, ny); ctx.lineTo(bx + 8, ny); ctx.stroke();
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 5;
       }
     }
-    drawLeaf(910, 860, -0.4, 50);
-    drawLeaf(905, 880, -0.7, 40);
-    drawLeaf(890, 900, -2.5, 45);
-    drawLeaf(920, 845, 0.2, 40);
+    drawLeaf(910, 860, -0.4, 65);
+    drawLeaf(905, 880, -0.7, 52);
+    drawLeaf(890, 900, -2.5, 59);
+    drawLeaf(920, 845, 0.2, 52);
     ctx.restore();
 
     // Vermillion seal stamp
     ctx.save();
     ctx.translate(920, 100);
-    ctx.fillStyle = 'rgba(179,58,42,0.18)';
-    ctx.fillRect(-22, -22, 44, 44);
-    ctx.strokeStyle = 'rgba(179,58,42,0.25)';
+    ctx.fillStyle = 'rgba(179,58,42,0.35)';
+    ctx.fillRect(-28, -28, 56, 56);
+    ctx.strokeStyle = 'rgba(179,58,42,0.45)';
     ctx.lineWidth = 2;
-    ctx.strokeRect(-20, -20, 40, 40);
-    ctx.fillStyle = 'rgba(179,58,42,0.22)';
+    ctx.strokeRect(-26, -26, 52, 52);
+    ctx.fillStyle = 'rgba(179,58,42,0.40)';
     ctx.font = 'bold 22px "Ma Shan Zheng", serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -1492,11 +1492,11 @@ class Renderer {
 
     // Ink wash cloud wisps in corners
     ctx.save();
-    ctx.globalAlpha = 0.18;
+    ctx.globalAlpha = 0.40;
     ctx.strokeStyle = '#5a4a38';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 3.5;
     // Bottom-left cloud
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 5; i++) {
       ctx.beginPath();
       const y = 870 + i * 20;
       ctx.moveTo(40, y);
@@ -1504,7 +1504,7 @@ class Renderer {
       ctx.stroke();
     }
     // Top-right cloud
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 5; i++) {
       ctx.beginPath();
       const y = 100 + i * 20;
       ctx.moveTo(820, y);
