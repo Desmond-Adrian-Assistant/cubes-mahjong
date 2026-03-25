@@ -1,8 +1,8 @@
 {
-  "iteration": 7,
+  "iteration": 8,
   "maxIterations": 15,
   "startedAt": "2026-03-25T08:05:00-05:00",
-  "lastCompleted": "2026-03-25T10:25:00-05:00",
+  "lastCompleted": "2026-03-25T12:22:00-05:00",
   "changes": [
     {
       "iteration": 1,
@@ -39,8 +39,14 @@
       "delta": "I",
       "description": "Bold header: title 20→30px, weight 600→800, color #3a3028→#2a2018 (darker), letter-spacing 3→4px, added text-shadow. Subtitle 12→14px, weight 500. Header now prominent and commanding above table.",
       "commit": "cff1bdd"
+    },
+    {
+      "iteration": 7,
+      "delta": "E",
+      "description": "Bigger toolbar buttons: 58→68px, border-radius 8→10px, warm beige gradient (f5ede0→ece2cf), golden border (#c0a878, 2px), icons 20→28px, labels 9→10px darker (#5a4a38), stronger hover shadow. Both top-right and bottom-right toolbars now more prominent.",
+      "commit": "54f1d3c"
     }
   ],
   "status": "running",
-  "notes": "Round 2 — fixing specific deltas from mockup comparison. Parchment aesthetic ONLY."
+  "notes": "Round 2 — fixing specific deltas from mockup comparison. Parchment aesthetic ONLY. 7/10 deltas addressed (A-F, I, E). Remaining: G (bamboo bold enough?), H (center discards), J (table texture)."
 }

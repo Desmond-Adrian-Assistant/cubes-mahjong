@@ -1444,47 +1444,113 @@ class Renderer {
     texCanvas.height = 1024;
     const tctx = texCanvas.getContext('2d');
 
-    // Base warm cream/parchment
+    // Base warm cream/parchment with uneven aging
     const baseGrad = tctx.createRadialGradient(512, 512, 0, 512, 512, 600);
-    baseGrad.addColorStop(0, '#f7f0d4');
-    baseGrad.addColorStop(0.6, '#f2e8c6');
-    baseGrad.addColorStop(1, '#ecddb8');
+    baseGrad.addColorStop(0, '#f5edd0');
+    baseGrad.addColorStop(0.4, '#f0e4cc');
+    baseGrad.addColorStop(0.7, '#e8dabb');
+    baseGrad.addColorStop(1, '#dfd0a8');
     tctx.fillStyle = baseGrad;
     tctx.fillRect(0, 0, 1024, 1024);
 
-    // Rice paper fiber grain — horizontal
-    for (let i = 0; i < 30000; i++) {
+    // Uneven base tone — large soft patches for natural paper irregularity
+    for (let i = 0; i < 8; i++) {
       const x = Math.random() * 1024;
       const y = Math.random() * 1024;
-      const w = Math.random() * 6 + 1;
-      const h = Math.random() * 1.5 + 0.3;
-      const alpha = Math.random() * 0.035 + 0.005;
-      tctx.fillStyle = `rgba(160,140,100,${alpha})`;
+      const r = Math.random() * 250 + 150;
+      const ug = tctx.createRadialGradient(x, y, 0, x, y, r);
+      const tone = Math.random() > 0.5 ? '200,180,140' : '170,150,110';
+      ug.addColorStop(0, `rgba(${tone},${Math.random() * 0.06 + 0.02})`);
+      ug.addColorStop(0.6, `rgba(${tone},${Math.random() * 0.03})`);
+      ug.addColorStop(1, `rgba(${tone},0)`);
+      tctx.fillStyle = ug;
+      tctx.fillRect(x - r, y - r, r * 2, r * 2);
+    }
+
+    // Fine noise grain — tiny dots across surface
+    for (let i = 0; i < 50000; i++) {
+      const x = Math.random() * 1024;
+      const y = Math.random() * 1024;
+      const size = Math.random() * 1.5 + 0.5;
+      const alpha = Math.random() * 0.04 + 0.005;
+      const shade = Math.floor(Math.random() * 40 + 130);
+      tctx.fillStyle = `rgba(${shade},${shade - 20},${shade - 50},${alpha})`;
+      tctx.fillRect(x, y, size, size);
+    }
+
+    // Rice paper fiber grain — horizontal strands
+    for (let i = 0; i < 40000; i++) {
+      const x = Math.random() * 1024;
+      const y = Math.random() * 1024;
+      const w = Math.random() * 8 + 2;
+      const h = Math.random() * 1.2 + 0.3;
+      const alpha = Math.random() * 0.05 + 0.008;
+      tctx.fillStyle = `rgba(155,135,95,${alpha})`;
       tctx.fillRect(x, y, w, h);
     }
 
-    // Vertical fibers (fewer)
-    for (let i = 0; i < 8000; i++) {
+    // Longer horizontal fiber lines — visible paper grain
+    tctx.lineWidth = 0.5;
+    for (let i = 0; i < 200; i++) {
+      const y = Math.random() * 1024;
+      const x0 = Math.random() * 800;
+      const len = Math.random() * 120 + 30;
+      const alpha = Math.random() * 0.04 + 0.01;
+      tctx.strokeStyle = `rgba(150,130,90,${alpha})`;
+      tctx.beginPath();
+      tctx.moveTo(x0, y);
+      // Slightly wavy line
+      const mid = x0 + len / 2;
+      const yOff = (Math.random() - 0.5) * 2;
+      tctx.quadraticCurveTo(mid, y + yOff, x0 + len, y + (Math.random() - 0.5) * 1.5);
+      tctx.stroke();
+    }
+
+    // Vertical fibers (cross-grain, fewer)
+    for (let i = 0; i < 10000; i++) {
       const x = Math.random() * 1024;
       const y = Math.random() * 1024;
       const w = Math.random() * 1 + 0.3;
-      const h = Math.random() * 5 + 1;
-      const alpha = Math.random() * 0.025;
+      const h = Math.random() * 6 + 1;
+      const alpha = Math.random() * 0.035;
       tctx.fillStyle = `rgba(140,120,80,${alpha})`;
       tctx.fillRect(x, y, w, h);
     }
 
-    // Subtle warm splotches for aged feel
-    for (let i = 0; i < 15; i++) {
+    // Age/discoloration spots — darker warm patches
+    for (let i = 0; i < 35; i++) {
       const x = Math.random() * 1024;
       const y = Math.random() * 1024;
-      const r = Math.random() * 80 + 30;
+      const r = Math.random() * 60 + 15;
       const sGrad = tctx.createRadialGradient(x, y, 0, x, y, r);
-      sGrad.addColorStop(0, `rgba(180,150,100,${Math.random() * 0.04})`);
-      sGrad.addColorStop(1, 'rgba(180,150,100,0)');
+      const intensity = Math.random() * 0.06 + 0.02;
+      sGrad.addColorStop(0, `rgba(160,130,80,${intensity})`);
+      sGrad.addColorStop(0.5, `rgba(170,140,90,${intensity * 0.5})`);
+      sGrad.addColorStop(1, 'rgba(170,140,90,0)');
       tctx.fillStyle = sGrad;
       tctx.fillRect(x - r, y - r, r * 2, r * 2);
     }
+
+    // Foxing spots — small dark age marks (like old paper)
+    for (let i = 0; i < 20; i++) {
+      const x = Math.random() * 1024;
+      const y = Math.random() * 1024;
+      const r = Math.random() * 8 + 3;
+      const fg = tctx.createRadialGradient(x, y, 0, x, y, r);
+      fg.addColorStop(0, `rgba(140,110,60,${Math.random() * 0.08 + 0.02})`);
+      fg.addColorStop(1, 'rgba(140,110,60,0)');
+      tctx.fillStyle = fg;
+      tctx.beginPath();
+      tctx.arc(x, y, r, 0, Math.PI * 2);
+      tctx.fill();
+    }
+
+    // Edge darkening — vignette for natural aging at edges
+    const edgeGrad = tctx.createRadialGradient(512, 512, 300, 512, 512, 720);
+    edgeGrad.addColorStop(0, 'rgba(0,0,0,0)');
+    edgeGrad.addColorStop(1, 'rgba(80,60,30,0.06)');
+    tctx.fillStyle = edgeGrad;
+    tctx.fillRect(0, 0, 1024, 1024);
 
     const tableTexture = new THREE.CanvasTexture(texCanvas);
     tableTexture.wrapS = THREE.RepeatWrapping;
@@ -1536,10 +1602,10 @@ class Renderer {
     lineCanvas.height = 512;
     const lctx = lineCanvas.getContext('2d');
     lctx.clearRect(0, 0, 512, 512);
-    const edgeGrad = lctx.createRadialGradient(256, 256, 180, 256, 256, 280);
-    edgeGrad.addColorStop(0, 'rgba(0,0,0,0)');
-    edgeGrad.addColorStop(1, 'rgba(60,40,20,0.08)');
-    lctx.fillStyle = edgeGrad;
+    const lineEdgeGrad = lctx.createRadialGradient(256, 256, 180, 256, 256, 280);
+    lineEdgeGrad.addColorStop(0, 'rgba(0,0,0,0)');
+    lineEdgeGrad.addColorStop(1, 'rgba(60,40,20,0.08)');
+    lctx.fillStyle = lineEdgeGrad;
     lctx.fillRect(0, 0, 512, 512);
     lctx.strokeStyle = 'rgba(80,60,40,0.18)';
     lctx.lineWidth = 2;
