@@ -90,3 +90,12 @@ Adrian specifically wants PICTORIAL tile artwork, NOT Chinese characters:
 - This is correct for Characters suit — they use text traditionally
 
 ### DO NOT just show "六竹" or "1" — draw the ACTUAL pictures!
+
+## ⚠️ ABSOLUTE RULES — DO NOT DEVIATE FROM MOCKUP
+- The mockup shows a **CREAM/PARCHMENT** table surface — NOT green felt
+- The mockup has **warm rice paper texture** — NOT a billiard/mahjong table look
+- The mockup has **ink wash/calligraphy** aesthetic — Paper & Ink theme
+- Do NOT add green felt, do NOT change the fundamental color palette
+- EVERY change must make the game look MORE like mockup-reference.png
+- If a change would deviate from the mockup, DO NOT make it
+- The mockup is the ONLY source of truth for visual decisions
