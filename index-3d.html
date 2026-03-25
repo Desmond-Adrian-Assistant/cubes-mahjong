@@ -1630,25 +1630,25 @@ class Renderer {
     }
     ctx.restore();
 
-    // Corner bamboo motif — top-left
+    // Corner bamboo motif — bottom-left
     ctx.save();
-    ctx.globalAlpha = 0.45;
+    ctx.globalAlpha = 0.90;
     ctx.strokeStyle = 'rgba(50,40,30,1)';
-    ctx.lineWidth = 7.5;
-    // Bamboo stalks
-    for (let i = 0; i < 3; i++) {
-      const bx = 70 + i * 28;
-      ctx.beginPath(); ctx.moveTo(bx, 20); ctx.lineTo(bx + 4, 220); ctx.stroke();
+    ctx.lineWidth = 13;
+    // Bamboo stalks (6 stalks)
+    for (let i = 0; i < 6; i++) {
+      const bx = 50 + i * 26;
+      ctx.beginPath(); ctx.moveTo(bx, 780); ctx.lineTo(bx + 4, 1000); ctx.stroke();
       // Node lines
       for (let n = 0; n < 4; n++) {
-        const ny = 50 + n * 45;
-        ctx.lineWidth = 5;
-        ctx.beginPath(); ctx.moveTo(bx - 5, ny); ctx.lineTo(bx + 9, ny); ctx.stroke();
-        ctx.lineWidth = 7.5;
+        const ny = 810 + n * 45;
+        ctx.lineWidth = 7;
+        ctx.beginPath(); ctx.moveTo(bx - 6, ny); ctx.lineTo(bx + 10, ny); ctx.stroke();
+        ctx.lineWidth = 13;
       }
     }
-    // Bamboo leaves — sweeping strokes
-    ctx.lineWidth = 6;
+    // Bamboo leaves — sweeping strokes (12 leaves)
+    ctx.lineWidth = 8;
     ctx.fillStyle = 'rgba(50,40,30,1)';
     const drawLeaf = (x, y, angle, len) => {
       ctx.save();
@@ -1661,34 +1661,46 @@ class Renderer {
       ctx.fill();
       ctx.restore();
     };
-    drawLeaf(100, 70, -0.5, 65);
-    drawLeaf(95, 90, -0.8, 52);
-    drawLeaf(75, 110, -2.4, 59);
-    drawLeaf(70, 130, -2.6, 46);
-    drawLeaf(110, 55, -0.3, 72);
-    drawLeaf(130, 60, 0.2, 52);
+    drawLeaf(90, 830, -0.5, 91);
+    drawLeaf(85, 850, -0.8, 73);
+    drawLeaf(65, 870, -2.4, 83);
+    drawLeaf(60, 890, -2.6, 64);
+    drawLeaf(100, 815, -0.3, 101);
+    drawLeaf(120, 820, 0.2, 73);
+    drawLeaf(75, 910, -2.2, 77);
+    drawLeaf(110, 840, -0.6, 84);
+    drawLeaf(70, 800, -0.9, 88);
+    drawLeaf(130, 860, -0.2, 78);
+    drawLeaf(55, 930, -2.5, 70);
+    drawLeaf(95, 875, -1.8, 82);
     ctx.restore();
 
     // Corner bamboo motif — bottom-right
     ctx.save();
-    ctx.globalAlpha = 0.45;
+    ctx.globalAlpha = 0.90;
     ctx.strokeStyle = 'rgba(50,40,30,1)';
     ctx.fillStyle = 'rgba(50,40,30,1)';
-    ctx.lineWidth = 7.5;
-    for (let i = 0; i < 2; i++) {
-      const bx = 890 + i * 28;
-      ctx.beginPath(); ctx.moveTo(bx, 800); ctx.lineTo(bx + 3, 1000); ctx.stroke();
-      for (let n = 0; n < 3; n++) {
-        const ny = 830 + n * 50;
-        ctx.lineWidth = 5;
-        ctx.beginPath(); ctx.moveTo(bx - 5, ny); ctx.lineTo(bx + 8, ny); ctx.stroke();
-        ctx.lineWidth = 7.5;
+    ctx.lineWidth = 13;
+    for (let i = 0; i < 5; i++) {
+      const bx = 870 + i * 26;
+      ctx.beginPath(); ctx.moveTo(bx, 790); ctx.lineTo(bx + 3, 1000); ctx.stroke();
+      for (let n = 0; n < 4; n++) {
+        const ny = 820 + n * 45;
+        ctx.lineWidth = 7;
+        ctx.beginPath(); ctx.moveTo(bx - 6, ny); ctx.lineTo(bx + 10, ny); ctx.stroke();
+        ctx.lineWidth = 13;
       }
     }
-    drawLeaf(910, 860, -0.4, 65);
-    drawLeaf(905, 880, -0.7, 52);
-    drawLeaf(890, 900, -2.5, 59);
-    drawLeaf(920, 845, 0.2, 52);
+    drawLeaf(910, 860, -0.4, 91);
+    drawLeaf(905, 880, -0.7, 73);
+    drawLeaf(890, 900, -2.5, 83);
+    drawLeaf(920, 845, 0.2, 73);
+    drawLeaf(935, 870, -0.2, 81);
+    drawLeaf(895, 920, -2.3, 70);
+    drawLeaf(875, 840, -2.6, 78);
+    drawLeaf(940, 850, -0.5, 85);
+    drawLeaf(880, 940, -2.1, 74);
+    drawLeaf(925, 890, -1.0, 80);
     ctx.restore();
 
     // Vermillion seal stamp
