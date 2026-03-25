@@ -12,7 +12,7 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html, body {
   height: 100%; width: 100%;
-  background: linear-gradient(170deg, #a08050 0%, #927045 30%, #8B7355 70%, #7a6348 100%);
+  background: linear-gradient(170deg, #d4c4a8 0%, #c8b898 30%, #d0c0a0 70%, #c4b490 100%);
   font-family: 'ZCOOL XiaoWei', 'Ma Shan Zheng', serif;
   color: #3a3028;
   overflow: hidden;
@@ -1168,6 +1168,7 @@ class Renderer {
     this.animating = false;
 
     this.setupScene();
+    this.createBodyBackground();
     this.animate();
 
     window.addEventListener('resize', () => this.onResize());
@@ -1304,6 +1305,63 @@ class Renderer {
 
     const texture = new THREE.CanvasTexture(canvas);
     this.scene.background = texture;
+  }
+
+  createBodyBackground() {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+
+    // Base warm parchment fill
+    const baseGrad = ctx.createLinearGradient(0, 0, 0, h);
+    baseGrad.addColorStop(0, '#d4c4a8');
+    baseGrad.addColorStop(0.5, '#d0c0a0');
+    baseGrad.addColorStop(1, '#c4b490');
+    ctx.fillStyle = baseGrad;
+    ctx.fillRect(0, 0, w, h);
+
+    // 3 layers of faint ink-wash mountain silhouettes
+    const layers = [
+      { yBase: 0.70, opacity: 0.04, color: '120,100,75' },
+      { yBase: 0.50, opacity: 0.06, color: '110,90,68' },
+      { yBase: 0.30, opacity: 0.08, color: '100,80,60' }
+    ];
+    for (const layer of layers) {
+      const baseY = h * layer.yBase;
+      ctx.beginPath();
+      ctx.moveTo(0, h);
+      ctx.lineTo(0, baseY + 20);
+      const peaks = 5 + Math.floor(Math.random() * 4);
+      const segW = w / peaks;
+      for (let i = 0; i < peaks; i++) {
+        const x1 = segW * i + segW * 0.25;
+        const x2 = segW * i + segW * 0.75;
+        const x3 = segW * (i + 1);
+        const peakH = baseY - (20 + Math.random() * 60);
+        const valleyH = baseY + (5 + Math.random() * 25);
+        ctx.bezierCurveTo(x1, peakH, x2, peakH + 15, x3, valleyH);
+      }
+      ctx.lineTo(w, h);
+      ctx.closePath();
+      ctx.fillStyle = `rgba(${layer.color},${layer.opacity})`;
+      ctx.fill();
+    }
+
+    // Subtle vertical paper grain texture overlay
+    for (let x = 0; x < w; x += 1) {
+      const alpha = Math.random() * 0.03;
+      const bright = Math.random() > 0.5;
+      ctx.fillStyle = bright
+        ? `rgba(255,250,240,${alpha})`
+        : `rgba(100,80,55,${alpha})`;
+      ctx.fillRect(x, 0, 1, h);
+    }
+
+    document.body.style.backgroundImage = `url(${canvas.toDataURL()})`;
+    document.body.style.backgroundSize = 'cover';
   }
 
   createTable() {
