@@ -1,8 +1,8 @@
 {
-  "iteration": 13,
+  "iteration": 14,
   "maxIterations": 20,
   "startedAt": "2026-03-25T16:15:00-05:00",
-  "lastCompleted": "2026-03-25T18:14:00-05:00",
+  "lastCompleted": "2026-03-25T18:30:00-05:00",
   "changes": [
     {
       "iteration": 1,
@@ -68,8 +68,13 @@
       "iteration": 13,
       "fix": "Stronger two-tone: faceDown sides 0x7A6A4A→0x5A4830 (richer dark brown), face 0xFAF6EE→0xFFFBF4 (brighter ivory); faceUp sides 0x8A7A5A→0x7A6848; side roughness 0.5→0.45 with 0.02 metalness",
       "result": "All tiles now show stronger classic two-tone contrast — bright white/ivory faces against clearly darker warm brown sides. Slight metalness gives sides a subtle sheen. Consistent across wall, hand, and discard tiles."
+    },
+    {
+      "iteration": 14,
+      "fix": "Added bold ink-brush bamboo sprigs in 4 corners (scale 1.4-1.8, alpha 0.40-0.55) and 8 cloud scroll motifs (scale 2.4-3.5, alpha 0.25-0.35) drawn on table texture canvas via 2D API",
+      "result": "Table surface now features prominent traditional East Asian ink-wash bamboo and cloud artwork, matching the mockup's Paper & Ink aesthetic. Decorations are clearly visible from game camera distance."
     }
   ],
   "status": "running",
-  "notes": "Round 13 — Two-tone contrast strengthened across all tile types. Next priorities: (1) shadow/depth refinement, (2) overall polish, (3) compare closely to mockup for final differences."
+  "notes": "Round 14 — Added bold ink-brush bamboo sprigs (4 corners) and cloud scroll motifs (8 placements) to table surface. Table now has the Paper & Ink aesthetic matching mockup's decorative artwork. Next priorities: (1) fine-tune cloud/bamboo placement to avoid competing with game tiles, (2) shadow/depth polish, (3) final mockup comparison."
 }
