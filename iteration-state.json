@@ -1,8 +1,8 @@
 {
-  "iteration": 0,
+  "iteration": 11,
   "maxIterations": 15,
   "startedAt": "2026-03-25T08:05:00-05:00",
-  "lastCompleted": "2026-03-25T13:51:00-05:00",
+  "lastCompleted": "2026-03-25T14:27:00-05:00",
   "changes": [
     {
       "iteration": 1,
@@ -63,10 +63,16 @@
       "delta": "H",
       "description": "Larger, well-organized center discards: scale 0.88\u21921.10 (25% bigger), zero rotation (was random \u00b10.04), zones \u00b11.2\u2192\u00b11.5 from center, spacing 0.52\u21920.58, rowSpacing 0.62\u21920.70. Discards now prominent and neatly arranged.",
       "commit": "7c0e4ca"
+    },
+    {
+      "iteration": 11,
+      "delta": "USER_FEEDBACK",
+      "description": "Rounded tile edges: replaced BoxGeometry with ExtrudeGeometry using rounded Shape (r=0.05). Bevel: 0.018 thickness/size, 3 segments. Stronger two-tone: face-up cream #f5ead8 / tan sides #b0986c. Face-down: muted #d8ccb0 / darker sides #a08860. Removed sharp EdgesGeometry lines and old bevel highlight mesh.",
+      "commit": "a92a3c0"
     }
   ],
   "status": "active",
-  "notes": "Round 2 COMPLETE \u2014 ALL 10/10 deltas addressed (A-J). Final delta H: center discards made 25% bigger (scale 1.10), zero rotation for neat rows, zones pushed to \u00b11.5 from center, wider spacing (0.58/0.70). All deltas now implemented.",
+  "notes": "Iteration 11: Addressed user feedback — tiles now have rounded edges (ExtrudeGeometry + Shape with r=0.05 corners, bevel segments) and stronger two-tone look (bright cream face vs darker tan sides). Remaining feedback: discard pile consistency check.",
   "user_feedback": [
     "Tiles must have ROUNDED edges and corners like the mockup",
     "Tiles need TWO-TONE look (cream face, darker sides)",
