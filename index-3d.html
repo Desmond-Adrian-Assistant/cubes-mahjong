@@ -3044,6 +3044,18 @@ class Renderer {
     const extrudeSettings = { depth: D, bevelEnabled: true, bevelThickness: 0.03, bevelSize: 0.03, bevelSegments: 3, bevelOffset: 0 };
     const bodyGeo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
 
+    // Fix UV mapping: ExtrudeGeometry UVs are in shape-space, need 0-1 range for texture
+    const uvAttr = bodyGeo.attributes.uv;
+    for (let i = 0; i < uvAttr.count; i++) {
+      let u = uvAttr.getX(i);
+      let v = uvAttr.getY(i);
+      // Normalize from shape coords [-W/2..W/2, -H/2..H/2] to [0..1]
+      u = (u + W/2) / W;
+      v = (v + H/2) / H;
+      uvAttr.setXY(i, u, v);
+    }
+    uvAttr.needsUpdate = true;
+
     // TWO-TONE: Bright white face vs MUCH darker tan/brown sides
     const faceColor = faceDown ? 0xF5F0E6 : 0xffffff;
     const sideColor = faceDown ? 0xB8A894 : 0x9C8468;

@@ -1,8 +1,8 @@
 {
-  "iteration": 9,
+  "iteration": 10,
   "maxIterations": 20,
   "startedAt": "2026-03-25T16:15:00-05:00",
-  "lastCompleted": "2026-03-25T17:38:00-05:00",
+  "lastCompleted": "2026-03-25T17:44:00-05:00",
   "changes": [
     {
       "iteration": 1,
@@ -48,8 +48,13 @@
       "iteration": 9,
       "fix": "Wall tile sides 0x4a3515→0xB8A894 (warm taupe); face-down face 0xffffff→0xF5F0E6 (warm ivory); scale (0.68,0.75,0.68)→(0.88,0.92,0.88) for minimal gaps",
       "result": "Wall tiles now form continuous wall sections with hairline gaps — warm taupe sides match mockup's refined look. Two-tone is subtler but elegant. Walls look proper and cohesive."
+    },
+    {
+      "iteration": 10,
+      "fix": "Face-up tile sides 0x5a3a18→0x9C8468 (warm medium tan). Hand and discard tiles no longer have harsh near-black borders.",
+      "result": "All tiles now have consistent warm tan/brown sides — face-up tiles match the refined Paper & Ink aesthetic. Two-tone contrast is still clear (white face vs tan sides) but softer and more elegant."
     }
   ],
   "status": "running",
-  "notes": "Round 9 — Wall tiles match mockup closely now (warm taupe sides, minimal gaps, ivory face). Next priorities: (1) face-up tile sides still dark 0x5a3a18 — may need lightening to match wall taupe, (2) discard tile artwork still small at camera distance, (3) overall scene lighting/shadow softness vs mockup."
+  "notes": "Round 10 — Face-up tile sides now warm tan matching overall aesthetic. Next priorities: (1) check if discard tiles in center are readable at camera distance, (2) overall lighting/shadow refinement, (3) wall tile density/visibility from isometric view."
 }
