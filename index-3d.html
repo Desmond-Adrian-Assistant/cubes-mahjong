@@ -1294,8 +1294,8 @@ class Renderer {
     // Table surface
     this.createTable();
 
-    // Ink wash decorations on table
-    this.createInkDecorations();
+    // Ink wash decorations — now baked into assets/table-mat.png (loaded in createTable)
+    // this.createInkDecorations();
 
     // Wind direction indicator tiles in center
     this.createWindIndicators();
@@ -1627,35 +1627,7 @@ class Renderer {
     inner.receiveShadow = true;
     this.scene.add(inner);
 
-    // Thin decorative border lines on playing area (ink brush feel)
-    const lineCanvas = document.createElement('canvas');
-    lineCanvas.width = 512;
-    lineCanvas.height = 512;
-    const lctx = lineCanvas.getContext('2d');
-    lctx.clearRect(0, 0, 512, 512);
-    const lineEdgeGrad = lctx.createRadialGradient(256, 256, 180, 256, 256, 280);
-    lineEdgeGrad.addColorStop(0, 'rgba(0,0,0,0)');
-    lineEdgeGrad.addColorStop(1, 'rgba(60,40,20,0.08)');
-    lctx.fillStyle = lineEdgeGrad;
-    lctx.fillRect(0, 0, 512, 512);
-    lctx.strokeStyle = 'rgba(80,60,40,0.18)';
-    lctx.lineWidth = 2;
-    lctx.strokeRect(20, 20, 472, 472);
-    lctx.strokeStyle = 'rgba(80,60,40,0.12)';
-    lctx.lineWidth = 1;
-    lctx.strokeRect(30, 30, 452, 452);
-    const lineTexture = new THREE.CanvasTexture(lineCanvas);
-    const lineGeo = new THREE.PlaneGeometry(11, 11);
-    const lineMat = new THREE.MeshStandardMaterial({
-      map: lineTexture,
-      transparent: true,
-      roughness: 1,
-      metalness: 0,
-    });
-    const lineOverlay = new THREE.Mesh(lineGeo, lineMat);
-    lineOverlay.rotation.x = -Math.PI / 2;
-    lineOverlay.position.y = 0.004;
-    this.scene.add(lineOverlay);
+    // Decorative border lines — now baked into table-mat.png
 
     // Brass corner brackets on table border
     const bracketMat = new THREE.MeshStandardMaterial({

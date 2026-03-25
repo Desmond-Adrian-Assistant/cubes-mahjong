@@ -1,8 +1,8 @@
 {
-  "iteration": 12,
+  "iteration": 13,
   "maxIterations": 20,
   "startedAt": "2026-03-25T16:15:00-05:00",
-  "lastCompleted": "2026-03-25T18:04:00-05:00",
+  "lastCompleted": "2026-03-25T18:14:00-05:00",
   "changes": [
     {
       "iteration": 1,
@@ -63,8 +63,13 @@
       "iteration": 12,
       "fix": "Wall tile scale (0.88,0.92,0.88)→(0.78,0.85,0.78) for visible inter-tile gaps; layer vertical gap D+0.06→D+0.08 for stacked layer separation",
       "result": "Each wall tile now reads as a distinct individual block with visible gaps between neighbors. Two stacked layers also show clear separation. Walls look like properly stacked mahjong tile bricks."
+    },
+    {
+      "iteration": 13,
+      "fix": "Stronger two-tone: faceDown sides 0x7A6A4A→0x5A4830 (richer dark brown), face 0xFAF6EE→0xFFFBF4 (brighter ivory); faceUp sides 0x8A7A5A→0x7A6848; side roughness 0.5→0.45 with 0.02 metalness",
+      "result": "All tiles now show stronger classic two-tone contrast — bright white/ivory faces against clearly darker warm brown sides. Slight metalness gives sides a subtle sheen. Consistent across wall, hand, and discard tiles."
     }
   ],
   "status": "running",
-  "notes": "Round 12 — Wall tile gaps restored for individual tile visibility. Next priorities: (1) lighting/shadow refinement for depth, (2) discard tile symbol readability at distance, (3) overall polish pass."
+  "notes": "Round 13 — Two-tone contrast strengthened across all tile types. Next priorities: (1) shadow/depth refinement, (2) overall polish, (3) compare closely to mockup for final differences."
 }
