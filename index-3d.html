@@ -3198,11 +3198,11 @@ class Renderer {
 
     // Warm cream/parchment back — Paper & Ink aesthetic
     // Tile back: warm tan/khaki to match mockup's paper & ink theme (NO green)
-    ctx.fillStyle = '#D4C4A0';
+    ctx.fillStyle = '#C8B888';
     ctx.fillRect(0, 0, 128, 176);
 
     // Subtle diamond lattice pattern
-    ctx.strokeStyle = 'rgba(160,140,100,0.20)';
+    ctx.strokeStyle = 'rgba(140,120,80,0.35)';
     ctx.lineWidth = 0.8;
     for (let x = -176; x < 304; x += 12) {
       ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x + 176, 176); ctx.stroke();
@@ -3212,7 +3212,7 @@ class Renderer {
     // Subtle center decorative circle (like real mahjong tiles)
     ctx.beginPath();
     ctx.arc(64, 88, 16, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(160,140,100,0.25)';
+    ctx.strokeStyle = 'rgba(140,120,80,0.40)';
     ctx.lineWidth = 1.5;
     ctx.stroke();
 
@@ -3258,7 +3258,7 @@ class Renderer {
     uvAttr.needsUpdate = true;
 
     // TWO-TONE: Bright white face, clearly darker warm brown sides
-    const faceColor = faceDown ? 0xffffff : 0xffffff;  // Pure white — let texture color show through
+    const faceColor = faceDown ? 0xE8D8B8 : 0xffffff;  // Pure white — let texture color show through
     const sideColor = faceDown ? 0x8A7A60 : 0xB0A088;  // Warm taupe sides to match mockup
 
     const faceMat = new THREE.MeshStandardMaterial({ map: faceTex, color: faceColor, roughness: 0.35, metalness: 0.0 });
