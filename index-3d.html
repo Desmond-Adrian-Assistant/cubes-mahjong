@@ -186,16 +186,16 @@ body::after {
 }
 /* Player avatar portraits */
 .avatar-lin {
-  background-image: url("assets/avatar-lin.png");
+  background-image: url("assets/avatar-lin.jpg");
 }
 .avatar-chen {
-  background-image: url("assets/avatar-chen.png");
+  background-image: url("assets/avatar-chen.jpg");
 }
 .avatar-kenji {
-  background-image: url("assets/avatar-kenji.png");
+  background-image: url("assets/avatar-kenji.jpg");
 }
 .avatar-keni {
-  background-image: url("assets/avatar-keni.png");
+  background-image: url("assets/avatar-keni.jpg");
 }
 .bubble-info {
   background: rgba(245,240,232,0.95);
@@ -1460,7 +1460,7 @@ class Renderer {
     // Table surface
     this.createTable();
 
-    // Ink wash decorations — now baked into assets/table-mat.png (loaded in createTable)
+    // Ink wash decorations — now baked into assets/table-mat.jpg (loaded in createTable)
     // this.createInkDecorations();
 
     // Wind direction indicator tiles in center
@@ -1908,7 +1908,7 @@ class Renderer {
 
     // Table mat design overlay — single image with all decorations
     const matLoader = new THREE.TextureLoader();
-    matLoader.load('assets/table-mat.png', (matTex) => {
+    matLoader.load('assets/table-mat.jpg', (matTex) => {
       const matGeo = new THREE.PlaneGeometry(12, 12);
       const matMat = new THREE.MeshStandardMaterial({
         map: matTex, roughness: 0.85, metalness: 0.0,
@@ -1948,7 +1948,7 @@ class Renderer {
     inner.receiveShadow = true;
     this.scene.add(inner);
 
-    // Decorative border lines — now baked into table-mat.png
+    // Decorative border lines — now baked into table-mat.jpg
 
     // Brass corner brackets on table border
     const bracketMat = new THREE.MeshStandardMaterial({
@@ -2050,7 +2050,7 @@ class Renderer {
 
     // Bamboo corner motifs — load PNG texture
     const loader = new THREE.TextureLoader();
-    loader.load('assets/bamboo-corner.png', (bambooTex) => {
+    loader.load('assets/bamboo-corner.jpg', (bambooTex) => {
       const bambooW = 1.8, bambooH = 1.8;
       const bambooGeo = new THREE.PlaneGeometry(bambooW, bambooH);
       // Bottom-left corner
@@ -2077,7 +2077,7 @@ class Renderer {
     });
 
     // Cloud wisps overlay — load PNG texture
-    loader.load('assets/cloud-wisps.png', (cloudTex) => {
+    loader.load('assets/cloud-wisps.jpg', (cloudTex) => {
       const cloudGeo = new THREE.PlaneGeometry(4.5, 4.5);
       const cloudMat = new THREE.MeshStandardMaterial({
         map: cloudTex, transparent: true, opacity: 0.20, roughness: 1, metalness: 0, depthWrite: false,
