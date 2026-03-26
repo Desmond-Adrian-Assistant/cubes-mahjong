@@ -3275,8 +3275,8 @@ class Renderer {
     ctx.save();
     ctx.clip();
 
-    // Green tile back — DO NOT CHANGE this color (#3B7A5A)
-    ctx.fillStyle = '#3B7A5A'; // LOCKED GREEN — DO NOT CHANGE
+    // Tile back — warm ivory matching mockup aesthetic
+    ctx.fillStyle = '#EDE4D0';
     ctx.fillRect(0, 0, 128, 176);
 
     // Diamond lattice pattern — gold lines complement green back
@@ -3345,7 +3345,7 @@ class Renderer {
     // Two-tone: white face + colored sides (customizable via Settings color picker)
     const faceColor = 0xffffff;
     // Side color — customizable via Settings color picker
-    const defaultSide = 0xB8A080;  // Warm tan matching mockup
+    const defaultSide = 0x9A8460;  // Rich warm brown — clearly visible two-tone
     const sideColor = this.tileAccentColor || defaultSide;
 
     const faceMat = new THREE.MeshStandardMaterial({ map: faceTex, color: faceColor, roughness: 0.35, metalness: 0.0 });
