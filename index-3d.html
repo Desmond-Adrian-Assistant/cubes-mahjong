@@ -240,6 +240,19 @@ body::after {
 /* Hand tile drag-and-drop */
 .tile.dragging { opacity: 0.5; transform: scale(1.05); }
 .tile.drag-over { border-left: 3px solid #c8a040; }
+
+/* Square crop modal */
+.crop-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 200; align-items: center; justify-content: center; flex-direction: column; }
+.crop-overlay.show { display: flex; }
+.crop-container { position: relative; max-width: 90vw; max-height: 70vh; overflow: hidden; border: 2px solid #C0A878; border-radius: 8px; }
+.crop-container img { display: block; max-width: 90vw; max-height: 70vh; user-select: none; -webkit-user-drag: none; }
+.crop-square { position: absolute; border: 3px solid #fff; box-shadow: 0 0 0 9999px rgba(0,0,0,0.5); cursor: move; touch-action: none; }
+.crop-square::after { content: ''; position: absolute; right: -8px; bottom: -8px; width: 16px; height: 16px; background: #fff; border-radius: 50%; cursor: nwse-resize; }
+.crop-btns { margin-top: 12px; display: flex; gap: 10px; }
+.crop-btns button { padding: 8px 24px; border-radius: 8px; border: none; font-size: 14px; cursor: pointer; font-family: 'Helvetica Neue', sans-serif; }
+.crop-apply { background: #C0A878; color: #fff; font-weight: 600; }
+.crop-cancel { background: rgba(255,255,255,0.2); color: #fff; }
+
 .hand-sort-btn {
   position: fixed; bottom: 8px; left: 50%; transform: translateX(-50%);
   background: rgba(245,240,232,0.95); border: 2px solid var(--tile-accent, #C0A878);
@@ -3805,37 +3818,74 @@ class GameController {
       if (!file) return;
       const reader = new FileReader();
       reader.onload = (ev) => {
-        const img = new Image();
-        img.onload = () => {
-          // Square crop: take center square
-          const size = Math.min(img.width, img.height);
-          const cx = (img.width - size) / 2;
-          const cy = (img.height - size) / 2;
-          const canvas = document.createElement('canvas');
-          canvas.width = 512; canvas.height = 512;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, cx, cy, size, size, 0, 0, 512, 512);
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
-          // Apply as table mat texture
-          const loader = new THREE.TextureLoader();
-          loader.load(dataUrl, (tex) => {
-            // Find and replace the mat plane texture
-            this.renderer.scene.traverse((child) => {
-              if (child.isMesh && child.material && child.material.map && 
-                  child.position.y > 0.002 && child.position.y < 0.01 &&
-                  child.geometry.type === 'PlaneGeometry') {
-                child.material.map = tex;
-                child.material.needsUpdate = true;
-              }
-            });
-          });
-          // Save to localStorage
-          localStorage.setItem('mahjong-custom-mat', dataUrl);
-          this.showToast('Custom mat applied!');
+        // Show crop modal
+        const cropImg = document.getElementById('crop-image');
+        cropImg.src = ev.target.result;
+        cropImg.onload = () => {
+          document.getElementById('crop-overlay').classList.add('show');
+          this.closeSettings();
+          // Init crop square (centered, 50% of image)
+          const sq = document.getElementById('crop-square');
+          const size = Math.min(cropImg.clientWidth, cropImg.clientHeight) * 0.6;
+          sq.style.width = size + 'px'; sq.style.height = size + 'px';
+          sq.style.left = (cropImg.clientWidth - size) / 2 + 'px';
+          sq.style.top = (cropImg.clientHeight - size) / 2 + 'px';
+          // Drag + resize
+          let dragging = false, resizing = false, sx, sy, sl, st, sw;
+          sq.onpointerdown = (pe) => {
+            const rect = sq.getBoundingClientRect();
+            if (pe.clientX > rect.right - 20 && pe.clientY > rect.bottom - 20) {
+              resizing = true;
+            } else {
+              dragging = true;
+            }
+            sx = pe.clientX; sy = pe.clientY;
+            sl = parseInt(sq.style.left); st = parseInt(sq.style.top); sw = parseInt(sq.style.width);
+            pe.preventDefault();
+          };
+          document.onpointermove = (pe) => {
+            if (dragging) {
+              sq.style.left = Math.max(0, Math.min(cropImg.clientWidth - parseInt(sq.style.width), sl + pe.clientX - sx)) + 'px';
+              sq.style.top = Math.max(0, Math.min(cropImg.clientHeight - parseInt(sq.style.height), st + pe.clientY - sy)) + 'px';
+            } else if (resizing) {
+              const newSize = Math.max(50, Math.min(cropImg.clientWidth, cropImg.clientHeight, sw + pe.clientX - sx));
+              sq.style.width = newSize + 'px'; sq.style.height = newSize + 'px';
+            }
+          };
+          document.onpointerup = () => { dragging = false; resizing = false; };
         };
-        img.src = ev.target.result;
       };
       reader.readAsDataURL(file);
+    });
+    // Crop apply
+    document.getElementById('crop-apply').addEventListener('click', () => {
+      const cropImg = document.getElementById('crop-image');
+      const sq = document.getElementById('crop-square');
+      const scaleX = cropImg.naturalWidth / cropImg.clientWidth;
+      const scaleY = cropImg.naturalHeight / cropImg.clientHeight;
+      const cx = parseInt(sq.style.left) * scaleX;
+      const cy = parseInt(sq.style.top) * scaleY;
+      const cs = parseInt(sq.style.width) * scaleX;
+      const canvas = document.createElement('canvas');
+      canvas.width = 512; canvas.height = 512;
+      canvas.getContext('2d').drawImage(cropImg, cx, cy, cs, cs, 0, 0, 512, 512);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
+      const loader = new THREE.TextureLoader();
+      loader.load(dataUrl, (tex) => {
+        this.renderer.scene.traverse((child) => {
+          if (child.isMesh && child.material && child.material.map &&
+              child.position.y > 0.002 && child.position.y < 0.01 &&
+              child.geometry.type === 'PlaneGeometry') {
+            child.material.map = tex; child.material.needsUpdate = true;
+          }
+        });
+      });
+      localStorage.setItem('mahjong-custom-mat', dataUrl);
+      document.getElementById('crop-overlay').classList.remove('show');
+      this.showToast('Custom mat applied!');
+    });
+    document.getElementById('crop-cancel').addEventListener('click', () => {
+      document.getElementById('crop-overlay').classList.remove('show');
     });
     // Close settings on overlay click (outside modal)
     document.getElementById('settings-overlay').addEventListener('click', (e) => {
@@ -4838,5 +4888,16 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 });
 </script>
+
+<div class="crop-overlay" id="crop-overlay">
+  <div class="crop-container" id="crop-container">
+    <img id="crop-image" src="">
+    <div class="crop-square" id="crop-square"></div>
+  </div>
+  <div class="crop-btns">
+    <button class="crop-apply" id="crop-apply">Apply</button>
+    <button class="crop-cancel" id="crop-cancel">Cancel</button>
+  </div>
+</div>
 </body>
 </html>
