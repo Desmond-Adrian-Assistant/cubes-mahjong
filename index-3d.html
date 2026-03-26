@@ -1877,14 +1877,14 @@ class Renderer {
     border.receiveShadow = true;
     this.scene.add(border);
 
-    // Inner playing area — slightly lighter parchment overlay
+    // Inner playing area — slightly darker to contrast with bright wall tiles
     const innerGeo = new THREE.PlaneGeometry(10.5, 10.5);
     const innerMat = new THREE.MeshStandardMaterial({
-      color: 0xE8D4A8,
+      color: 0xD8C498,
       roughness: 0.92,
       metalness: 0.0,
       transparent: true,
-      opacity: 0.55,
+      opacity: 0.50,
     });
     const inner = new THREE.Mesh(innerGeo, innerMat);
     inner.rotation.x = -Math.PI / 2;
@@ -3176,8 +3176,8 @@ class Renderer {
     canvas.height = 176;
     const ctx = canvas.getContext('2d');
 
-    // Tan border background (visible around rounded corners)
-    ctx.fillStyle = '#A09068';
+    // Warm border background (visible around rounded corners) — darker than face for edge definition
+    ctx.fillStyle = '#9A8858';
     ctx.fillRect(0, 0, 128, 176);
 
     // Rounded rectangle clipping path — matches face texture style
@@ -3197,14 +3197,14 @@ class Renderer {
     ctx.save();
     ctx.clip();
 
-    // Warm cream/parchment back — Paper & Ink aesthetic
-    // Tile back: warm tan/khaki to match mockup's paper & ink theme (NO green)
-    ctx.fillStyle = '#C8B888';
+    // Bright ivory/white back — must clearly pop against warm cream table
+    // Tile back: near-white so wall tiles are unmistakably visible
+    ctx.fillStyle = '#FAF6EC';
     ctx.fillRect(0, 0, 128, 176);
 
-    // Subtle diamond lattice pattern
-    ctx.strokeStyle = 'rgba(140,120,80,0.35)';
-    ctx.lineWidth = 0.8;
+    // Subtle diamond lattice pattern — visible on ivory back
+    ctx.strokeStyle = 'rgba(140,120,80,0.30)';
+    ctx.lineWidth = 1.0;
     for (let x = -176; x < 304; x += 12) {
       ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x + 176, 176); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(x, 176); ctx.lineTo(x + 176, 0); ctx.stroke();
@@ -3319,9 +3319,9 @@ class Renderer {
       { dir: 'west',  baseX: -wallDist, baseZ: 0, along: 'z', rot: -Math.PI / 2, offsetStart: -wallDist + H/2, offsetEnd: wallDist - H/2 },
     ];
 
-    // Drop shadow material (shared across all wall sections)
+    // Drop shadow material (shared across all wall sections) — subtle, don't overpower tiles
     const shadowMat = new THREE.MeshBasicMaterial({
-      color: 0x000000, transparent: true, opacity: 0.35, depthWrite: false,
+      color: 0x000000, transparent: true, opacity: 0.22, depthWrite: false,
     });
 
     for (const side of sides) {
@@ -3365,7 +3365,7 @@ class Renderer {
           // No tilt — tiles lie perfectly flat like bricks in a wall
           mesh.rotation.x = Math.PI;
 
-          mesh.scale.set(0.78, 0.90, 0.78);
+          mesh.scale.set(0.82, 0.95, 0.82);
           this.scene.add(mesh);
           this.wallMeshes.push(mesh);
         }
