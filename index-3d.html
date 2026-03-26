@@ -595,10 +595,10 @@ body::after {
 .melds-area {
   position: fixed; display: flex; gap: 6px; flex-wrap: wrap; z-index: 12;
 }
-.melds-area.bottom { bottom: 142px; left: 16px; max-width: 45%; }
-.melds-area.top { top: 70px; right: 16px; max-width: 40%; flex-direction: row-reverse; }
-.melds-area.left { left: 70px; top: calc(45% + 60px); flex-direction: column; }
-.melds-area.right { right: 70px; top: calc(45% + 60px); flex-direction: column; }
+.melds-area.bottom { bottom: 142px; left: 16px; max-width: 45%; display: none; /* hidden — too small/confusing */ }
+.melds-area.top { top: 70px; display: none; right: 16px; max-width: 40%; flex-direction: row-reverse; }
+.melds-area.left { left: 70px; display: none; top: calc(45% + 60px); flex-direction: column; }
+.melds-area.right { right: 70px; display: none; top: calc(45% + 60px); flex-direction: column; }
 
 .meld-group {
   display: flex; gap: 2px;
