@@ -1,13 +1,14 @@
 {
-  "iteration": 3,
+  "iteration": 4,
   "maxIterations": 15,
   "startedAt": "2026-03-25T22:40:00-05:00",
-  "lastCompleted": "2026-03-25T23:10:00-05:00",
+  "lastCompleted": "2026-03-25T23:20:00-05:00",
   "changes": [
     "Iter 1: Lightened tile sides from dark brown (0x7A6848) to warm taupe (0xC4B8A8), adjusted ambient/hemisphere lighting up for better side visibility, reduced directional light to preserve top face brightness",
     "Iter 2: Reduced wall tile scale (0.88→0.78, 0.95→0.90) for visible gaps between tiles. Darkened side colors (0xC4B8A8→0xB0A088 face-up, 0xA89880→0x9A8A70 face-down) for stronger two-tone contrast",
-    "Iter 3: Removed green tile backs (#3B7A5A → #D4C4A0 warm parchment tan). Increased rounded corner bevel (bevelR 0.06→0.10, bevelThickness/Size 0.03→0.05, segments 3→5) for more prominent soft edges matching mockup"
+    "Iter 3: Removed green tile backs (#3B7A5A → #D4C4A0 warm parchment tan). Increased rounded corner bevel (bevelR 0.06→0.10, bevelThickness/Size 0.03→0.05, segments 3→5) for more prominent soft edges matching mockup",
+    "Iter 4: Fixed wall tile visibility — removed lingering green back (#3B7A5A→#C8B888 rich parchment), darkened border (#B8A878→#A09068), darker faceDown side (0x9A8A70→0x8A7A60), warm face tint (0xffffff→0xE8D8B8), stronger lattice pattern (0.20→0.35 opacity)"
   ],
   "status": "running",
-  "notes": "Round 4 — polish pass. Green tile backs eliminated. Corners now visibly rounded. Next: compare remaining gaps vs mockup."
+  "notes": "Round 5 next. Wall tiles improved but still low contrast vs table. May need to either darken wall tiles more or lighten table surface slightly. Discard/hand tiles look good."
 }
