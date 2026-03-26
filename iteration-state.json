@@ -1,8 +1,8 @@
 {
-  "iteration": 2,
+  "iteration": 3,
   "maxIterations": 15,
   "startedAt": "2026-03-25T23:37:00-05:00",
-  "lastCompleted": "2026-03-25T23:53:00-05:00",
+  "lastCompleted": "2026-03-25T23:57:00-05:00",
   "changes": [
     {
       "iteration": 1,
@@ -13,6 +13,11 @@
       "iteration": 2,
       "change": "Removed duplicate bottom-right toolbar (was identical to top-right). Wired up Settings button to open settings overlay modal. Added openSettings/closeSettings methods with close-on-overlay-click. Single clean toolbar in top-right only, matching mockup layout.",
       "commit": "84476e2"
+    },
+    {
+      "iteration": 3,
+      "change": "Wall tiles more prominent: scale 0.82→0.90, layer gap 0.10→0.04 (tighter stacking), wallDist 3.8→3.6 (closer to center), shadow opacity 0.22→0.30, tile depth D 0.40→0.45. Walls now clearly frame the playing area.",
+      "commit": "91eda28"
     }
   ],
   "status": "running",

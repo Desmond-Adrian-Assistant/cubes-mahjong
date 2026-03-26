@@ -232,7 +232,7 @@ body::after {
 #p-north { top: 24px; left: 50%; transform: translateX(-50%); flex-direction: column; align-items: center; gap: 2px; }
 #p-west { top: 45%; left: 28px; transform: translateY(-50%); }
 #p-east { top: 45%; right: 28px; transform: translateY(-50%); flex-direction: row-reverse; }
-#p-south { bottom: 150px; right: 40px; }
+#p-south { bottom: 80px; right: 20px; flex-direction: column; align-items: center; gap: 2px; }
 
 /* ========== PLAYER HAND (2D overlay at bottom) ========== */
 .hand-tray {
@@ -341,7 +341,7 @@ body::after {
   bottom: 136px;
   left: 50%;
   transform: translateX(-50%);
-  display: flex;
+  display: none; /* Hidden — South player bubble already shows this info */
   align-items: center;
   gap: 8px;
   z-index: 26;
@@ -466,7 +466,7 @@ body::after {
 /* ========== TURN INDICATOR ========== */
 .turn-indicator {
   position: fixed;
-  bottom: 138px;
+  bottom: 200px;
   left: 50%;
   transform: translateX(-50%);
   font-size: 16px;
