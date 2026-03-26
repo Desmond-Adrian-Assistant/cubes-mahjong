@@ -3404,8 +3404,16 @@ class Renderer {
           x = zone.baseX > 0 ? zone.baseX + rowOff : zone.baseX - rowOff;
           z = zone.baseZ + offset;
         }
-        mesh.position.set(x, 0.05, z);
-        mesh.rotation.y = 0;
+        // Organic scatter: small random offsets for natural discard pile look
+        const seed = (i * 9301 + p * 49297) % 233280;
+        const rng = seed / 233280;
+        const seed2 = (seed * 49297 + 11) % 233280;
+        const rng2 = seed2 / 233280;
+        const seed3 = (seed2 * 49297 + 11) % 233280;
+        const rng3 = seed3 / 233280;
+        mesh.position.set(x + (rng - 0.5) * 0.08, 0.05, z + (rng2 - 0.5) * 0.08);
+        mesh.rotation.y = (rng3 - 0.5) * 0.5;  // +/- ~14 degrees
+        mesh.rotation.z = (rng - 0.5) * 0.06;   // slight tilt
         mesh.scale.set(1.35, 1.35, 1.35);
         this.scene.add(mesh);
         this.discardMeshes.push(mesh);

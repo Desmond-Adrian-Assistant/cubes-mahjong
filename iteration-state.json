@@ -1,8 +1,8 @@
 {
-  "iteration": 18,
+  "iteration": 19,
   "maxIterations": 20,
   "startedAt": "2026-03-25T16:15:00-05:00",
-  "lastCompleted": "2026-03-26T00:40:00-05:00",
+  "lastCompleted": "2026-03-26T00:50:00-05:00",
   "changes": [
     {
       "iteration": 1,
@@ -93,8 +93,13 @@
       "iteration": 18,
       "fix": "Replaced teal/green tile backs (#4A8B6F) with warm cream parchment (#E8DCC8); warmer lattice pattern; warmer table surface (0xF2E6C8) and inner overlay (0xE8D4A8/0.55)",
       "result": "Massive improvement — eliminated the cool blue-green tint from wall tile backs that dominated the scene. Entire playing area is now consistently warm cream/parchment. No more color temperature clash. Scene matches mockup's unified warm Paper & Ink aesthetic."
+    },
+    {
+      "iteration": 19,
+      "fix": "Brightened wall tile back texture from cream #E8DCC8 to white #FFFFF5; faceDown faceColor 0xFFFBF4→0xFFFFFF; wall shadow opacity 0.15→0.35; lattice pattern more visible",
+      "result": "Wall tiles now contrast more clearly against the cream parchment table surface. Brighter white backs make individual wall tiles distinguishable from the playing area. Stronger ground shadows add depth definition. Wall formations are now visible as distinct elements."
     }
   ],
   "status": "running",
-  "notes": "Round 18 — MAJOR: Removed teal/green tile backs, replaced with warm cream parchment. This was the single biggest remaining color discrepancy. Scene is now cohesively warm throughout. Remaining polish: (1) minor two-tone refinement, (2) overall color consistency check."
+  "notes": "Round 19 — Wall tile visibility improved via brighter white backs vs cream table. 1 iteration remaining. Walls visible but still subtle at camera distance. Overall warm Paper & Ink aesthetic cohesive."
 }
