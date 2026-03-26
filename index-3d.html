@@ -241,7 +241,7 @@ body::after {
 .tile.dragging { opacity: 0.5; transform: scale(1.05); }
 .tile.drag-over { border-left: 3px solid #c8a040; }
 .hand-sort-btn {
-  position: fixed; bottom: 140px; right: 20px;
+  position: fixed; bottom: 140px; left: 20px;
   background: rgba(245,240,232,0.95); border: 2px solid var(--tile-accent, #C0A878);
   border-radius: 10px; padding: 6px 14px; font-size: 13px; color: #5a4a3a;
   cursor: pointer; z-index: 25; font-family: 'Helvetica Neue', sans-serif;
@@ -3349,7 +3349,9 @@ class Renderer {
     const defaultSide = 0xC0A878;
     const sideColor = this.tileAccentColor || defaultSide;
     // ALL tiles use accent color on sides (walls show it prominently, face-up shows it at edges)
-    const actualSideColor = sideColor;
+    // Face-up tiles: lighter side color so they match the clean hand tile look
+    // Face-down tiles: full accent color for wall backs
+    const actualSideColor = faceDown ? sideColor : 0xD8C8A8;
 
     const faceMat = new THREE.MeshStandardMaterial({ map: faceTex, color: 0xfefefe, roughness: 0.3, metalness: 0.0 });
     const sideMat = new THREE.MeshStandardMaterial({ color: actualSideColor, roughness: 0.4, metalness: 0.0 });
@@ -3486,7 +3488,7 @@ class Renderer {
         mesh.position.set(x + (rng - 0.5) * 0.04, -0.005, z + (rng2 - 0.5) * 0.04);
         mesh.rotation.y = (rng3 - 0.5) * 0.3;  // +/- ~14 degrees
         mesh.rotation.z = (rng - 0.5) * 0.06;   // slight tilt
-        mesh.scale.set(1.10, 1.10, 1.10);
+        mesh.scale.set(0.95, 0.95, 0.95);
         this.scene.add(mesh);
         this.discardMeshes.push(mesh);
       }
