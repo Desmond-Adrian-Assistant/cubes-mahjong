@@ -3404,7 +3404,8 @@ class Renderer {
           const offset = side.offsetStart + (i + 0.5) * tileSpacing;
           // ExtrudeGeometry: body at y=D after -π/2 rotation. After π flip, tile at [-2D, -D]
           // To sit on table (y=0): yPos = 2*D. Layer 1 stacks: yPos = 2*D + D
-          const yPos = 2 * D + layer * D;
+          // Add 0.10 gap between layers so they're clearly separate
+          const yPos = 2 * D + layer * (D + 0.10);
 
           if (side.along === 'x') {
             mesh.position.set(side.baseX + offset, yPos, side.baseZ);
