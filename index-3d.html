@@ -3340,25 +3340,9 @@ class Renderer {
       { dir: 'west',  baseX: -wallDist, baseZ: 0, along: 'z', rot: -Math.PI / 2, offsetStart: -wallDist + H/2, offsetEnd: wallDist - H/2 },
     ];
 
-    // Drop shadow material (shared across all wall sections) — subtle, don't overpower tiles
-    const shadowMat = new THREE.MeshBasicMaterial({
-      color: 0x000000, transparent: true, opacity: 0.30, depthWrite: false,
-    });
+    // Wall shadows removed — were causing ugly grey bars
 
     for (const side of sides) {
-      // Add drop shadow plane beneath each wall section
-      const shadowLen = tilesPerSide * (W + 0.015);
-      const shadowDepth = H * 1.2;
-      const shadowGeo = new THREE.PlaneGeometry(
-        side.along === 'x' ? shadowLen : shadowDepth,
-        side.along === 'x' ? shadowDepth : shadowLen
-      );
-      const shadowPlane = new THREE.Mesh(shadowGeo, shadowMat);
-      shadowPlane.rotation.x = -Math.PI / 2;
-      shadowPlane.position.set(side.baseX, 0.005, side.baseZ);
-      this.scene.add(shadowPlane);
-      this.wallMeshes.push(shadowPlane);
-
       for (let layer = 0; layer < layers; layer++) {
         for (let i = 0; i < tilesPerSide; i++) {
           if (tileIdx >= wallTiles.length) break;
