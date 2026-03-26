@@ -273,8 +273,7 @@ body::after {
   background: linear-gradient(180deg, #fefefe 0%, #fafaf5 40%, #f2ece0 100%);
   border: 1.5px solid #c8b898;
   box-shadow:
-    0 6px 0 #B8A080,
-    0 7px 0 #A89070,
+    0 4px 0 #B8A080,
     2px 2px 0 1px rgba(180,155,110,0.3),
     inset 0 1px 0 rgba(255,255,255,0.95),
     inset 0 -1px 2px rgba(160,140,110,0.08);
@@ -2123,36 +2122,34 @@ class Renderer {
     canvas.height = 352;
     const ctx = canvas.getContext('2d');
 
-    // Tile side/edge color (visible around the rounded face)
-    ctx.fillStyle = '#b0986c';
+    // TWO-TONE TILE: Bottom ~40% accent color, top ~60% white with artwork
+    // This creates the classic mahjong tile look where the white inlay sits on a colored base
+    const accentColor = '#B8A080'; // Warm tan accent (customizable via Settings)
+    const splitY = 210; // 60% of 352 = white zone, bottom 40% = accent
+
+    // Fill entire tile with accent color first
+    ctx.fillStyle = accentColor;
     ctx.fillRect(0, 0, 256, 352);
 
-    // Rounded face rectangle — matches CSS hand tile appearance
-    const r = 20; // corner radius
-    const m = 10;  // margin from edge (shows the tan border)
+    // White zone: top 60% with rounded corners
+    const r = 16;
+    const m = 8;
     ctx.beginPath();
     ctx.moveTo(m + r, m);
     ctx.lineTo(256 - m - r, m);
     ctx.arcTo(256 - m, m, 256 - m, m + r, r);
-    ctx.lineTo(256 - m, 352 - m - r);
-    ctx.arcTo(256 - m, 352 - m, 256 - m - r, 352 - m, r);
-    ctx.lineTo(m + r, 352 - m);
-    ctx.arcTo(m, 352 - m, m, 352 - m - r, r);
+    ctx.lineTo(256 - m, splitY); // Stop at the split line (no rounding at bottom)
+    ctx.lineTo(m, splitY);
     ctx.lineTo(m, m + r);
     ctx.arcTo(m, m, m + r, m, r);
     ctx.closePath();
 
-    // Fill with white-cream gradient (bright white center)
-    const faceGrad = ctx.createLinearGradient(0, 0, 0, 352);
-    faceGrad.addColorStop(0, '#ffffff');
-    faceGrad.addColorStop(0.5, '#ffffff');
-    faceGrad.addColorStop(1, '#f5f0e8');
-    ctx.fillStyle = faceGrad;
+    ctx.fillStyle = '#ffffff';
     ctx.fill();
 
-    // Visible border on the rounded face
-    ctx.strokeStyle = 'rgba(160,140,110,0.5)';
-    ctx.lineWidth = 2.5;
+    // Subtle border around the white zone
+    ctx.strokeStyle = 'rgba(140,120,90,0.3)';
+    ctx.lineWidth = 1.5;
     ctx.stroke();
 
     if (key.startsWith('dots-')) {
@@ -3308,7 +3305,7 @@ class Renderer {
   }
 
   create3DTile(tile, faceDown = false) {
-    const W = 0.50, H = 0.65, D = 0.30;
+    const W = 0.50, H = 0.65, D = 0.12;
     const group = new THREE.Group();
 
     const faceTex = faceDown ? this.createTileBackTexture() : this.createTileTexture(tile);
@@ -3370,7 +3367,7 @@ class Renderer {
 
   createWalls(wallTiles) {
     this.clearWalls();
-    const W = 0.50, H = 0.65, D = 0.30;
+    const W = 0.50, H = 0.65, D = 0.12;
     const tilesPerSide = 17;
     const layers = 2;
     let tileIdx = 0;
