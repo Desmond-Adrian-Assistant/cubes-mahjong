@@ -282,11 +282,11 @@ body::after {
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
   scroll-snap-type: x proximity;
-  /* Fade edges to hint at scrollability */
-  -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 5%, black 95%, transparent 100%);
-  mask-image: linear-gradient(90deg, transparent 0%, black 5%, black 95%, transparent 100%);
-  padding-left: 24px;
-  padding-right: 24px;
+  /* Fade only right edge to hint at more tiles */
+  -webkit-mask-image: linear-gradient(90deg, black 0%, black 92%, transparent 100%);
+  mask-image: linear-gradient(90deg, black 0%, black 92%, transparent 100%);
+  padding-left: 14px;
+  padding-right: 30px;
 }
 .hand-tray::-webkit-scrollbar { height: 4px; }
 .hand-tray::-webkit-scrollbar-thumb { background: rgba(160,140,110,0.3); border-radius: 2px; }
