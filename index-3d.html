@@ -3254,11 +3254,8 @@ class Renderer {
     canvas.height = 176;
     const ctx = canvas.getContext('2d');
 
-    // Accent color fills entire back (visible at bottom and as border)
-    const accentHex = this.tileAccentColor 
-      ? '#' + this.tileAccentColor.toString(16).padStart(6, '0')
-      : '#C0A878';
-    ctx.fillStyle = accentHex;
+    // Border color for wall tile backs
+    ctx.fillStyle = '#C8B898';
     ctx.fillRect(0, 0, 128, 176);
 
     // Rounded rectangle clipping path — matches face texture style
@@ -3278,11 +3275,9 @@ class Renderer {
     ctx.save();
     ctx.clip();
 
-    // Fill clipped area: ivory top 78%, accent bottom 22%
-    ctx.fillStyle = accentHex;
-    ctx.fillRect(0, 0, 128, 176);
+    // Wall backs: solid warm ivory — NO accent split (it flips when face-down)
     ctx.fillStyle = '#F0EAD8';
-    ctx.fillRect(0, 0, 128, 137); // Top ~78% is ivory, bottom ~22% stays accent
+    ctx.fillRect(0, 0, 128, 176);
     ctx.fillRect(0, 0, 128, 176);
 
     // Diamond lattice pattern — gold lines complement green back
@@ -3346,9 +3341,11 @@ class Renderer {
     // Accent color applies to ALL tiles (walls + discards + wind indicators)
     const defaultSide = 0xC0A878;
     const sideColor = this.tileAccentColor || defaultSide;
+    // Walls use neutral tan sides; only face-up tiles get accent color
+    const actualSideColor = faceDown ? 0xC8B898 : sideColor;
 
     const faceMat = new THREE.MeshStandardMaterial({ map: faceTex, color: 0xfefefe, roughness: 0.3, metalness: 0.0 });
-    const sideMat = new THREE.MeshStandardMaterial({ color: sideColor, roughness: 0.4, metalness: 0.0 });
+    const sideMat = new THREE.MeshStandardMaterial({ color: actualSideColor, roughness: 0.4, metalness: 0.0 });
 
     // ExtrudeGeometry: [front face, back face, sides]
     const body = new THREE.Mesh(bodyGeo, [faceMat, faceMat, sideMat]);
