@@ -3299,7 +3299,7 @@ class Renderer {
 
     // Wall sides: offset from center, with corners that don't overlap
     // Each wall starts/ends leaving room for the perpendicular wall tile depth (H)
-    const wallDist = 3.6;
+    const wallDist = 3.8;
     const sides = [
       { dir: 'north', baseX: 0, baseZ: -wallDist, along: 'x', rot: 0, offsetStart: -wallDist + H/2, offsetEnd: wallDist - H/2 },
       { dir: 'east',  baseX: wallDist, baseZ: 0,  along: 'z', rot: Math.PI / 2, offsetStart: -wallDist + H/2, offsetEnd: wallDist - H/2 },
@@ -3339,7 +3339,7 @@ class Renderer {
           // Math: After π flip, tile local y=[D, 2D] becomes [-2D, -D]
           // To place bottom at y=0 (table surface): yPos = 2*D
           // Layer 1 stacks on top: yPos = 2*D + D
-          const yPos = 2 * D + layer * D;
+          const yPos = 2 * D + layer * (D + 0.10);
 
           if (side.along === 'x') {
             mesh.position.set(side.baseX + offset, yPos, side.baseZ);
@@ -3353,7 +3353,7 @@ class Renderer {
           // No tilt — tiles lie perfectly flat like bricks in a wall
           mesh.rotation.x = Math.PI;
 
-          mesh.scale.set(0.78, 0.85, 0.78);
+          mesh.scale.set(0.88, 0.95, 0.88);
           this.scene.add(mesh);
           this.wallMeshes.push(mesh);
         }
