@@ -3246,14 +3246,19 @@ class Renderer {
   }
 
   createTileBackTexture() {
-    if (this._backTex) return this._backTex;
+    const backCacheKey = 'back_' + (this.tileAccentColor || 'default');
+    if (this._backTexKey === backCacheKey && this._backTex) return this._backTex;
+    this._backTexKey = backCacheKey;
     const canvas = document.createElement('canvas');
     canvas.width = 128;
     canvas.height = 176;
     const ctx = canvas.getContext('2d');
 
-    // Gold border background (visible around rounded corners) — complements green back
-    ctx.fillStyle = '#C8A84E';
+    // Accent color fills entire back (visible at bottom and as border)
+    const accentHex = this.tileAccentColor 
+      ? '#' + this.tileAccentColor.toString(16).padStart(6, '0')
+      : '#C0A878';
+    ctx.fillStyle = accentHex;
     ctx.fillRect(0, 0, 128, 176);
 
     // Rounded rectangle clipping path — matches face texture style
@@ -3273,8 +3278,11 @@ class Renderer {
     ctx.save();
     ctx.clip();
 
-    // Tile back — warm ivory matching mockup aesthetic
-    ctx.fillStyle = '#EDE4D0';
+    // Fill clipped area with accent color, then overlay white on top 65%
+    ctx.fillStyle = accentHex;
+    ctx.fillRect(0, 0, 128, 176);
+    ctx.fillStyle = '#F0EAD8';
+    ctx.fillRect(0, 0, 128, 115); // Top ~65% is ivory, bottom ~35% stays accent
     ctx.fillRect(0, 0, 128, 176);
 
     // Diamond lattice pattern — gold lines complement green back
