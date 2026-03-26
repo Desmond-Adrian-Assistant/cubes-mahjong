@@ -1344,8 +1344,9 @@ class Renderer {
     this.renderer.toneMappingExposure = 1.45;
 
     // Camera setup - close isometric view for table to fill viewport
-    this.camera.position.set(0, 7.5, 6.5);
-    this.camera.lookAt(0, 0, -0.5);
+    // Lower camera angle to see tile SIDES (two-tone effect)
+    this.camera.position.set(0, 6, 9);
+    this.camera.lookAt(0, 0, 0);
 
     this.tileTextures = {};
     this.tileMeshes = [];
