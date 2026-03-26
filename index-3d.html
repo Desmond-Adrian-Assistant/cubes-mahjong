@@ -222,13 +222,24 @@ body::after {
   font-family: 'Helvetica Neue', Arial, sans-serif;
 }
 .player-bubble.active .bubble-avatar {
-  border-color: #b33a2a;
-  box-shadow: 0 3px 12px rgba(179,58,42,0.3), 0 0 0 4px rgba(179,58,42,0.15);
-  animation: pulse 1.8s ease infinite;
+  border-color: #e04030;
+  border-width: 4px;
+  box-shadow: 0 0 20px rgba(224,64,48,0.6), 0 0 0 6px rgba(224,64,48,0.25);
+  animation: pulse 1.2s ease infinite;
+}
+.player-bubble.active .bubble-info .name {
+  color: #e04030;
+  font-weight: 800;
+}
+.player-bubble.active::after {
+  content: '🎯';
+  position: absolute;
+  top: -8px; right: -8px;
+  font-size: 20px;
 }
 @keyframes pulse {
-  0%, 100% { box-shadow: 0 3px 12px rgba(179,58,42,0.3), 0 0 0 4px rgba(179,58,42,0.15); }
-  50% { box-shadow: 0 3px 12px rgba(179,58,42,0.3), 0 0 0 8px rgba(179,58,42,0.08); }
+  0%, 100% { box-shadow: 0 0 20px rgba(224,64,48,0.6), 0 0 0 6px rgba(224,64,48,0.25); }
+  50% { box-shadow: 0 0 30px rgba(224,64,48,0.8), 0 0 0 10px rgba(224,64,48,0.15); }
 }
 
 #p-north { top: 24px; left: 50%; transform: translateX(-50%); flex-direction: column; align-items: center; gap: 2px; }
