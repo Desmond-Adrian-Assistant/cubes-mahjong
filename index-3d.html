@@ -3796,6 +3796,47 @@ class GameController {
     document.getElementById('dsb-organic').addEventListener('click', () => this.setDiscardSort('organic'));
     document.getElementById('dsb-back').addEventListener('click', () => this.toggleDiscardView());
     document.getElementById('settings-close').addEventListener('click', () => this.closeSettings());
+    // Mat upload
+    document.getElementById('mat-upload-btn').addEventListener('click', () => {
+      document.getElementById('mat-file-input').click();
+    });
+    document.getElementById('mat-file-input').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => {
+          // Square crop: take center square
+          const size = Math.min(img.width, img.height);
+          const cx = (img.width - size) / 2;
+          const cy = (img.height - size) / 2;
+          const canvas = document.createElement('canvas');
+          canvas.width = 512; canvas.height = 512;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, cx, cy, size, size, 0, 0, 512, 512);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
+          // Apply as table mat texture
+          const loader = new THREE.TextureLoader();
+          loader.load(dataUrl, (tex) => {
+            // Find and replace the mat plane texture
+            this.renderer.scene.traverse((child) => {
+              if (child.isMesh && child.material && child.material.map && 
+                  child.position.y > 0.002 && child.position.y < 0.01 &&
+                  child.geometry.type === 'PlaneGeometry') {
+                child.material.map = tex;
+                child.material.needsUpdate = true;
+              }
+            });
+          });
+          // Save to localStorage
+          localStorage.setItem('mahjong-custom-mat', dataUrl);
+          this.showToast('Custom mat applied!');
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
     // Close settings on overlay click (outside modal)
     document.getElementById('settings-overlay').addEventListener('click', (e) => {
       if (e.target === e.currentTarget) this.closeSettings();
@@ -3821,6 +3862,23 @@ class GameController {
       document.getElementById('tile-color-picker').value = savedAccent;
       this.renderer.tileAccentColor = parseInt(savedAccent.replace('#', ''), 16);
       document.documentElement.style.setProperty('--tile-accent', savedAccent);
+    }
+    // Load saved custom mat
+    const savedMat = localStorage.getItem('mahjong-custom-mat');
+    if (savedMat) {
+      setTimeout(() => {
+        const loader = new THREE.TextureLoader();
+        loader.load(savedMat, (tex) => {
+          this.renderer.scene.traverse((child) => {
+            if (child.isMesh && child.material && child.material.map &&
+                child.position.y > 0.002 && child.position.y < 0.01 &&
+                child.geometry.type === 'PlaneGeometry') {
+              child.material.map = tex;
+              child.material.needsUpdate = true;
+            }
+          });
+        });
+      }, 1000);
     }
   }
 
