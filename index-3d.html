@@ -273,7 +273,8 @@ body::after {
   background: linear-gradient(180deg, #fefefe 0%, #fafaf5 40%, #f2ece0 100%);
   border: 1.5px solid #c8b898;
   box-shadow:
-    2px 2px 0 #c0a880,
+    0 6px 0 #B8A080,
+    0 7px 0 #A89070,
     2px 2px 0 1px rgba(180,155,110,0.3),
     inset 0 1px 0 rgba(255,255,255,0.95),
     inset 0 -1px 2px rgba(160,140,110,0.08);
@@ -3307,7 +3308,7 @@ class Renderer {
   }
 
   create3DTile(tile, faceDown = false) {
-    const W = 0.50, H = 0.65, D = 0.25;
+    const W = 0.50, H = 0.65, D = 0.45;
     const group = new THREE.Group();
 
     const faceTex = faceDown ? this.createTileBackTexture() : this.createTileTexture(tile);
@@ -3343,7 +3344,8 @@ class Renderer {
 
     // Two-tone: white face + colored sides (customizable via Settings color picker)
     const faceColor = 0xffffff;
-    const defaultSide = faceDown ? 0x2B5A3A : 0x7A6240;
+    // Side color — customizable via Settings color picker
+    const defaultSide = 0xB8A080;  // Warm tan matching mockup
     const sideColor = this.tileAccentColor || defaultSide;
 
     const faceMat = new THREE.MeshStandardMaterial({ map: faceTex, color: faceColor, roughness: 0.35, metalness: 0.0 });
@@ -3387,7 +3389,7 @@ class Renderer {
 
   createWalls(wallTiles) {
     this.clearWalls();
-    const W = 0.50, H = 0.65, D = 0.25;
+    const W = 0.50, H = 0.65, D = 0.45;
     const tilesPerSide = 17;
     const layers = 2;
     let tileIdx = 0;
