@@ -1,8 +1,8 @@
 {
-  "iteration": 17,
+  "iteration": 18,
   "maxIterations": 20,
   "startedAt": "2026-03-25T16:15:00-05:00",
-  "lastCompleted": "2026-03-26T00:18:00-05:00",
+  "lastCompleted": "2026-03-26T00:40:00-05:00",
   "changes": [
     {
       "iteration": 1,
@@ -88,8 +88,13 @@
       "iteration": 17,
       "fix": "Wall tile scale (0.78,0.85,0.78)→(0.88,0.95,0.88) for bigger tiles; layer gap D→D+0.10 for clearer two-layer separation; wallDist 3.6→3.8 to accommodate",
       "result": "Wall tiles are now more visually prominent — thicker and more visible as proper stacked-brick walls. Two layers clearly separated. Walls frame the playing area more definitively."
+    },
+    {
+      "iteration": 18,
+      "fix": "Replaced teal/green tile backs (#4A8B6F) with warm cream parchment (#E8DCC8); warmer lattice pattern; warmer table surface (0xF2E6C8) and inner overlay (0xE8D4A8/0.55)",
+      "result": "Massive improvement — eliminated the cool blue-green tint from wall tile backs that dominated the scene. Entire playing area is now consistently warm cream/parchment. No more color temperature clash. Scene matches mockup's unified warm Paper & Ink aesthetic."
     }
   ],
   "status": "running",
-  "notes": "Round 17 — Wall tiles more prominent with bigger scale (0.88/0.95/0.88), wider layer gap, walls pushed to 3.8. Walls now read as proper thick stacked-brick walls. Next priorities: (1) final polish on discard tile readability, (2) table art opacity tuning, (3) overall aesthetic refinement."
+  "notes": "Round 18 — MAJOR: Removed teal/green tile backs, replaced with warm cream parchment. This was the single biggest remaining color discrepancy. Scene is now cohesively warm throughout. Remaining polish: (1) minor two-tone refinement, (2) overall color consistency check."
 }
