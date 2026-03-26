@@ -1,9 +1,15 @@
 {
-  "iteration": 0,
+  "iteration": 1,
   "maxIterations": 15,
   "startedAt": "2026-03-25T23:37:00-05:00",
-  "lastCompleted": null,
-  "changes": [],
+  "lastCompleted": "2026-03-25T23:50:00-05:00",
+  "changes": [
+    {
+      "iteration": 1,
+      "change": "Wall tile visibility: brightened tile back texture (#C8B888 → #FAF6EC), darkened inner playing area (0xE8D4A8 → 0xD8C498), increased wall tile scale (0.78 → 0.82), reduced wall shadow opacity (0.35 → 0.22), wider lattice lines on backs",
+      "commit": "398f0b7"
+    }
+  ],
   "status": "running",
   "notes": "Round 5 — POLISH ONLY. Do NOT change tile back color (green #3B7A5A). Do NOT change side color (dark brown #7A6240). Do NOT change camera (y6 z9). Focus: wall visibility, composition, UI cleanup, overall mockup match."
 }
