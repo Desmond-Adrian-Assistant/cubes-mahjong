@@ -1351,6 +1351,27 @@ class Renderer {
     this.camera.lookAt(0, 0, 0);
 
     this.tileTextures = {};
+
+    // Preload Nano Banana tile sprite sheets
+    this.sprites = {};
+    this.spritesLoaded = false;
+    const spriteFiles = {
+      bamboo: 'assets/sprite-bamboo.jpg',
+      dots: 'assets/sprite-dots.jpg',
+      characters: 'assets/sprite-characters.jpg',
+      honors: 'assets/sprite-honors.jpg'
+    };
+    let loaded = 0;
+    for (const [name, path] of Object.entries(spriteFiles)) {
+      const img = new Image();
+      img.onload = () => {
+        this.sprites[name] = img;
+        loaded++;
+        if (loaded === 4) this.spritesLoaded = true;
+      };
+      img.src = path;
+    }
+
     this.tileMeshes = [];
     this.discardMeshes = [];
     this.wallMeshes = [];
@@ -2115,6 +2136,52 @@ class Renderer {
     }
   }
 
+
+  // Get tile artwork from sprite sheet
+  _getSpriteRegion(tile) {
+    const key = getTileKey(tile);
+    
+    // Bamboo: 3x3 grid, tiles bamboo-1 to bamboo-9
+    if (key.startsWith('bamboo-') && this.sprites.bamboo) {
+      const num = parseInt(key.split('-')[1]) - 1; // 0-8
+      const col = num % 3, row = Math.floor(num / 3);
+      const sw = this.sprites.bamboo.width / 3;
+      const sh = this.sprites.bamboo.height / 3;
+      return { img: this.sprites.bamboo, sx: col * sw, sy: row * sh, sw, sh };
+    }
+    
+    // Dots: 3x3 grid
+    if (key.startsWith('dots-') && this.sprites.dots) {
+      const num = parseInt(key.split('-')[1]) - 1;
+      const col = num % 3, row = Math.floor(num / 3);
+      const sw = this.sprites.dots.width / 3;
+      const sh = this.sprites.dots.height / 3;
+      return { img: this.sprites.dots, sx: col * sw, sy: row * sh, sw, sh };
+    }
+    
+    // Characters: 3x3 grid
+    if (key.startsWith('characters-') && this.sprites.characters) {
+      const num = parseInt(key.split('-')[1]) - 1;
+      const col = num % 3, row = Math.floor(num / 3);
+      const sw = this.sprites.characters.width / 3;
+      const sh = this.sprites.characters.height / 3;
+      return { img: this.sprites.characters, sx: col * sw, sy: row * sh, sw, sh };
+    }
+    
+    // Honors: 7 tiles in a row (E, S, W, N, Red, Green, White)
+    if (this.sprites.honors) {
+      const honorOrder = ['winds-East', 'winds-South', 'winds-West', 'winds-North', 'dragons-Red', 'dragons-Green', 'dragons-White'];
+      const idx = honorOrder.indexOf(key);
+      if (idx >= 0) {
+        const sw = this.sprites.honors.width / 7;
+        const sh = this.sprites.honors.height;
+        return { img: this.sprites.honors, sx: idx * sw, sy: 0, sw, sh };
+      }
+    }
+    
+    return null; // fallback to procedural
+  }
+
   createTileTexture(tile) {
     const key = getTileKey(tile);
     const cacheKey = key + '_' + (this.tileAccentColor || 'default');
@@ -2155,8 +2222,15 @@ class Renderer {
     ctx.lineWidth = 1;
     ctx.stroke();
 
-    if (key.startsWith('dots-')) {
-      // Draw actual circles for dots tiles instead of text
+    // Try sprite sheet first (Nano Banana art) — falls back to procedural
+    const sprite = this._getSpriteRegion(tile);
+    if (sprite) {
+      // Draw sprite region into the white zone of the tile
+      const padding = 14;
+      ctx.drawImage(sprite.img, sprite.sx, sprite.sy, sprite.sw, sprite.sh,
+        padding, padding, 256 - padding * 2, 260 - padding * 2);
+    } else if (key.startsWith('dots-')) {
+      // Fallback: Draw actual circles for dots tiles instead of text
       const dotNum = parseInt(key.split('-')[1]);
       const layouts = {
         1: { r: 42, pos: [[128, 176]] },
