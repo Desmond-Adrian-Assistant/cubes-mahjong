@@ -113,7 +113,7 @@ body::after {
   box-shadow: 0 3px 10px rgba(80,60,30,0.2);
   backdrop-filter: blur(10px);
   transition: all 0.2s;
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
 }
 .menu-btn:hover { background: linear-gradient(135deg, #a07a1a, #8b6914); }
 .menu-btn:active { transform: scale(0.95); }
@@ -154,10 +154,11 @@ body::after {
   height: 28px;
 }
 .toolbar-btn .tb-label {
-  font-size: 10px;
-  letter-spacing: 0.8px;
-  color: #5a4a38;
-  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  color: #4a3a28;
+  font-weight: 700;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
   text-transform: uppercase;
   margin-top: 2px;
   line-height: 1;
@@ -212,13 +213,13 @@ body::after {
 }
 .bubble-info .name {
   font-size: 16px; color: #4a3a28;
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
 }
 .bubble-info .score { font-size: 13px; color: #8a7a6a; }
 .bubble-info .wind-seat {
   font-size: 13px; color: #b33a2a;
   display: inline-block; margin-left: 4px;
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
 }
 .player-bubble.active .bubble-avatar {
   border-color: #b33a2a;
@@ -316,13 +317,13 @@ body::after {
 }
 .tile .face .char-top {
   font-size: 38px;
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
   color: #2a2018;
   line-height: 1;
 }
 .tile .face .char-bottom {
   font-size: 32px;
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
   color: #b33a2a;
   line-height: 1;
 }
@@ -381,7 +382,7 @@ body::after {
 }
 .player-label .name {
   font-size: 13px; color: #4a3a28;
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
 }
 .player-label .score { font-size: 11px; color: #8a7a6a; margin-left: 6px; }
 
@@ -398,17 +399,18 @@ body::after {
 }
 .action-btn {
   border: none;
-  border-radius: 12px;
-  padding: 12px 26px;
-  font-size: 16px;
-  font-family: 'Ma Shan Zheng', serif;
+  border-radius: 14px;
+  padding: 14px 30px;
+  font-size: 18px;
+  font-weight: 700;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
   cursor: pointer;
   transition: all 0.2s;
   box-shadow: 0 4px 14px rgba(80,60,30,0.25);
   display: none;
-  min-width: 80px;
+  min-width: 90px;
   text-align: center;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
 }
 .action-btn.visible { display: block; }
 .action-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
@@ -444,7 +446,7 @@ body::after {
 .claim-panel-title {
   font-size: 15px; color: #5a4a3a;
   text-align: center; margin-bottom: 4px;
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
 }
 .claim-option {
   display: flex; align-items: center; gap: 10px;
@@ -475,7 +477,7 @@ body::after {
 }
 .claim-option .action-label {
   font-size: 14px; color: #5a4a3a;
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
 }
 
 /* ========== TURN INDICATOR ========== */
@@ -484,12 +486,13 @@ body::after {
   bottom: 200px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 16px;
-  font-family: 'Ma Shan Zheng', serif;
+  font-size: 18px;
+  font-weight: 700;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
   color: #fffff8;
   background: #5a4a3a;
-  border-radius: 20px;
-  padding: 10px 24px;
+  border-radius: 24px;
+  padding: 12px 28px;
   box-shadow: 0 3px 10px rgba(80,60,30,0.2);
   white-space: nowrap;
   z-index: 35;
@@ -509,8 +512,8 @@ body::after {
   backdrop-filter: blur(16px);
   border-radius: 16px;
   padding: 16px 32px;
-  font-size: 22px; color: #4a3a28;
-  font-family: 'Ma Shan Zheng', serif;
+  font-size: 24px; font-weight: 700; color: #3a2a18;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
   opacity: 0;
   transition: all 0.3s cubic-bezier(.34,1.56,.64,1);
   pointer-events: none;
@@ -528,7 +531,7 @@ body::after {
   border-radius: 14px;
   padding: 12px 24px;
   font-size: 17px; color: #5a4a3a;
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
   opacity: 0;
   transition: all 0.4s cubic-bezier(.34,1.56,.64,1);
   pointer-events: none;
@@ -561,8 +564,8 @@ body::after {
   min-width: 320px;
 }
 .discard-modal h3 {
-  font-family: 'Ma Shan Zheng', serif;
-  font-size: 22px; color: #4a3a28;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 24px; font-weight: 700; color: #3a2a18;
   text-align: center; margin-bottom: 16px;
   font-weight: 400;
 }
@@ -570,7 +573,7 @@ body::after {
   margin-bottom: 12px;
 }
 .discard-section-title {
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
   font-size: 16px; color: #8a7a6a;
   margin-bottom: 6px;
   padding-left: 4px;
@@ -591,7 +594,7 @@ body::after {
   display: flex; gap: 8px; justify-content: center; margin-top: 16px;
 }
 .discard-close-bar button {
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
   font-size: 15px;
   padding: 8px 22px;
   border-radius: 14px;
@@ -651,7 +654,7 @@ body::after {
 }
 .wall-info .dealer {
   font-size: 22px; color: #b33a2a;
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
 }
 .wall-info .tiles-left { font-size: 10px; color: #8a7a6a; }
 
@@ -676,7 +679,7 @@ body::after {
 }
 .modal h2 {
   font-size: 28px; color: #4a3a28; margin-bottom: 14px;
-  font-family: 'Ma Shan Zheng', serif; font-weight: 400;
+  font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: 400;
 }
 .modal p { font-size: 15px; color: #8a7a6a; margin-bottom: 18px; }
 .modal-btn {
@@ -685,7 +688,7 @@ body::after {
   border-radius: 16px;
   padding: 12px 32px;
   font-size: 17px;
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
   color: #fffff8;
   cursor: pointer;
   box-shadow: 0 4px 16px rgba(179,58,42,0.3);
@@ -716,7 +719,7 @@ body::after {
 }
 .settings-modal h2 {
   font-size: 28px; color: #4a3a28; margin-bottom: 18px;
-  font-family: 'Ma Shan Zheng', serif; font-weight: 400;
+  font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: 400;
   text-align: center;
 }
 .settings-close {
@@ -760,7 +763,7 @@ body::after {
   border: none; border-radius: 10px;
   padding: 8px 18px;
   font-size: 13px;
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -790,7 +793,7 @@ body::after {
   background: rgba(230,222,210,0.5);
 }
 .score-row.winner { background: rgba(179,58,42,0.1); }
-.score-row .player-name { font-size: 14px; color: #4a3a28; font-family: 'Ma Shan Zheng', serif; }
+.score-row .player-name { font-size: 14px; color: #4a3a28; font-family: 'Helvetica Neue', Arial, sans-serif; }
 .score-row .player-score { font-size: 14px; color: #4a3a28; }
 
 /* ========== OPPONENT HAND COUNTS ========== */
