@@ -1840,7 +1840,7 @@ class Renderer {
     const tableGeo = new THREE.BoxGeometry(14, 0.15, 14);
     const tableMat = new THREE.MeshStandardMaterial({
       map: tableTexture,
-      color: 0xf0e4c8,
+      color: 0xF2E6C8,
       roughness: 0.88,
       metalness: 0.0,
     });
@@ -1879,11 +1879,11 @@ class Renderer {
     // Inner playing area — slightly lighter parchment overlay
     const innerGeo = new THREE.PlaneGeometry(10.5, 10.5);
     const innerMat = new THREE.MeshStandardMaterial({
-      color: 0xdcc890,
+      color: 0xE8D4A8,
       roughness: 0.92,
       metalness: 0.0,
       transparent: true,
-      opacity: 0.45,
+      opacity: 0.55,
     });
     const inner = new THREE.Mesh(innerGeo, innerMat);
     inner.rotation.x = -Math.PI / 2;
@@ -3176,7 +3176,7 @@ class Renderer {
     const ctx = canvas.getContext('2d');
 
     // Tan border background (visible around rounded corners)
-    ctx.fillStyle = '#b0986c';
+    ctx.fillStyle = '#C8B898';
     ctx.fillRect(0, 0, 128, 176);
 
     // Rounded rectangle clipping path — matches face texture style
@@ -3196,17 +3196,26 @@ class Renderer {
     ctx.save();
     ctx.clip();
 
-    // Traditional teal/jade green back — classic mahjong tile color
-    ctx.fillStyle = '#4A8B6F';
+    // Warm cream/parchment back — Paper & Ink aesthetic
+    ctx.fillStyle = '#E8DCC8';
     ctx.fillRect(0, 0, 128, 176);
 
     // Subtle diamond lattice pattern
-    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.strokeStyle = 'rgba(160,140,100,0.20)';
     ctx.lineWidth = 0.8;
     for (let x = -176; x < 304; x += 12) {
       ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x + 176, 176); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(x, 176); ctx.lineTo(x + 176, 0); ctx.stroke();
     }
+
+    // Subtle center decorative circle (like real mahjong tiles)
+    ctx.beginPath();
+    ctx.arc(64, 88, 16, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(160,140,100,0.25)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    ctx.restore();
 
     this._backTex = new THREE.CanvasTexture(canvas);
     return this._backTex;
