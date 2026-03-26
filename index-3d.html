@@ -326,17 +326,13 @@ body::after {
     0 0 0 2px rgba(200,160,64,0.4),
     0 0 20px rgba(200,170,80,0.15);
 }
-.tile.drawn { /* drawn tile indicator */ margin-left: 18px !important; }
-.tile.drawn::after {
-  content: ''; position: absolute; top: -3px; left: -3px; right: -3px; bottom: -3px;
-  border: 2px dashed rgba(200,160,64,0.4);
-  border-radius: 8px;
-  pointer-events: none;
-  animation: drawnPulse 2s ease infinite;
-}
-@keyframes drawnPulse {
-  0%, 100% { border-color: rgba(200,160,64,0.4); }
-  50% { border-color: rgba(200,160,64,0.15); }
+/* Drawn tile: no gap, just a subtle golden glow */
+.tile.drawn { margin-left: 0 !important; }
+.tile.drawn .tile-body {
+  box-shadow:
+    0 0 8px 2px rgba(220,180,60,0.4),
+    0 4px 0 var(--tile-accent, #C0A878),
+    inset 0 1px 0 rgba(255,255,255,0.95);
 }
 
 /* ========== PLAYER LABEL ========== */
