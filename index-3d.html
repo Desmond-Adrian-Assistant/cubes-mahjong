@@ -3729,8 +3729,8 @@ class GameController {
       // Clear cached textures and back texture so tiles regenerate
       this.renderer.tileTextures = {};
       this.renderer._backTex = null;
-      // Re-render the 3D scene with new colors
-      this.render3DScene();
+      // Re-render EVERYTHING with new colors (3D + hand + all)
+      this.renderAll();
       // Save to localStorage
       localStorage.setItem('mahjong-tile-accent', hex);
     });
