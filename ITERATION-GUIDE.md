@@ -118,3 +118,7 @@ DO NOT use hand-coded SVG for artistic/stylistic elements. They look generic and
 Use the image generation capabilities available in the session. Prompt style: "sumi-e ink wash painting style, traditional East Asian, [subject], on transparent/cream background, minimalist brush strokes"
 
 Save generated images to /Users/adrianai/Projects/cubes-mahjong/assets/ and reference as relative paths in the HTML.
+
+## ⚠️ TILE BACK COLOR — DO NOT CHANGE
+The tile back MUST be forest green (#3B7A5A). Do NOT change it to cream, white, ivory, or any neutral color.
+This is the classic mahjong tile back color and provides visual distinction from the white face.
