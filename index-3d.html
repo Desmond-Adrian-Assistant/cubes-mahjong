@@ -996,6 +996,7 @@ body::after {
       <div class="settings-section-title">Table Mat</div>
       <div class="mat-grid" id="mat-grid"></div>
       <button class="mat-upload-btn" id="mat-upload-btn">Upload Custom</button>
+      <button class="mat-upload-btn" id="mat-reset-btn" style="background:linear-gradient(135deg,#8a7a5a,#6a5a3a);">Reset Default</button>
       <input type="file" id="mat-file-input" accept="image/*" style="display:none">
     </div>
     <div class="settings-section">
@@ -3888,6 +3889,21 @@ class GameController {
     });
     document.getElementById('crop-cancel').addEventListener('click', () => {
       document.getElementById('crop-overlay').classList.remove('show');
+    });
+    // Reset mat to default
+    document.getElementById('mat-reset-btn').addEventListener('click', () => {
+      localStorage.removeItem('mahjong-custom-mat');
+      const loader = new THREE.TextureLoader();
+      loader.load('assets/table-mat.jpg', (tex) => {
+        this.renderer.scene.traverse((child) => {
+          if (child.isMesh && child.material && child.material.map &&
+              child.position.y > 0.002 && child.position.y < 0.01 &&
+              child.geometry.type === 'PlaneGeometry') {
+            child.material.map = tex; child.material.needsUpdate = true;
+          }
+        });
+      });
+      this.showToast('Default mat restored!');
     });
     // Close settings on overlay click (outside modal)
     document.getElementById('settings-overlay').addEventListener('click', (e) => {
