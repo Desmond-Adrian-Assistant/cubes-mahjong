@@ -601,11 +601,18 @@ body::after {
 .melds-area.right { right: 70px; display: none; top: calc(45% + 60px); flex-direction: column; }
 
 .meld-group {
-  display: flex; gap: 2px;
-  background: rgba(245,240,232,0.7);
-  border-radius: 6px;
-  padding: 3px;
-  border: 1px solid rgba(160,140,110,0.2);
+  display: flex; gap: 2px; position: relative;
+  background: rgba(245,240,232,0.85);
+  border-radius: 8px;
+  padding: 4px;
+  border: 2px solid var(--tile-accent, #C0A878);
+}
+.meld-group::after {
+  content: attr(data-type);
+  position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+  font-size: 9px; font-weight: 700; color: #fff;
+  background: var(--tile-accent, #C0A878); padding: 1px 6px; border-radius: 4px;
+  font-family: 'Helvetica Neue', sans-serif; letter-spacing: 0.5px;
 }
 .meld-group.concealed { background: rgba(200,190,175,0.3); }
 .meld-tile {
@@ -3940,6 +3947,8 @@ class GameController {
       for (const meld of player.melds) {
         const group = document.createElement('div');
         group.className = 'meld-group' + (meld.concealed ? ' concealed' : '');
+        const typeLabel = meld.type === 'pong' ? 'PONG' : meld.type === 'chi' ? 'CHI' : meld.type === 'kong' ? 'KONG' : '';
+        group.dataset.type = typeLabel;
 
         for (let i = 0; i < meld.tiles.length; i++) {
           const mt = document.createElement('div');
@@ -3947,11 +3956,12 @@ class GameController {
           if (meld.concealed && (i === 0 || i === 3)) {
             mt.classList.add('facedown');
           } else {
-            const label = getTileLabel(meld.tiles[i]);
-            mt.style.fontSize = '10px';
-            mt.style.color = label.color;
-            mt.style.fontFamily = "'Ma Shan Zheng', serif";
-            mt.textContent = label.top;
+            // Use same canvas artwork as hand tiles
+            const texture = this.renderer.createTileTexture(meld.tiles[i]);
+            const srcCanvas = texture.image;
+            mt.style.backgroundImage = `url(${srcCanvas.toDataURL()})`;
+            mt.style.backgroundSize = 'cover';
+            mt.style.backgroundPosition = 'center';
           }
           group.appendChild(mt);
         }
@@ -3964,11 +3974,10 @@ class GameController {
         group.className = 'meld-group';
         const ft = document.createElement('div');
         ft.className = 'meld-tile';
-        const label = getTileLabel(flower);
-        ft.style.fontSize = '10px';
-        ft.style.color = label.color;
-        ft.style.fontFamily = "'Ma Shan Zheng', serif";
-        ft.textContent = label.top;
+        const texture = this.renderer.createTileTexture(flower);
+        const srcCanvas = texture.image;
+        ft.style.backgroundImage = `url(${srcCanvas.toDataURL()})`;
+        ft.style.backgroundSize = 'cover';
         group.appendChild(ft);
         container.appendChild(group);
       }
