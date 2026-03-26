@@ -3214,7 +3214,7 @@ class Renderer {
 
     // Bright ivory/white back — must clearly pop against warm cream table
     // Tile back: near-white so wall tiles are unmistakably visible
-    ctx.fillStyle = '#FAF6EC';
+    ctx.fillStyle = '#3B7A5A'; // LOCKED GREEN — Adrian wants color on tile backs!
     ctx.fillRect(0, 0, 128, 176);
 
     // Subtle diamond lattice pattern — visible on ivory back
@@ -3239,7 +3239,7 @@ class Renderer {
   }
 
   create3DTile(tile, faceDown = false) {
-    const W = 0.50, H = 0.65, D = 0.40;
+    const W = 0.50, H = 0.65, D = 0.25;
     const group = new THREE.Group();
 
     const faceTex = faceDown ? this.createTileBackTexture() : this.createTileTexture(tile);
@@ -3319,7 +3319,7 @@ class Renderer {
 
   createWalls(wallTiles) {
     this.clearWalls();
-    const W = 0.50, H = 0.65, D = 0.45;
+    const W = 0.50, H = 0.65, D = 0.25;
     const tilesPerSide = 17;
     const layers = 2;
     let tileIdx = 0;
@@ -3404,8 +3404,8 @@ class Renderer {
     for (let p = 0; p < 4; p++) {
       const discards = allDiscards[p] || [];
       const zone = zones[p];
-      const spacing = 0.65;
-      const rowSpacing = 0.80;
+      const spacing = 0.75;
+      const rowSpacing = 0.90;
 
       for (let i = 0; i < discards.length; i++) {
         const col = i % zone.cols;
