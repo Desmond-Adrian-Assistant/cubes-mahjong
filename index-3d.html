@@ -3228,8 +3228,8 @@ class Renderer {
 
   _getCornerLabel(key) {
     if (key.startsWith('dots-')) return key.split('-')[1];
-    if (key.startsWith('bam-')) return key.split('-')[1];
-    if (key.startsWith('char-')) return key.split('-')[1];
+    if (key.startsWith('bamboo-')) return key.split('-')[1];
+    if (key.startsWith('characters-')) return key.split('-')[1];
     if (key === 'winds-East') return 'E';
     if (key === 'winds-South') return 'S';
     if (key === 'winds-West') return 'W';
@@ -3237,6 +3237,8 @@ class Renderer {
     if (key === 'dragons-Red') return '中';
     if (key === 'dragons-Green') return '發';
     if (key === 'dragons-White') return '白';
+    if (key.startsWith('flower-')) return 'F';
+    if (key.startsWith('season-')) return 'S';
     return null;
   }
 
