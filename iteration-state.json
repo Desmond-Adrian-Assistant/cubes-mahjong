@@ -1,13 +1,18 @@
 {
-  "iteration": 1,
+  "iteration": 2,
   "maxIterations": 15,
   "startedAt": "2026-03-25T23:37:00-05:00",
-  "lastCompleted": "2026-03-25T23:50:00-05:00",
+  "lastCompleted": "2026-03-25T23:53:00-05:00",
   "changes": [
     {
       "iteration": 1,
       "change": "Wall tile visibility: brightened tile back texture (#C8B888 → #FAF6EC), darkened inner playing area (0xE8D4A8 → 0xD8C498), increased wall tile scale (0.78 → 0.82), reduced wall shadow opacity (0.35 → 0.22), wider lattice lines on backs",
       "commit": "398f0b7"
+    },
+    {
+      "iteration": 2,
+      "change": "Removed duplicate bottom-right toolbar (was identical to top-right). Wired up Settings button to open settings overlay modal. Added openSettings/closeSettings methods with close-on-overlay-click. Single clean toolbar in top-right only, matching mockup layout.",
+      "commit": "84476e2"
     }
   ],
   "status": "running",
