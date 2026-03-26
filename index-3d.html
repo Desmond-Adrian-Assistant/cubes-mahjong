@@ -3214,10 +3214,36 @@ class Renderer {
       }
     }
 
+    // Small English number/label in top-left corner
+    const cornerLabel = this._getCornerLabel(key);
+    if (cornerLabel) {
+      ctx.save();
+      ctx.font = 'bold 28px Helvetica, Arial, sans-serif';
+      ctx.fillStyle = 'rgba(80,60,40,0.45)';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      ctx.fillText(cornerLabel, 22, 18);
+      ctx.restore();
+    }
+
     const texture = new THREE.CanvasTexture(canvas);
     texture.anisotropy = 8;
     this.tileTextures[key] = texture;
     return texture;
+  }
+
+  _getCornerLabel(key) {
+    if (key.startsWith('dots-')) return key.split('-')[1];
+    if (key.startsWith('bam-')) return key.split('-')[1];
+    if (key.startsWith('char-')) return key.split('-')[1];
+    if (key === 'winds-East') return 'E';
+    if (key === 'winds-South') return 'S';
+    if (key === 'winds-West') return 'W';
+    if (key === 'winds-North') return 'N';
+    if (key === 'dragons-Red') return '中';
+    if (key === 'dragons-Green') return '發';
+    if (key === 'dragons-White') return '白';
+    return null;
   }
 
   createTileBackTexture() {
