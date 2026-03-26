@@ -270,7 +270,7 @@ body::after {
   border-radius: 14px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   position: relative; overflow: hidden;
-  background: linear-gradient(180deg, #ffffff 0%, #ffffff 55%, #C8B898 60%, #C0B088 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #ffffff 55%, var(--tile-accent, #C8B898) 60%, var(--tile-accent, #C0B088) 100%);
   border: 1.5px solid #c8b898;
   box-shadow:
     0 4px 0 #B8A080,
@@ -2114,7 +2114,8 @@ class Renderer {
 
   createTileTexture(tile) {
     const key = getTileKey(tile);
-    if (this.tileTextures[key]) return this.tileTextures[key];
+    const cacheKey = key + '_' + (this.tileAccentColor || 'default');
+    if (this.tileTextures[cacheKey]) return this.tileTextures[cacheKey];
 
     // Higher resolution for crisp characters
     const canvas = document.createElement('canvas');
@@ -2122,21 +2123,23 @@ class Renderer {
     canvas.height = 352;
     const ctx = canvas.getContext('2d');
 
-    // Clean white tile face with thin tan border
-    ctx.fillStyle = '#c0a878';
+    // Tile border/accent color (bottom 40% visible as two-tone)
+    const accentHex = this.tileAccentColor 
+      ? '#' + this.tileAccentColor.toString(16).padStart(6, '0')
+      : '#c0a878';
+    ctx.fillStyle = accentHex;
     ctx.fillRect(0, 0, 256, 352);
 
-    // Full white rounded rectangle
+    // White zone covers top ~60%, accent shows at bottom ~40%
     const r = 16;
     const m = 6;
+    const splitY = 220; // 63% of 352
     ctx.beginPath();
     ctx.moveTo(m + r, m);
     ctx.lineTo(256 - m - r, m);
     ctx.arcTo(256 - m, m, 256 - m, m + r, r);
-    ctx.lineTo(256 - m, 352 - m - r);
-    ctx.arcTo(256 - m, 352 - m, 256 - m - r, 352 - m, r);
-    ctx.lineTo(m + r, 352 - m);
-    ctx.arcTo(m, 352 - m, m, 352 - m - r, r);
+    ctx.lineTo(256 - m, splitY);
+    ctx.lineTo(m, splitY);
     ctx.lineTo(m, m + r);
     ctx.arcTo(m, m, m + r, m, r);
     ctx.closePath();
@@ -2144,8 +2147,8 @@ class Renderer {
     ctx.fillStyle = '#ffffff';
     ctx.fill();
 
-    ctx.strokeStyle = 'rgba(140,120,90,0.25)';
-    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = 'rgba(100,80,50,0.2)';
+    ctx.lineWidth = 1;
     ctx.stroke();
 
     if (key.startsWith('dots-')) {
@@ -3222,7 +3225,7 @@ class Renderer {
 
     const texture = new THREE.CanvasTexture(canvas);
     texture.anisotropy = 8;
-    this.tileTextures[key] = texture;
+    this.tileTextures[cacheKey] = texture;
     return texture;
   }
 
@@ -3714,6 +3717,7 @@ class GameController {
       const color = parseInt(hex.replace('#', ''), 16);
       // Update side color on all existing 3D tile meshes
       this.renderer.tileAccentColor = color;
+      document.documentElement.style.setProperty('--tile-accent', hex);
       // Clear cached textures and back texture so tiles regenerate
       this.renderer.tileTextures = {};
       this.renderer._backTex = null;
@@ -3727,6 +3731,7 @@ class GameController {
     if (savedAccent) {
       document.getElementById('tile-color-picker').value = savedAccent;
       this.renderer.tileAccentColor = parseInt(savedAccent.replace('#', ''), 16);
+      document.documentElement.style.setProperty('--tile-accent', savedAccent);
     }
   }
 
