@@ -3197,12 +3197,12 @@ class Renderer {
     ctx.clip();
 
     // Warm cream/parchment back — Paper & Ink aesthetic
-    // ⚠️ DO NOT CHANGE — tile back must be a distinct COLOR, not white/cream
-    ctx.fillStyle = '#3B7A5A';  // Rich forest green — classic mahjong tile back
+    // Tile back: warm tan/khaki to match mockup's paper & ink theme (NO green)
+    ctx.fillStyle = '#D4C4A0';  // Warm parchment tan — matches mockup aesthetic
     ctx.fillRect(0, 0, 128, 176);
 
     // Subtle diamond lattice pattern
-    ctx.strokeStyle = 'rgba(140,120,80,0.30)';
+    ctx.strokeStyle = 'rgba(160,140,100,0.20)';
     ctx.lineWidth = 0.8;
     for (let x = -176; x < 304; x += 12) {
       ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x + 176, 176); ctx.stroke();
@@ -3229,7 +3229,7 @@ class Renderer {
     const faceTex = faceDown ? this.createTileBackTexture() : this.createTileTexture(tile);
 
     // ROUNDED BOX via ExtrudeGeometry with rounded rect shape
-    const bevelR = 0.06; // corner radius — visible rounded edges
+    const bevelR = 0.10; // corner radius — visible rounded edges
     const shape = new THREE.Shape();
     const hw = W/2 - bevelR, hh = H/2 - bevelR;
     shape.moveTo(-W/2 + bevelR, -H/2);
@@ -3242,7 +3242,7 @@ class Renderer {
     shape.lineTo(-W/2, -H/2 + bevelR);
     shape.quadraticCurveTo(-W/2, -H/2, -W/2 + bevelR, -H/2);
 
-    const extrudeSettings = { depth: D, bevelEnabled: true, bevelThickness: 0.03, bevelSize: 0.03, bevelSegments: 3, bevelOffset: 0 };
+    const extrudeSettings = { depth: D, bevelEnabled: true, bevelThickness: 0.05, bevelSize: 0.05, bevelSegments: 5, bevelOffset: 0 };
     const bodyGeo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
 
     // Fix UV mapping: ExtrudeGeometry UVs are in shape-space, need 0-1 range for texture
