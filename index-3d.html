@@ -282,11 +282,8 @@ body::after {
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
   scroll-snap-type: x proximity;
-  /* Fade only right edge to hint at more tiles */
-  -webkit-mask-image: linear-gradient(90deg, black 0%, black 92%, transparent 100%);
-  mask-image: linear-gradient(90deg, black 0%, black 92%, transparent 100%);
-  padding-left: 14px;
-  padding-right: 30px;
+  padding-left: 8px;
+  padding-right: 8px;
 }
 .hand-tray::-webkit-scrollbar { height: 4px; }
 .hand-tray::-webkit-scrollbar-thumb { background: rgba(160,140,110,0.3); border-radius: 2px; }
@@ -4010,6 +4007,10 @@ class GameController {
   renderPlayerHand() {
     const tray = document.getElementById('hand-tray');
     tray.innerHTML = '';
+    // Add invisible spacer so first tile isn't clipped by border-radius
+    const spacerL = document.createElement('div');
+    spacerL.style.cssText = 'min-width:8px;flex-shrink:0;';
+    tray.appendChild(spacerL);
     const hand = this.gs.players[1].hand;
 
     hand.forEach((tile, index) => {
