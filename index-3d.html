@@ -236,6 +236,18 @@ body::after {
 #p-south { bottom: 80px; right: 20px; flex-direction: column; align-items: center; gap: 2px; }
 
 /* ========== PLAYER HAND (2D overlay at bottom) ========== */
+
+/* Hand tile drag-and-drop */
+.tile.dragging { opacity: 0.5; transform: scale(1.05); }
+.tile.drag-over { border-left: 3px solid #c8a040; }
+.hand-sort-btn {
+  position: fixed; bottom: 140px; right: 20px;
+  background: rgba(245,240,232,0.95); border: 2px solid var(--tile-accent, #C0A878);
+  border-radius: 10px; padding: 6px 14px; font-size: 13px; color: #5a4a3a;
+  cursor: pointer; z-index: 25; font-family: 'Helvetica Neue', sans-serif;
+}
+.hand-sort-btn:hover { background: rgba(230,220,200,1); }
+
 .hand-tray {
   position: fixed;
   bottom: 62px;
@@ -907,6 +919,7 @@ body::after {
   </div>
 
   <!-- Player hand tray -->
+  <button class="hand-sort-btn" id="hand-sort-btn" title="Sort hand">排 Sort</button>
   <div class="hand-tray" id="hand-tray"></div>
 
   <!-- Action buttons -->
@@ -2088,7 +2101,7 @@ class Renderer {
     for (const w of winds) {
       const tile = { suit: 'winds', wind: w.char === '東' ? 'East' : w.char === '南' ? 'South' : w.char === '西' ? 'West' : 'North' };
       const mesh = this.create3DTile(tile, false);
-      mesh.position.set(w.x * 1.3, 0.003, w.z * 1.3);
+      mesh.position.set(w.x * 1.3, -0.005, w.z * 1.3);
       mesh.scale.set(0.975, 0.975, 0.975);
       this.scene.add(mesh);
 
@@ -3409,7 +3422,7 @@ class Renderer {
           // ExtrudeGeometry: body at y=D after -π/2 rotation. After π flip, tile at [-2D, -D]
           // To sit on table (y=0): yPos = 2*D. Layer 1 stacks: yPos = 2*D + D
           // Add 0.10 gap between layers so they're clearly separate
-          const yPos = 2 * D + layer * (D + 0.02);
+          const yPos = 2 * D + layer * (D + 0.005);
 
           if (side.along === 'x') {
             mesh.position.set(side.baseX + offset, yPos, side.baseZ);
@@ -3472,7 +3485,7 @@ class Renderer {
         const rng2 = seed2 / 233280;
         const seed3 = (seed2 * 49297 + 11) % 233280;
         const rng3 = seed3 / 233280;
-        mesh.position.set(x + (rng - 0.5) * 0.04, 0.003, z + (rng2 - 0.5) * 0.04);
+        mesh.position.set(x + (rng - 0.5) * 0.04, -0.005, z + (rng2 - 0.5) * 0.04);
         mesh.rotation.y = (rng3 - 0.5) * 0.3;  // +/- ~14 degrees
         mesh.rotation.z = (rng - 0.5) * 0.06;   // slight tilt
         mesh.scale.set(1.10, 1.10, 1.10);
@@ -3502,9 +3515,9 @@ class Renderer {
       const offset = (i - count / 2 + 0.5) * spacing;
 
       if (pos.along === 'x') {
-        mesh.position.set(pos.x + offset, 0.003, pos.z);
+        mesh.position.set(pos.x + offset, -0.005, pos.z);
       } else {
-        mesh.position.set(pos.x, 0.003, pos.z + offset);
+        mesh.position.set(pos.x, -0.005, pos.z + offset);
       }
       mesh.rotation.y = pos.rotY;
 
@@ -3695,6 +3708,7 @@ class GameController {
     document.getElementById('btn-discard').addEventListener('click', () => this.discardSelected());
     document.getElementById('btn-discards').addEventListener('click', () => this.toggleDiscardView());
     document.getElementById('btn-sort-hand')?.addEventListener('click', () => this.sortPlayerHand());
+    document.getElementById('hand-sort-btn')?.addEventListener('click', () => this.sortPlayerHand());
     document.getElementById('discard-close-btn').addEventListener('click', () => this.closeDiscardOverlay());
     document.getElementById('discard-sort-btn').addEventListener('click', () => this.toggleDiscardSort());
     // Top-right toolbar buttons (single toolbar — bottom-right removed)
@@ -3812,6 +3826,29 @@ class GameController {
       body.appendChild(face);
       el.appendChild(body);
       el.addEventListener('click', () => this.selectTile(index));
+      // Drag-and-drop rearrangement
+      el.draggable = true;
+      el.dataset.index = index;
+      el.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('text/plain', index);
+        el.classList.add('dragging');
+      });
+      el.addEventListener('dragend', () => el.classList.remove('dragging'));
+      el.addEventListener('dragover', (e) => { e.preventDefault(); el.classList.add('drag-over'); });
+      el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
+      el.addEventListener('drop', (e) => {
+        e.preventDefault();
+        el.classList.remove('drag-over');
+        const fromIdx = parseInt(e.dataTransfer.getData('text/plain'));
+        const toIdx = index;
+        if (fromIdx !== toIdx) {
+          const hand = this.gs.players[1].hand;
+          const tile = hand.splice(fromIdx, 1)[0];
+          hand.splice(toIdx, 0, tile);
+          this.gs.selectedTileIndex = -1;
+          this.renderPlayerHand();
+        }
+      });
       tray.appendChild(el);
     });
   }
