@@ -3308,56 +3308,37 @@ class Renderer {
   }
 
   create3DTile(tile, faceDown = false) {
-    const W = 0.50, H = 0.65, D = 0.45;
+    const W = 0.50, H = 0.65, D = 0.30;
     const group = new THREE.Group();
 
     const faceTex = faceDown ? this.createTileBackTexture() : this.createTileTexture(tile);
 
-    // ROUNDED BOX via ExtrudeGeometry with rounded rect shape
-    const bevelR = 0.10; // corner radius — visible rounded edges
-    const shape = new THREE.Shape();
-    const hw = W/2 - bevelR, hh = H/2 - bevelR;
-    shape.moveTo(-W/2 + bevelR, -H/2);
-    shape.lineTo(W/2 - bevelR, -H/2);
-    shape.quadraticCurveTo(W/2, -H/2, W/2, -H/2 + bevelR);
-    shape.lineTo(W/2, H/2 - bevelR);
-    shape.quadraticCurveTo(W/2, H/2, W/2 - bevelR, H/2);
-    shape.lineTo(-W/2 + bevelR, H/2);
-    shape.quadraticCurveTo(-W/2, H/2, -W/2, H/2 - bevelR);
-    shape.lineTo(-W/2, -H/2 + bevelR);
-    shape.quadraticCurveTo(-W/2, -H/2, -W/2 + bevelR, -H/2);
+    // Simple BoxGeometry with 6 deterministic material slots
+    const bodyGeo = new THREE.BoxGeometry(W, D, H);
 
-    const extrudeSettings = { depth: D, bevelEnabled: true, bevelThickness: 0.05, bevelSize: 0.05, bevelSegments: 5, bevelOffset: 0 };
-    const bodyGeo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
-
-    // Fix UV mapping: ExtrudeGeometry UVs are in shape-space, need 0-1 range for texture
-    const uvAttr = bodyGeo.attributes.uv;
-    for (let i = 0; i < uvAttr.count; i++) {
-      let u = uvAttr.getX(i);
-      let v = uvAttr.getY(i);
-      // Normalize from shape coords [-W/2..W/2, -H/2..H/2] to [0..1]
-      u = (u + W/2) / W;
-      v = (v + H/2) / H;
-      uvAttr.setXY(i, u, v);
-    }
-    uvAttr.needsUpdate = true;
-
-    // Two-tone: white face + colored sides (customizable via Settings color picker)
+    // Two-tone: white face on TOP (+Y), colored FRONT face (+Z visible from camera)
     const faceColor = 0xffffff;
-    // Side color — customizable via Settings color picker
-    const defaultSide = 0x9A8460;  // Rich warm brown — clearly visible two-tone
+    const defaultSide = 0x9A8460;
     const sideColor = this.tileAccentColor || defaultSide;
 
     const faceMat = new THREE.MeshStandardMaterial({ map: faceTex, color: faceColor, roughness: 0.35, metalness: 0.0 });
-    const sideMat = new THREE.MeshStandardMaterial({ color: sideColor, roughness: 0.45, metalness: 0.02 });
+    const frontMat = new THREE.MeshStandardMaterial({ color: sideColor, roughness: 0.45, metalness: 0.0 });
+    const sideMat = new THREE.MeshStandardMaterial({ color: sideColor, roughness: 0.5, metalness: 0.0 });
+    const bottomMat = new THREE.MeshStandardMaterial({ color: 0x7A6440, roughness: 0.6, metalness: 0.0 });
 
-    // ExtrudeGeometry: group 0 = front shape face, group 1 = back shape face, group 2 = extruded sides
-    const body = new THREE.Mesh(bodyGeo, [faceMat, faceMat, sideMat]);
+    // BoxGeometry face order: [+x right, -x left, +y top, -y bottom, +z front, -z back]
+    // Camera at (0, 6, 9) sees: +y (top = artwork) and +z (front = tan accent)
+    const materials = [
+      sideMat,    // +x right (barely visible)
+      sideMat,    // -x left (barely visible)
+      faceMat,    // +y TOP — white with tile artwork texture
+      bottomMat,  // -y bottom (hidden, on table)
+      frontMat,   // +z FRONT — tan/brown accent, clearly visible from camera!
+      sideMat,    // -z back (hidden)
+    ];
 
-    // Rotate so the face points UP (+Y) — visible from isometric camera
-    body.rotation.x = -Math.PI / 2;
-    body.position.y = D;
-
+    const body = new THREE.Mesh(bodyGeo, materials);
+    body.position.y = D / 2; // Bottom sits at y=0
     body.castShadow = true;
     body.receiveShadow = true;
     group.add(body);
@@ -3389,7 +3370,7 @@ class Renderer {
 
   createWalls(wallTiles) {
     this.clearWalls();
-    const W = 0.50, H = 0.65, D = 0.45;
+    const W = 0.50, H = 0.65, D = 0.30;
     const tilesPerSide = 17;
     const layers = 2;
     let tileIdx = 0;
@@ -3417,10 +3398,11 @@ class Renderer {
           const wallLen = side.offsetEnd - side.offsetStart;
           const tileSpacing = wallLen / tilesPerSide;
           const offset = side.offsetStart + (i + 0.5) * tileSpacing;
-          // Math: After π flip, tile local y=[D, 2D] becomes [-2D, -D]
-          // To place bottom at y=0 (table surface): yPos = 2*D
-          // Layer 1 stacks on top: yPos = 2*D + D
-          const yPos = 2 * D + layer * (D + 0.04);
+          // BoxGeometry: body at y=D/2. After π flip around X, body center at y=D/2 still.
+          // Bottom of box at yPos - D/2, top at yPos + D/2
+          // Layer 0: bottom at y=0 → yPos = D/2
+          // Layer 1: bottom at y=D → yPos = D + D/2 = 1.5*D
+          const yPos = D / 2 + layer * D;
 
           if (side.along === 'x') {
             mesh.position.set(side.baseX + offset, yPos, side.baseZ);
