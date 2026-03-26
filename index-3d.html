@@ -788,12 +788,40 @@ body::after {
   pointer-events: none; z-index: 1;
   background: radial-gradient(ellipse at center, transparent 45%, rgba(40,25,10,0.35) 100%);
 }
+/* Discard view sort bar */
+.discard-sort-bar {
+  position: fixed; top: -60px; left: 50%; transform: translateX(-50%);
+  z-index: 30; display: flex; gap: 8px; padding: 8px 16px;
+  background: linear-gradient(180deg, #f5ede0, #ece2cf);
+  border: 2px solid #c0a878; border-radius: 0 0 12px 12px;
+  box-shadow: 0 4px 14px rgba(80,60,30,0.25);
+  transition: top 0.35s ease;
+}
+.discard-sort-bar.show { top: 0; }
+.discard-sort-bar button {
+  padding: 6px 16px; border: 1.5px solid #c0a878; border-radius: 6px;
+  background: linear-gradient(180deg, #faf6ee, #ece2cf);
+  color: #5a4a38; font: 600 12px/1 'Helvetica Neue', sans-serif;
+  letter-spacing: 0.5px; text-transform: uppercase; cursor: pointer;
+  transition: all 0.15s;
+}
+.discard-sort-bar button:hover { background: #e8dcc8; }
+.discard-sort-bar button.active {
+  background: #5a4a38; color: #faf6ee; border-color: #5a4a38;
+}
 </style>
 </head>
 <body>
 
 <canvas id="game-canvas"></canvas>
 <div class="scene-vignette"></div>
+
+<div id="discard-sort-bar" class="discard-sort-bar">
+  <button id="dsb-player" class="active">By Player</button>
+  <button id="dsb-suit">By Suit</button>
+  <button id="dsb-organic">Organic</button>
+  <button id="dsb-back">Back</button>
+</div>
 
 <div id="ui-overlay">
   <div class="top-bar">
@@ -1325,6 +1353,12 @@ class Renderer {
     this.wallMeshes = [];
     this.animating = false;
 
+    // Discard view state
+    this.discardViewActive = false;
+    this.discardSortMode = 'player'; // 'player' | 'suit' | 'organic'
+    this.cameraAnim = null; // { from, to, fromTarget, toTarget, start, duration }
+    this.discardTileAnims = []; // per-tile position animations
+
     this.setupScene();
     this.createBodyBackground();
     this.animate();
@@ -1342,6 +1376,7 @@ class Renderer {
       }
     }, { passive: true });
     canvas.addEventListener('touchmove', (e) => {
+      if (this.discardViewActive) return;
       if (e.touches.length === 2) {
         const dx = e.touches[0].clientX - e.touches[1].clientX;
         const dy = e.touches[0].clientY - e.touches[1].clientY;
@@ -1365,6 +1400,7 @@ class Renderer {
 
     // Mouse wheel zoom (desktop)
     canvas.addEventListener('wheel', (e) => {
+      if (this.discardViewActive) { e.preventDefault(); return; }
       e.preventDefault();
       const dir = new THREE.Vector3();
       this.camera.getWorldDirection(dir);
@@ -3469,7 +3505,156 @@ class Renderer {
 
   animate() {
     requestAnimationFrame(() => this.animate());
+    const now = performance.now();
+
+    // Camera lerp animation
+    if (this.cameraAnim) {
+      const a = this.cameraAnim;
+      let t = Math.min((now - a.start) / a.duration, 1);
+      t = t * t * (3 - 2 * t); // smoothstep
+      this.camera.position.lerpVectors(a.from, a.to, t);
+      const target = new THREE.Vector3().lerpVectors(a.fromTarget, a.toTarget, t);
+      this.camera.lookAt(target);
+      if (t >= 1) this.cameraAnim = null;
+    }
+
+    // Discard tile position animations
+    for (let i = this.discardTileAnims.length - 1; i >= 0; i--) {
+      const a = this.discardTileAnims[i];
+      let t = Math.min((now - a.start) / a.duration, 1);
+      t = t * t * (3 - 2 * t);
+      a.mesh.position.lerpVectors(a.from, a.to, t);
+      a.mesh.rotation.y = a.fromRotY + (a.toRotY - a.fromRotY) * t;
+      if (t >= 1) this.discardTileAnims.splice(i, 1);
+    }
+
     this.renderer.render(this.scene, this.camera);
+  }
+
+  // Animate camera to discard top-down view or back
+  animateCameraTo(targetPos, targetLookAt, duration = 500) {
+    const lookAt = new THREE.Vector3(0, 0, 0); // current lookAt approximation
+    this.cameraAnim = {
+      from: this.camera.position.clone(),
+      to: new THREE.Vector3(...targetPos),
+      fromTarget: lookAt,
+      toTarget: new THREE.Vector3(...targetLookAt),
+      start: performance.now(),
+      duration
+    };
+  }
+
+  // Compute sorted discard positions for a given mode
+  getDiscardPositions(allDiscards, mode) {
+    const positions = [];
+    if (mode === 'organic') {
+      // Current organic scatter layout
+      const zones = [
+        { baseX: 1.5, baseZ: 0, cols: 6, along: 'z' },
+        { baseX: 0, baseZ: 1.5, cols: 6, along: 'x' },
+        { baseX: -1.5, baseZ: 0, cols: 6, along: 'z' },
+        { baseX: 0, baseZ: -1.5, cols: 6, along: 'x' },
+      ];
+      for (let p = 0; p < 4; p++) {
+        const discards = allDiscards[p] || [];
+        const zone = zones[p];
+        const spacing = 0.75, rowSpacing = 0.90;
+        for (let i = 0; i < discards.length; i++) {
+          const col = i % zone.cols;
+          const row = Math.floor(i / zone.cols);
+          const offset = (col - zone.cols / 2 + 0.5) * spacing;
+          const rowOff = row * rowSpacing;
+          let x, z;
+          if (zone.along === 'x') {
+            x = zone.baseX + offset;
+            z = zone.baseZ > 0 ? zone.baseZ + rowOff : zone.baseZ - rowOff;
+          } else {
+            x = zone.baseX > 0 ? zone.baseX + rowOff : zone.baseX - rowOff;
+            z = zone.baseZ + offset;
+          }
+          const seed = (i * 9301 + p * 49297) % 233280;
+          const rng = seed / 233280;
+          const seed2 = (seed * 49297 + 11) % 233280;
+          const rng2 = seed2 / 233280;
+          const seed3 = (seed2 * 49297 + 11) % 233280;
+          const rng3 = seed3 / 233280;
+          positions.push({
+            meshIdx: positions.length,
+            x: x + (rng - 0.5) * 0.08, z: z + (rng2 - 0.5) * 0.08,
+            rotY: (rng3 - 0.5) * 0.5
+          });
+        }
+      }
+    } else if (mode === 'player') {
+      const rows = [-2, -0.7, 0.7, 2];
+      for (let p = 0; p < 4; p++) {
+        const discards = allDiscards[p] || [];
+        const spacing = 0.65;
+        for (let i = 0; i < discards.length; i++) {
+          const x = (i - discards.length / 2 + 0.5) * spacing;
+          positions.push({ meshIdx: positions.length, x, z: rows[p], rotY: 0 });
+        }
+      }
+    } else if (mode === 'suit') {
+      // Flatten all discards, sort by suit, lay out in rows
+      const flat = [];
+      for (let p = 0; p < 4; p++) {
+        for (const t of (allDiscards[p] || [])) flat.push({ tile: t, meshIdx: flat.length });
+      }
+      // Build mesh index mapping: we need to map flat order to original mesh order
+      // Since discardMeshes are in player-0-all, player-1-all, etc. order, meshIdx is sequential
+      const suitOrder = { bamboo: 0, dots: 1, characters: 2, winds: 3, dragons: 4, flowers: 5 };
+      flat.sort((a, b) => {
+        const sa = suitOrder[a.tile.suit] ?? 5, sb = suitOrder[b.tile.suit] ?? 5;
+        if (sa !== sb) return sa - sb;
+        return (a.tile.num || 0) - (b.tile.num || 0);
+      });
+      const suitRows = { bamboo: -2, dots: -0.7, characters: 0.7 };
+      // honors (winds+dragons+flowers) share z=2
+      let suitCounts = {};
+      for (const item of flat) {
+        const suit = item.tile.suit || 'flowers';
+        const rowKey = suitRows[suit] !== undefined ? suit : 'honors';
+        if (!suitCounts[rowKey]) suitCounts[rowKey] = [];
+        suitCounts[rowKey].push(item);
+      }
+      const rowZMap = { bamboo: -2, dots: -0.7, characters: 0.7, honors: 2 };
+      // Prepare positions array indexed by original meshIdx
+      const posMap = new Array(flat.length);
+      for (const [rowKey, items] of Object.entries(suitCounts)) {
+        const z = rowZMap[rowKey];
+        const spacing = 0.65;
+        for (let i = 0; i < items.length; i++) {
+          const x = (i - items.length / 2 + 0.5) * spacing;
+          posMap[items[i].meshIdx] = { meshIdx: items[i].meshIdx, x, z, rotY: 0 };
+        }
+      }
+      for (let i = 0; i < posMap.length; i++) {
+        positions.push(posMap[i] || { meshIdx: i, x: 0, z: 0, rotY: 0 });
+      }
+    }
+    return positions;
+  }
+
+  // Animate discard tiles to new positions for a sort mode
+  animateDiscardsToPositions(allDiscards, mode) {
+    this.discardSortMode = mode;
+    const positions = this.getDiscardPositions(allDiscards, mode);
+    this.discardTileAnims = [];
+    const now = performance.now();
+    for (const pos of positions) {
+      const mesh = this.discardMeshes[pos.meshIdx];
+      if (!mesh) continue;
+      this.discardTileAnims.push({
+        mesh,
+        from: mesh.position.clone(),
+        to: new THREE.Vector3(pos.x, 0.05, pos.z),
+        fromRotY: mesh.rotation.y,
+        toRotY: pos.rotY,
+        start: now,
+        duration: 300
+      });
+    }
   }
 }
 
@@ -3491,7 +3676,7 @@ class GameController {
     document.getElementById('btn-kong').addEventListener('click', () => this.showKongOptions());
     document.getElementById('btn-mahjong').addEventListener('click', () => this.claimMahjong());
     document.getElementById('btn-discard').addEventListener('click', () => this.discardSelected());
-    document.getElementById('btn-discards').addEventListener('click', () => this.toggleDiscardOverlay());
+    document.getElementById('btn-discards').addEventListener('click', () => this.toggleDiscardView());
     document.getElementById('btn-sort-hand')?.addEventListener('click', () => this.sortPlayerHand());
     document.getElementById('discard-close-btn').addEventListener('click', () => this.closeDiscardOverlay());
     document.getElementById('discard-sort-btn').addEventListener('click', () => this.toggleDiscardSort());
@@ -3500,6 +3685,11 @@ class GameController {
     document.getElementById('btn-mahjong-top').addEventListener('click', () => this.claimMahjong());
     document.getElementById('tb-top-settings').addEventListener('click', () => this.openSettings());
     document.getElementById('tb-top-help').addEventListener('click', () => { this.showToast('Paper & Ink Mahjong — Chi, Pong, Kong, Hu!'); });
+    // Discard view sort bar buttons
+    document.getElementById('dsb-player').addEventListener('click', () => this.setDiscardSort('player'));
+    document.getElementById('dsb-suit').addEventListener('click', () => this.setDiscardSort('suit'));
+    document.getElementById('dsb-organic').addEventListener('click', () => this.setDiscardSort('organic'));
+    document.getElementById('dsb-back').addEventListener('click', () => this.toggleDiscardView());
     document.getElementById('settings-close').addEventListener('click', () => this.closeSettings());
     // Close settings on overlay click (outside modal)
     document.getElementById('settings-overlay').addEventListener('click', (e) => {
@@ -4250,6 +4440,39 @@ class GameController {
 
       this.showModal(`${emoji} ${name} Wins!`, '', 'Play Again', content);
     }
+  }
+
+  // ========== DISCARD 3D VIEW ==========
+  toggleDiscardView() {
+    this.renderer.discardViewActive = !this.renderer.discardViewActive;
+    const bar = document.getElementById('discard-sort-bar');
+    if (this.renderer.discardViewActive) {
+      // Animate camera to top-down
+      this.renderer.animateCameraTo([0, 12, 0.5], [0, 0, 0], 500);
+      bar.classList.add('show');
+      // Default sort: by player
+      this.setDiscardSort('player');
+    } else {
+      // Animate camera back to normal
+      this.renderer.animateCameraTo([0, 6, 9], [0, 0, 0], 500);
+      bar.classList.remove('show');
+      // Restore organic layout
+      const allDiscards = this.gs.players.map(p => p.discards);
+      this.renderer.animateDiscardsToPositions(allDiscards, 'organic');
+    }
+  }
+
+  setDiscardSort(mode) {
+    this.renderer.discardSortMode = mode;
+    // Update active button
+    for (const id of ['dsb-player', 'dsb-suit', 'dsb-organic']) {
+      document.getElementById(id).classList.remove('active');
+    }
+    const btnMap = { player: 'dsb-player', suit: 'dsb-suit', organic: 'dsb-organic' };
+    if (btnMap[mode]) document.getElementById(btnMap[mode]).classList.add('active');
+    // Animate tiles
+    const allDiscards = this.gs.players.map(p => p.discards);
+    this.renderer.animateDiscardsToPositions(allDiscards, mode);
   }
 
   // ========== DISCARD OVERLAY ==========
