@@ -270,7 +270,7 @@ body::after {
   border-radius: 14px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   position: relative; overflow: hidden;
-  background: linear-gradient(180deg, #ffffff 0%, #ffffff 55%, var(--tile-accent, #C8B898) 60%, var(--tile-accent, #C0B088) 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #ffffff 78%, var(--tile-accent, #C0A878) 82%, var(--tile-accent, #C0A878) 100%);
   border: 1.5px solid #c8b898;
   box-shadow:
     0 4px 0 #B8A080,
@@ -2096,7 +2096,7 @@ class Renderer {
     for (const w of winds) {
       const tile = { suit: 'winds', wind: w.char === '東' ? 'East' : w.char === '南' ? 'South' : w.char === '西' ? 'West' : 'North' };
       const mesh = this.create3DTile(tile, false);
-      mesh.position.set(w.x * 1.3, 0.01, w.z * 1.3);
+      mesh.position.set(w.x * 1.3, 0.003, w.z * 1.3);
       mesh.scale.set(0.975, 0.975, 0.975);
       this.scene.add(mesh);
 
@@ -2130,10 +2130,10 @@ class Renderer {
     ctx.fillStyle = accentHex;
     ctx.fillRect(0, 0, 256, 352);
 
-    // White zone covers top ~60%, accent shows at bottom ~40%
+    // White zone covers top ~78%, accent shows at bottom ~22% (like real mahjong base)
     const r = 16;
     const m = 6;
-    const splitY = 220; // 63% of 352
+    const splitY = 275; // 78% of 352 — white zone
     ctx.beginPath();
     ctx.moveTo(m + r, m);
     ctx.lineTo(256 - m - r, m);
@@ -3278,11 +3278,11 @@ class Renderer {
     ctx.save();
     ctx.clip();
 
-    // Fill clipped area with accent color, then overlay white on top 65%
+    // Fill clipped area: ivory top 78%, accent bottom 22%
     ctx.fillStyle = accentHex;
     ctx.fillRect(0, 0, 128, 176);
     ctx.fillStyle = '#F0EAD8';
-    ctx.fillRect(0, 0, 128, 115); // Top ~65% is ivory, bottom ~35% stays accent
+    ctx.fillRect(0, 0, 128, 137); // Top ~78% is ivory, bottom ~22% stays accent
     ctx.fillRect(0, 0, 128, 176);
 
     // Diamond lattice pattern — gold lines complement green back
@@ -3479,7 +3479,7 @@ class Renderer {
         const rng2 = seed2 / 233280;
         const seed3 = (seed2 * 49297 + 11) % 233280;
         const rng3 = seed3 / 233280;
-        mesh.position.set(x + (rng - 0.5) * 0.04, 0.01, z + (rng2 - 0.5) * 0.04);
+        mesh.position.set(x + (rng - 0.5) * 0.04, 0.003, z + (rng2 - 0.5) * 0.04);
         mesh.rotation.y = (rng3 - 0.5) * 0.3;  // +/- ~14 degrees
         mesh.rotation.z = (rng - 0.5) * 0.06;   // slight tilt
         mesh.scale.set(1.10, 1.10, 1.10);
@@ -3509,9 +3509,9 @@ class Renderer {
       const offset = (i - count / 2 + 0.5) * spacing;
 
       if (pos.along === 'x') {
-        mesh.position.set(pos.x + offset, 0.01, pos.z);
+        mesh.position.set(pos.x + offset, 0.003, pos.z);
       } else {
-        mesh.position.set(pos.x, 0.01, pos.z + offset);
+        mesh.position.set(pos.x, 0.003, pos.z + offset);
       }
       mesh.rotation.y = pos.rotY;
 
