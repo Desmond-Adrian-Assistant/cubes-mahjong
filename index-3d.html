@@ -270,7 +270,7 @@ body::after {
   border-radius: 14px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   position: relative; overflow: hidden;
-  background: linear-gradient(180deg, #fefefe 0%, #fafaf5 40%, #f2ece0 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #ffffff 55%, #C8B898 60%, #C0B088 100%);
   border: 1.5px solid #c8b898;
   box-shadow:
     0 4px 0 #B8A080,
@@ -2122,24 +2122,21 @@ class Renderer {
     canvas.height = 352;
     const ctx = canvas.getContext('2d');
 
-    // TWO-TONE TILE: Bottom ~40% accent color, top ~60% white with artwork
-    // This creates the classic mahjong tile look where the white inlay sits on a colored base
-    const accentColor = '#B8A080'; // Warm tan accent (customizable via Settings)
-    const splitY = 210; // 60% of 352 = white zone, bottom 40% = accent
-
-    // Fill entire tile with accent color first
-    ctx.fillStyle = accentColor;
+    // Clean white tile face with thin tan border
+    ctx.fillStyle = '#c0a878';
     ctx.fillRect(0, 0, 256, 352);
 
-    // White zone: top 60% with rounded corners
+    // Full white rounded rectangle
     const r = 16;
-    const m = 8;
+    const m = 6;
     ctx.beginPath();
     ctx.moveTo(m + r, m);
     ctx.lineTo(256 - m - r, m);
     ctx.arcTo(256 - m, m, 256 - m, m + r, r);
-    ctx.lineTo(256 - m, splitY); // Stop at the split line (no rounding at bottom)
-    ctx.lineTo(m, splitY);
+    ctx.lineTo(256 - m, 352 - m - r);
+    ctx.arcTo(256 - m, 352 - m, 256 - m - r, 352 - m, r);
+    ctx.lineTo(m + r, 352 - m);
+    ctx.arcTo(m, 352 - m, m, 352 - m - r, r);
     ctx.lineTo(m, m + r);
     ctx.arcTo(m, m, m + r, m, r);
     ctx.closePath();
@@ -2147,8 +2144,7 @@ class Renderer {
     ctx.fillStyle = '#ffffff';
     ctx.fill();
 
-    // Subtle border around the white zone
-    ctx.strokeStyle = 'rgba(140,120,90,0.3)';
+    ctx.strokeStyle = 'rgba(140,120,90,0.25)';
     ctx.lineWidth = 1.5;
     ctx.stroke();
 
