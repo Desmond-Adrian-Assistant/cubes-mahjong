@@ -1,8 +1,8 @@
 {
-  "iteration": 3,
+  "iteration": 4,
   "maxIterations": 15,
   "startedAt": "2026-03-25T23:37:00-05:00",
-  "lastCompleted": "2026-03-25T23:57:00-05:00",
+  "lastCompleted": "2026-03-26T00:08:00-05:00",
   "changes": [
     {
       "iteration": 1,
@@ -18,6 +18,11 @@
       "iteration": 3,
       "change": "Wall tiles more prominent: scale 0.82→0.90, layer gap 0.10→0.04 (tighter stacking), wallDist 3.8→3.6 (closer to center), shadow opacity 0.22→0.30, tile depth D 0.40→0.45. Walls now clearly frame the playing area.",
       "commit": "91eda28"
+    },
+    {
+      "iteration": 4,
+      "change": "Bottom UI cleanup: hid redundant .player-label (South bubble already shows info), moved turn indicator from bottom:138px→200px (no overlap), repositioned #p-south to bottom:80px right:20px in column layout (clean corner placement). Eliminates all bottom UI element overlap.",
+      "commit": "6c6ce72"
     }
   ],
   "status": "running",
