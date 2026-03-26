@@ -3456,8 +3456,8 @@ class Renderer {
     for (let p = 0; p < 4; p++) {
       const discards = allDiscards[p] || [];
       const zone = zones[p];
-      const spacing = 0.75;
-      const rowSpacing = 0.90;
+      const spacing = 0.90;
+      const rowSpacing = 1.05;
 
       for (let i = 0; i < discards.length; i++) {
         const col = i % zone.cols;
@@ -3481,10 +3481,10 @@ class Renderer {
         const rng2 = seed2 / 233280;
         const seed3 = (seed2 * 49297 + 11) % 233280;
         const rng3 = seed3 / 233280;
-        mesh.position.set(x + (rng - 0.5) * 0.08, 0.05, z + (rng2 - 0.5) * 0.08);
-        mesh.rotation.y = (rng3 - 0.5) * 0.5;  // +/- ~14 degrees
+        mesh.position.set(x + (rng - 0.5) * 0.04, 0.05, z + (rng2 - 0.5) * 0.04);
+        mesh.rotation.y = (rng3 - 0.5) * 0.3;  // +/- ~14 degrees
         mesh.rotation.z = (rng - 0.5) * 0.06;   // slight tilt
-        mesh.scale.set(1.35, 1.35, 1.35);
+        mesh.scale.set(1.10, 1.10, 1.10);
         this.scene.add(mesh);
         this.discardMeshes.push(mesh);
       }
@@ -3584,7 +3584,7 @@ class Renderer {
       for (let p = 0; p < 4; p++) {
         const discards = allDiscards[p] || [];
         const zone = zones[p];
-        const spacing = 0.75, rowSpacing = 0.90;
+        const spacing = 0.90, rowSpacing = 1.05;
         for (let i = 0; i < discards.length; i++) {
           const col = i % zone.cols;
           const row = Math.floor(i / zone.cols);
@@ -3606,8 +3606,8 @@ class Renderer {
           const rng3 = seed3 / 233280;
           positions.push({
             meshIdx: positions.length,
-            x: x + (rng - 0.5) * 0.08, z: z + (rng2 - 0.5) * 0.08,
-            rotY: (rng3 - 0.5) * 0.5
+            x: x + (rng - 0.5) * 0.04, z: z + (rng2 - 0.5) * 0.04,
+            rotY: (rng3 - 0.5) * 0.3
           });
         }
       }
