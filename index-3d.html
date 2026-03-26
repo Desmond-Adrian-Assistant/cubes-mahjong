@@ -3308,34 +3308,42 @@ class Renderer {
 
     const faceTex = faceDown ? this.createTileBackTexture() : this.createTileTexture(tile);
 
-    // Simple BoxGeometry with 6 deterministic material slots
-    const bodyGeo = new THREE.BoxGeometry(W, D, H);
+    // Rounded box via ExtrudeGeometry
+    const bevelR = 0.04;
+    const shape = new THREE.Shape();
+    shape.moveTo(-W/2 + bevelR, -H/2);
+    shape.lineTo(W/2 - bevelR, -H/2);
+    shape.quadraticCurveTo(W/2, -H/2, W/2, -H/2 + bevelR);
+    shape.lineTo(W/2, H/2 - bevelR);
+    shape.quadraticCurveTo(W/2, H/2, W/2 - bevelR, H/2);
+    shape.lineTo(-W/2 + bevelR, H/2);
+    shape.quadraticCurveTo(-W/2, H/2, -W/2, H/2 - bevelR);
+    shape.lineTo(-W/2, -H/2 + bevelR);
+    shape.quadraticCurveTo(-W/2, -H/2, -W/2 + bevelR, -H/2);
 
-    // Two-tone: white face on TOP (+Y), colored FRONT face (+Z visible from camera)
+    const bodyGeo = new THREE.ExtrudeGeometry(shape, {
+      depth: D, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 3
+    });
+
+    // Fix UVs for texture mapping
+    const uvAttr = bodyGeo.attributes.uv;
+    for (let i = 0; i < uvAttr.count; i++) {
+      uvAttr.setXY(i, (uvAttr.getX(i) + W/2) / W, (uvAttr.getY(i) + H/2) / H);
+    }
+    uvAttr.needsUpdate = true;
+
     const faceColor = 0xffffff;
-    const defaultSide = 0xC0A878;  // Warm tan
+    const defaultSide = 0xC0A878;
     const sideColor = this.tileAccentColor || defaultSide;
-    // For face-down (wall) tiles, always use warm tan regardless of accent picker
     const actualSide = faceDown ? 0xC0A878 : sideColor;
 
     const faceMat = new THREE.MeshStandardMaterial({ map: faceTex, color: faceColor, roughness: 0.35, metalness: 0.0 });
-    const frontMat = new THREE.MeshStandardMaterial({ color: actualSide, roughness: 0.45, metalness: 0.0 });
-    const sideMat = new THREE.MeshStandardMaterial({ color: actualSide, roughness: 0.5, metalness: 0.0 });
-    const bottomMat = new THREE.MeshStandardMaterial({ color: 0xA08858, roughness: 0.6, metalness: 0.0 });
+    const sideMat = new THREE.MeshStandardMaterial({ color: actualSide, roughness: 0.45, metalness: 0.0 });
 
-    // BoxGeometry face order: [+x right, -x left, +y top, -y bottom, +z front, -z back]
-    // Camera at (0, 6, 9) sees: +y (top = artwork) and +z (front = tan accent)
-    const materials = [
-      sideMat,    // +x right (barely visible)
-      sideMat,    // -x left (barely visible)
-      faceMat,    // +y TOP — white with tile artwork texture
-      bottomMat,  // -y bottom (hidden, on table)
-      frontMat,   // +z FRONT — tan/brown accent, clearly visible from camera!
-      sideMat,    // -z back (hidden)
-    ];
-
-    const body = new THREE.Mesh(bodyGeo, materials);
-    body.position.y = D / 2; // Bottom sits at y=0
+    // ExtrudeGeometry: [front face, back face, sides]
+    const body = new THREE.Mesh(bodyGeo, [faceMat, faceMat, sideMat]);
+    body.rotation.x = -Math.PI / 2;
+    body.position.y = D;
     body.castShadow = true;
     body.receiveShadow = true;
     group.add(body);
@@ -3395,11 +3403,9 @@ class Renderer {
           const wallLen = side.offsetEnd - side.offsetStart;
           const tileSpacing = wallLen / tilesPerSide;
           const offset = side.offsetStart + (i + 0.5) * tileSpacing;
-          // BoxGeometry: body at y=D/2. After π flip around X, body center at y=D/2 still.
-          // Bottom of box at yPos - D/2, top at yPos + D/2
-          // Layer 0: bottom at y=0 → yPos = D/2
-          // Layer 1: bottom at y=D → yPos = D + D/2 = 1.5*D
-          const yPos = D / 2 + layer * D;
+          // ExtrudeGeometry: body at y=D after -π/2 rotation. After π flip, tile at [-2D, -D]
+          // To sit on table (y=0): yPos = 2*D. Layer 1 stacks: yPos = 2*D + D
+          const yPos = 2 * D + layer * D;
 
           if (side.along === 'x') {
             mesh.position.set(side.baseX + offset, yPos, side.baseZ);
