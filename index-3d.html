@@ -3196,9 +3196,17 @@ class Renderer {
     ctx.save();
     ctx.clip();
 
-    // Solid warm ivory fill — clean, no pattern
-    ctx.fillStyle = '#E8DCC8';
+    // Traditional teal/jade green back — classic mahjong tile color
+    ctx.fillStyle = '#4A8B6F';
     ctx.fillRect(0, 0, 128, 176);
+
+    // Subtle diamond lattice pattern
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.lineWidth = 0.8;
+    for (let x = -176; x < 304; x += 12) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x + 176, 176); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x, 176); ctx.lineTo(x + 176, 0); ctx.stroke();
+    }
 
     this._backTex = new THREE.CanvasTexture(canvas);
     return this._backTex;
