@@ -3437,7 +3437,7 @@ class Renderer {
 
     const faceTex = faceDown ? this.createTileBackTexture() : this.createTileTexture(tile);
 
-    // Rounded box via ExtrudeGeometry
+    // Shared rounded shape for both layers
     const bevelR = 0.04;
     const shape = new THREE.Shape();
     shape.moveTo(-W/2 + bevelR, -H/2);
@@ -3450,38 +3450,42 @@ class Renderer {
     shape.lineTo(-W/2, -H/2 + bevelR);
     shape.quadraticCurveTo(-W/2, -H/2, -W/2 + bevelR, -H/2);
 
-    const bodyGeo = new THREE.ExtrudeGeometry(shape, {
-      depth: D, bevelEnabled: true, bevelThickness: 0.04, bevelSize: 0.04, bevelSegments: 4
-    });
+    // Accent color
+    const defaultSide = 0xC0A878;
+    const sideColor = this.tileAccentColor || defaultSide;
 
-    // Fix UVs for texture mapping
-    const uvAttr = bodyGeo.attributes.uv;
+    // === SANDWICH: Bottom layer (40%) = accent color ===
+    const bottomD = D * 0.40;
+    const bottomGeo = new THREE.ExtrudeGeometry(shape, {
+      depth: bottomD, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 3
+    });
+    const accentMat = new THREE.MeshStandardMaterial({ color: sideColor, roughness: 0.4, metalness: 0.0 });
+    const bottomBody = new THREE.Mesh(bottomGeo, [accentMat, accentMat, accentMat]);
+    bottomBody.rotation.x = -Math.PI / 2;
+    bottomBody.position.y = bottomD;
+    bottomBody.castShadow = true;
+    group.add(bottomBody);
+
+    // === SANDWICH: Top layer (60%) = white with face texture ===
+    const topD = D * 0.60;
+    const topGeo = new THREE.ExtrudeGeometry(shape, {
+      depth: topD, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 3
+    });
+    // Fix UVs for texture mapping on top layer
+    const uvAttr = topGeo.attributes.uv;
     for (let i = 0; i < uvAttr.count; i++) {
       uvAttr.setXY(i, (uvAttr.getX(i) + W/2) / W, (uvAttr.getY(i) + H/2) / H);
     }
     uvAttr.needsUpdate = true;
 
-    // Accent color applies to ALL tiles (walls + discards + wind indicators)
-    const defaultSide = 0xC0A878;
-    const sideColor = this.tileAccentColor || defaultSide;
-    // ALL tiles use accent color on sides (walls show it prominently, face-up shows it at edges)
-    // Face-up tiles: lighter side color so they match the clean hand tile look
-    // Face-down tiles: full accent color for wall backs
-    // Side material = accent color for ALL tiles (the visible front edge band)
-    const actualSideColor = sideColor;
-
-    const faceMat = new THREE.MeshStandardMaterial({ map: faceTex, color: 0xfefefe, roughness: 0.3, metalness: 0.0 });
-    const sideMat = new THREE.MeshStandardMaterial({ color: actualSideColor, roughness: 0.4, metalness: 0.0 });
-
-    // ExtrudeGeometry: [front face, back face, sides]
-    const body = new THREE.Mesh(bodyGeo, [faceMat, faceMat, sideMat]);
-    body.rotation.x = -Math.PI / 2;
-    body.position.y = D;
-    body.castShadow = true;
-    body.receiveShadow = true;
-    group.add(body);
-
-    // No accent strip — clean tiles
+    const faceMat = new THREE.MeshStandardMaterial({ map: faceTex, color: 0xffffff, roughness: 0.3, metalness: 0.0 });
+    const whiteSide = new THREE.MeshStandardMaterial({ color: 0xf8f4ec, roughness: 0.4, metalness: 0.0 });
+    const topBody = new THREE.Mesh(topGeo, [faceMat, faceMat, whiteSide]);
+    topBody.rotation.x = -Math.PI / 2;
+    topBody.position.y = bottomD + topD; // sits on top of bottom layer
+    topBody.castShadow = true;
+    topBody.receiveShadow = true;
+    group.add(topBody);
 
     group.userData = { tile, faceDown };
     return group;
