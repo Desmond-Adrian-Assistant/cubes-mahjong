@@ -3481,18 +3481,7 @@ class Renderer {
     body.receiveShadow = true;
     group.add(body);
 
-    // Accent strip on the TALL FRONT FACE visible from camera
-    // The front face after -π/2 rotation is at z=+H/2 in group space
-    // The face is W wide × D tall. We want the bottom 30% colored.
-    const accentH = D * 0.30;
-    const accentGeo = new THREE.PlaneGeometry(W * 0.98, accentH);
-    const accentMat = new THREE.MeshStandardMaterial({ 
-      color: actualSideColor, roughness: 0.4, metalness: 0.0, side: THREE.DoubleSide 
-    });
-    const accentMesh = new THREE.Mesh(accentGeo, accentMat);
-    // Position at bottom of the front face
-    accentMesh.position.set(0, accentH / 2 + 0.005, H / 2 + 0.008);
-    group.add(accentMesh);
+    // No accent strip — clean tiles
 
     group.userData = { tile, faceDown };
     return group;
