@@ -3519,7 +3519,7 @@ class Renderer {
     group.add(bottomBody);
 
     topBody.rotation.x = -Math.PI / 2;
-    topBody.position.y = layer1D + layer2D - 0.035;
+    topBody.position.y = layer1D + layer2D - 0.04;
     topBody.castShadow = true;
     topBody.receiveShadow = true;
     group.add(topBody);
@@ -3671,19 +3671,30 @@ class Renderer {
     const count = Math.min(tileCount, 14);
 
     for (let i = 0; i < count; i++) {
-      const mesh = this.create3DTile({}, true);
+      // Simple single-mesh tile for opponents (no sandwich — avoids stripe at rotated angles)
+      const W = 0.50, H = 0.65, D = 0.25;
+      const sideColor = this.tileAccentColor || 0xC0A878;
+      const simpleGeo = new THREE.BoxGeometry(W, D, H);
+      const accentMat = new THREE.MeshStandardMaterial({ color: sideColor, roughness: 0.4 });
+      const whiteMat = new THREE.MeshStandardMaterial({ color: 0xf8f4ec, roughness: 0.4 });
+      // [+x, -x, +y top, -y bottom, +z front, -z back]
+      const mesh = new THREE.Mesh(simpleGeo, [accentMat, accentMat, accentMat, whiteMat, whiteMat, accentMat]);
+      mesh.position.y = D / 2;
+
+      const group = new THREE.Group();
+      group.add(mesh);
+      group.rotation.x = Math.PI; // face down
+
       const offset = (i - count / 2 + 0.5) * spacing;
-
       if (pos.along === 'x') {
-        mesh.position.set(pos.x + offset, -0.005, pos.z);
+        group.position.set(pos.x + offset, D, pos.z);
       } else {
-        mesh.position.set(pos.x, -0.005, pos.z + offset);
+        group.position.set(pos.x, D, pos.z + offset);
       }
-      mesh.rotation.y = pos.rotY;
-
-      mesh.scale.set(0.78, 0.95, 0.78);
-      this.scene.add(mesh);
-      this.tileMeshes.push(mesh);
+      group.rotation.y = pos.rotY;
+      group.scale.set(0.78, 0.95, 0.78);
+      this.scene.add(group);
+      this.tileMeshes.push(group);
     }
   }
 
