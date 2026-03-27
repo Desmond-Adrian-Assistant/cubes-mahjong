@@ -3482,7 +3482,7 @@ class Renderer {
     const whiteSide = new THREE.MeshStandardMaterial({ color: 0xf8f4ec, roughness: 0.4, metalness: 0.0 });
     const topBody = new THREE.Mesh(topGeo, [faceMat, faceMat, whiteSide]);
     topBody.rotation.x = -Math.PI / 2;
-    topBody.position.y = bottomD + topD - 0.05; // overlap aggressively to hide bevel gap
+    topBody.position.y = bottomD + topD - 0.02; // overlap exactly the bevel zone (0.02)
     topBody.castShadow = true;
     topBody.receiveShadow = true;
     group.add(topBody);
