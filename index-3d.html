@@ -263,11 +263,15 @@ body::after {
 
 .tile.being-dragged { 
   position: fixed !important; z-index: 999; pointer-events: none; 
-  transform: scale(1.08) rotate(-3deg) !important; 
-  box-shadow: 0 12px 40px rgba(0,0,0,0.3) !important; opacity: 0.92; 
+  transform: scale(1.1) rotate(-2deg) !important; 
+  box-shadow: 0 16px 48px rgba(0,0,0,0.35) !important; opacity: 1; 
   transition: none !important;
 }
-.tile.drop-placeholder { opacity: 0.25; border: 2px dashed #c8a040; }
+.tile.drop-placeholder { 
+  width: 92px; height: 120px; flex-shrink: 0; border-radius: 12px;
+  background: rgba(200,170,80,0.15); border: 2px dashed rgba(200,170,80,0.5);
+  transition: all 0.15s ease;
+}
 
 .hand-sort-btn {
   position: fixed; bottom: 36px; left: 50%; transform: translateX(-50%);
@@ -4123,7 +4127,7 @@ class GameController {
           el.parentNode.insertBefore(ph, el);
           el._placeholder = ph;
           el._fromIdx = index;
-        }, 200); // 200ms hold to start drag
+        }, 150); // 150ms hold to start drag
       });
       el.addEventListener('pointermove', (pe) => {
         if (!isDragging) {
