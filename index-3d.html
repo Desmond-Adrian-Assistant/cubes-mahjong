@@ -3478,8 +3478,8 @@ class Renderer {
     const whiteSide = new THREE.MeshStandardMaterial({ color: 0xf8f4ec, roughness: 0.4, metalness: 0.0 });
 
     // For face-down tiles (walls): swap layers so accent stays visible on top after π flip
-    const layer1D = D * 0.30;
-    const layer2D = D * 0.70;
+    const layer1D = D * 0.20;
+    const layer2D = D * 0.80;
 
     const layer1Geo = new THREE.ExtrudeGeometry(shape, {
       depth: layer1D, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 3
@@ -3523,7 +3523,7 @@ class Renderer {
     group.add(bottomBody);
 
     topBody.rotation.x = -Math.PI / 2;
-    topBody.position.y = layer1D + layer2D - 0.045;
+    topBody.position.y = layer1D + layer2D - 0.05;
     topBody.castShadow = true;
     topBody.receiveShadow = true;
     group.add(topBody);
@@ -3586,7 +3586,7 @@ class Renderer {
           // ExtrudeGeometry: body at y=D after -π/2 rotation. After π flip, tile at [-2D, -D]
           // To sit on table (y=0): yPos = 2*D. Layer 1 stacks: yPos = 2*D + D
           // Add 0.10 gap between layers so they're clearly separate
-          const yPos = 2 * D + layer * (D + 0.005);
+          const yPos = 2 * D + layer * (D + 0.04);
 
           if (side.along === 'x') {
             mesh.position.set(side.baseX + offset, yPos, side.baseZ);
