@@ -2247,11 +2247,9 @@ class Renderer {
     const accentHex = this.tileAccentColor 
       ? '#' + this.tileAccentColor.toString(16).padStart(6, '0')
       : '#C0A878';
-    // Face-up tiles: accent TOP 25% (nearest camera) + white BOTTOM 75% (artwork area)
-    ctx.fillStyle = accentHex;
-    ctx.fillRect(0, 0, 256, 88); // top 25% accent (camera-facing edge)
+    // Face-up tiles: pure white
     ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 88, 256, 264); // bottom 75% white
+    ctx.fillRect(0, 0, 256, 352);
     
     // Rounded corners
     const r = 14;
@@ -3401,11 +3399,9 @@ class Renderer {
     ctx.save();
     ctx.clip();
 
-    // Wall backs: white TOP 30% (nearest to camera after flip) + accent BOTTOM 70%
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, 128, 53); // top 30% white (camera-facing edge after flip)
+    // Wall backs: solid accent
     ctx.fillStyle = accentHex;
-    ctx.fillRect(0, 53, 128, 123); // bottom 70% accent
+    ctx.fillRect(0, 0, 128, 176);
 
     // Diamond lattice pattern — gold lines complement green back
     ctx.strokeStyle = 'rgba(200,168,78,0.35)';
@@ -3484,6 +3480,18 @@ class Renderer {
     body.castShadow = true;
     body.receiveShadow = true;
     group.add(body);
+
+    // Add colored base plate underneath the tile (visible as accent band from camera)
+    const baseH = D * 0.35; // 35% of tile height is the colored base
+    const baseGeo = new THREE.BoxGeometry(W + 0.02, baseH, H + 0.02);
+    const baseMat = new THREE.MeshStandardMaterial({ color: actualSideColor, roughness: 0.4, metalness: 0.0 });
+    const baseMesh = new THREE.Mesh(baseGeo, baseMat);
+    baseMesh.position.y = baseH / 2; // sits at bottom
+    baseMesh.castShadow = true;
+    group.add(baseMesh);
+
+    // Shift the main tile body UP so it sits on top of the base
+    body.position.y += baseH;
 
     group.userData = { tile, faceDown };
     return group;
