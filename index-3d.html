@@ -56,7 +56,7 @@ canvas#game-canvas {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
   z-index: 0;
   /* Cel-shading look: boost contrast + slight posterize feel */
-  filter: contrast(1.12) saturate(1.08);
+  filter: contrast(1.18) saturate(1.15);
 }
 
 /* Warm atmospheric vignette overlay */
@@ -2364,9 +2364,9 @@ class Renderer {
         } else {
           // Multicolored dots matching traditional mahjong patterns
           const dotColors = {
-            green: { fill: '#2a8a6a', inner: '#3a9a7a', stroke: '#1a6a4a' },
-            red:   { fill: '#c03030', inner: '#d04545', stroke: '#8a1a1a' },
-            blue:  { fill: '#2a4a8a', inner: '#3a5a9a', stroke: '#1a3a6a' }
+            green: { fill: '#0a7a3a', inner: '#1a8a4a', stroke: '#085a28' },
+            red:   { fill: '#cc2222', inner: '#dd3333', stroke: '#991111' },
+            blue:  { fill: '#1a3a8a', inner: '#2a4a9a', stroke: '#0a2a6a' }
           };
           const colorPatterns = {
             2: ['green','red'],
@@ -2420,15 +2420,15 @@ class Renderer {
         // Body — green oval
         ctx.beginPath();
         ctx.ellipse(0, 0, 36, 28, -0.3, 0, Math.PI * 2);
-        ctx.fillStyle = '#2a7a3a';
+        ctx.fillStyle = '#1a6a2a';
         ctx.fill();
-        ctx.strokeStyle = '#1a5a2a';
+        ctx.strokeStyle = '#084a18';
         ctx.lineWidth = 2;
         ctx.stroke();
         // Head
         ctx.beginPath();
         ctx.arc(-30, -20, 16, 0, Math.PI * 2);
-        ctx.fillStyle = '#2a7a3a';
+        ctx.fillStyle = '#1a6a2a';
         ctx.fill();
         ctx.stroke();
         // Red head detail / crest
@@ -2458,7 +2458,7 @@ class Renderer {
         ctx.ellipse(6, -4, 22, 14, -0.2, 0, Math.PI * 2);
         ctx.fillStyle = '#238b3a';
         ctx.fill();
-        ctx.strokeStyle = '#1a5a2a';
+        ctx.strokeStyle = '#084a18';
         ctx.lineWidth = 1.5;
         ctx.stroke();
         // Wing feather lines
@@ -2466,7 +2466,7 @@ class Renderer {
           ctx.beginPath();
           ctx.moveTo(-6 + i * 9, -12 + i * 2);
           ctx.quadraticCurveTo(4 + i * 8, 2, 14 + i * 6, 12);
-          ctx.strokeStyle = '#1a5a2a';
+          ctx.strokeStyle = '#084a18';
           ctx.lineWidth = 1;
           ctx.stroke();
         }
@@ -2474,7 +2474,7 @@ class Renderer {
         ctx.beginPath();
         ctx.moveTo(30, -6);
         ctx.quadraticCurveTo(50, -20, 58, -34);
-        ctx.strokeStyle = '#1a5a2a';
+        ctx.strokeStyle = '#084a18';
         ctx.lineWidth = 2.5;
         ctx.stroke();
         ctx.beginPath();
@@ -2537,13 +2537,13 @@ class Renderer {
           ctx.closePath();
           // Gradient fill for 3D look
           const grad = ctx.createLinearGradient(x, cy, x + stickW, cy);
-          grad.addColorStop(0, '#1e6e2e');
-          grad.addColorStop(0.3, '#2a7a3a');
-          grad.addColorStop(0.6, '#34944a');
-          grad.addColorStop(1, '#1e6e2e');
+          grad.addColorStop(0, '#0a5a1a');
+          grad.addColorStop(0.3, '#1a6a2a');
+          grad.addColorStop(0.6, '#2a8a3a');
+          grad.addColorStop(1, '#0a5a1a');
           ctx.fillStyle = grad;
           ctx.fill();
-          ctx.strokeStyle = '#1a5a2a';
+          ctx.strokeStyle = '#084a18';
           ctx.lineWidth = 1.5;
           ctx.stroke();
 
@@ -2554,7 +2554,7 @@ class Renderer {
             ctx.beginPath();
             ctx.moveTo(x + 2, sy);
             ctx.lineTo(x + stickW - 2, sy);
-            ctx.strokeStyle = '#1a5a2a';
+            ctx.strokeStyle = '#084a18';
             ctx.lineWidth = 2;
             ctx.stroke();
             // Slight node bulge highlight
@@ -2752,7 +2752,7 @@ class Renderer {
         // Main character in rich green
         ctx.save();
         ctx.font = 'bold 140px "Ma Shan Zheng", serif';
-        ctx.fillStyle = '#2a7a3a';
+        ctx.fillStyle = '#1a6a2a';
         ctx.fillText(label.top, cx, cy);
         ctx.restore();
 
@@ -2934,7 +2934,7 @@ class Renderer {
           ctx.stroke();
 
           // Node marks
-          ctx.strokeStyle = '#1a5a2a';
+          ctx.strokeStyle = '#084a18';
           ctx.lineWidth = 2;
           for (const x of [110, 155]) {
             const top = x === 110 ? 70 : 100;
