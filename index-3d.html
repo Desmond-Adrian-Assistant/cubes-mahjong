@@ -2247,11 +2247,11 @@ class Renderer {
     const accentHex = this.tileAccentColor 
       ? '#' + this.tileAccentColor.toString(16).padStart(6, '0')
       : '#C0A878';
-    // Face-up tiles: white top 75% + accent bottom 25% (accent band visible from camera angle)
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, 256, 264); // top 75% white
+    // Face-up tiles: accent TOP 25% (nearest camera) + white BOTTOM 75% (artwork area)
     ctx.fillStyle = accentHex;
-    ctx.fillRect(0, 264, 256, 88); // bottom 25% accent
+    ctx.fillRect(0, 0, 256, 88); // top 25% accent (camera-facing edge)
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 88, 256, 264); // bottom 75% white
     
     // Rounded corners
     const r = 14;
@@ -3401,11 +3401,11 @@ class Renderer {
     ctx.save();
     ctx.clip();
 
-    // Wall backs: accent top 70% + white bottom 30% (white band visible from camera when flipped)
-    ctx.fillStyle = accentHex;
-    ctx.fillRect(0, 0, 128, 123); // top 70% accent
+    // Wall backs: white TOP 30% (nearest to camera after flip) + accent BOTTOM 70%
     ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 123, 128, 53); // bottom 30% white
+    ctx.fillRect(0, 0, 128, 53); // top 30% white (camera-facing edge after flip)
+    ctx.fillStyle = accentHex;
+    ctx.fillRect(0, 53, 128, 123); // bottom 70% accent
 
     // Diamond lattice pattern — gold lines complement green back
     ctx.strokeStyle = 'rgba(200,168,78,0.35)';
