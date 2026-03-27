@@ -2247,25 +2247,20 @@ class Renderer {
     const accentHex = this.tileAccentColor 
       ? '#' + this.tileAccentColor.toString(16).padStart(6, '0')
       : '#C0A878';
-    // Bottom 28% = accent color, top 72% = white
-    const splitY = Math.round(352 * 0.72);
-    
-    // Fill top with white
+    // Clean white face — accent only shows on 3D side material, not on face texture
     ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, 256, splitY);
+    ctx.fillRect(0, 0, 256, 352);
     
-    // Fill bottom with accent
-    ctx.fillStyle = accentHex;
-    ctx.fillRect(0, splitY, 256, 352 - splitY);
-    
-    // Rounded corners on top only (white zone)
+    // Rounded corners
     const r = 14;
     ctx.beginPath();
     ctx.moveTo(r, 0);
     ctx.lineTo(256 - r, 0);
     ctx.arcTo(256, 0, 256, r, r);
-    ctx.lineTo(256, splitY);
-    ctx.lineTo(0, splitY);
+    ctx.lineTo(256, 352 - r);
+    ctx.arcTo(256, 352, 256 - r, 352, r);
+    ctx.lineTo(r, 352);
+    ctx.arcTo(0, 352, 0, 352 - r, r);
     ctx.lineTo(0, r);
     ctx.arcTo(0, 0, r, 0, r);
     ctx.closePath();
@@ -4056,8 +4051,8 @@ class GameController {
       const texture = this.renderer.createTileTexture(tile);
       const srcCanvas = texture.image;
       face.style.backgroundImage = `url(${srcCanvas.toDataURL()})`;
-      face.style.backgroundSize = '100% 138%';
-      face.style.backgroundPosition = 'top center';
+      face.style.backgroundSize = 'cover';
+      face.style.backgroundPosition = 'center';
 
       body.appendChild(face);
       el.appendChild(body);
