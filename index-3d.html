@@ -56,7 +56,7 @@ canvas#game-canvas {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
   z-index: 0;
   /* Cel-shading look: boost contrast + slight posterize feel */
-  filter: contrast(1.18) saturate(1.15);
+  filter: contrast(1.10) saturate(1.08);
 }
 
 /* Warm atmospheric vignette overlay */
@@ -1405,7 +1405,7 @@ class Renderer {
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.5;
+    this.renderer.toneMappingExposure = 1.35;
 
     // Cel-shading post-process via CSS filter on the canvas
 
@@ -3470,7 +3470,7 @@ class Renderer {
     const sideColor = this.tileAccentColor || defaultSide;
 
     const accentMat = new THREE.MeshStandardMaterial({ color: sideColor, roughness: 0.4, metalness: 0.0 });
-    const faceMat = new THREE.MeshStandardMaterial({ map: faceTex, color: 0xffffff, roughness: 0.3, metalness: 0.0 });
+    const faceMat = new THREE.MeshStandardMaterial({ map: faceTex, color: 0xf0ece4, roughness: 0.7, metalness: 0.0 });
     const whiteSide = new THREE.MeshStandardMaterial({ color: 0xf8f4ec, roughness: 0.4, metalness: 0.0 });
 
     // For face-down tiles (walls): swap layers so accent stays visible on top after π flip
@@ -3502,7 +3502,7 @@ class Renderer {
       // After π flip: original top→bottom (visible from front), original bottom→top (visible from above)
       // TOP layer = accent face on front + accent sides (becomes BOTTOM after flip = visible from camera front)
       // BOTTOM layer = accent face on top (becomes TOP after flip = back of tile visible from above)
-      const backFaceMat = new THREE.MeshStandardMaterial({ map: faceTex, color: 0xffffff, roughness: 0.3, metalness: 0.0 });
+      const backFaceMat = new THREE.MeshStandardMaterial({ map: faceTex, color: 0xf0ece4, roughness: 0.7, metalness: 0.0 });
       // Bottom = accent (after π flip becomes TOP = purple back visible from above) ✓
       bottomBody = new THREE.Mesh(layer1Geo, [accentMat, accentMat, accentMat]);
       // Top = white/back texture (after π flip becomes BOTTOM = white edge visible from front) ✓
