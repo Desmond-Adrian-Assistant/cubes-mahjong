@@ -980,8 +980,10 @@ body::after {
   </div>
 
   <!-- Player hand tray -->
-  <button class="hand-sort-btn" id="hand-sort-btn" title="Sort hand">排 Sort</button>
-  <button class="hand-sort-btn" id="hand-fit-btn" title="Toggle fit" style="left:auto;right:16px;transform:none;">⊞ Fit</button>
+  <div style="position:fixed;bottom:36px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:25;">
+    <button class="hand-sort-btn" id="hand-sort-btn" title="Sort hand" style="position:static;transform:none;">排 Sort</button>
+    <button class="hand-sort-btn" id="hand-fit-btn" title="Toggle fit" style="position:static;transform:none;">⊞ Fit</button>
+  </div>
   <div class="hand-tray" id="hand-tray"></div>
 
   <!-- Action buttons -->
