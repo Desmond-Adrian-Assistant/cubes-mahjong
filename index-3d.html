@@ -176,7 +176,7 @@ body::after {
   z-index: 30;
 }
 .bubble-avatar {
-  width: 150px; height: 150px; border-radius: 50%;
+  width: 80px; height: 80px; border-radius: 50%; /* small when inactive */
   border: 2.5px solid rgba(180,160,130,0.5);
   display: flex; align-items: center; justify-content: center;
   font-size: 0;
@@ -205,7 +205,7 @@ body::after {
   background: rgba(245,240,232,0.95);
   border-radius: 14px;
   padding: 6px 14px;
-  margin-top: -50px; /* overlap bottom third of avatar */
+  margin-top: -25px; /* overlap bottom third of avatar */
   position: relative;
   z-index: 2;
   text-align: center;
@@ -229,6 +229,7 @@ body::after {
   font-family: 'Helvetica Neue', Arial, sans-serif;
 }
 .player-bubble.active .bubble-avatar {
+  width: 130px; height: 130px; /* large when active */
   border-color: #e04030;
   border-width: 4px;
   box-shadow: 0 0 20px rgba(224,64,48,0.6), 0 0 0 6px rgba(224,64,48,0.25);
