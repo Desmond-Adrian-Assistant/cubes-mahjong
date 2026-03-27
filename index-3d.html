@@ -3675,21 +3675,19 @@ class Renderer {
     const count = Math.min(tileCount, 14);
 
     for (let i = 0; i < count; i++) {
-      // Simple solid accent tile for opponents
-      const sideColor = this.tileAccentColor || 0xC0A878;
-      const simpleGeo = new THREE.BoxGeometry(0.45, 0.15, 0.60);
-      const accentMat = new THREE.MeshStandardMaterial({ color: sideColor, roughness: 0.4 });
-      const group = new THREE.Mesh(simpleGeo, accentMat);
-      group.position.y = 0.075;
-
+      // Same sandwich tile as walls — matching geometry and orientation
+      const group = this.create3DTile({}, true);
+      const D = 0.25;
       const offset = (i - count / 2 + 0.5) * spacing;
+      const yPos = 2 * D * 0.25 + 2 * D * 0.75; // match wall Y calc
       if (pos.along === 'x') {
-        group.position.set(pos.x + offset, 0.075, pos.z);
+        group.position.set(pos.x + offset, yPos, pos.z);
       } else {
-        group.position.set(pos.x, 0.075, pos.z + offset);
+        group.position.set(pos.x, yPos, pos.z + offset);
       }
       group.rotation.y = pos.rotY;
-      group.castShadow = true;
+      group.rotation.x = Math.PI; // face down
+      group.scale.set(0.78, 0.95, 0.78);
       this.scene.add(group);
       this.tileMeshes.push(group);
     }
