@@ -4052,16 +4052,42 @@ class GameController {
       // Drag-and-drop rearrangement
       el.draggable = true;
       el.dataset.index = index;
+      el.style.transition = 'transform 0.15s ease';
       el.addEventListener('dragstart', (e) => {
         e.dataTransfer.setData('text/plain', index);
         el.classList.add('dragging');
+        el.style.opacity = '0.4';
+        this._dragFromIdx = index;
       });
-      el.addEventListener('dragend', () => el.classList.remove('dragging'));
-      el.addEventListener('dragover', (e) => { e.preventDefault(); el.classList.add('drag-over'); });
-      el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
+      el.addEventListener('dragend', () => {
+        el.classList.remove('dragging');
+        el.style.opacity = '1';
+        // Reset all shifts
+        tray.querySelectorAll('.tile').forEach(t => t.style.transform = '');
+        this._dragFromIdx = null;
+      });
+      el.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        // Dynamic shift: move tiles to make gap for dragged tile
+        const fromIdx = this._dragFromIdx;
+        if (fromIdx == null) return;
+        const tiles = tray.querySelectorAll('.tile');
+        tiles.forEach((t, i) => {
+          if (t.classList.contains('dragging')) return;
+          const ti = parseInt(t.dataset.index);
+          if (fromIdx < index) {
+            // Dragging right: shift tiles between from+1..here to the left
+            t.style.transform = (ti > fromIdx && ti <= index) ? 'translateX(-96px)' : '';
+          } else if (fromIdx > index) {
+            // Dragging left: shift tiles between here..from-1 to the right
+            t.style.transform = (ti >= index && ti < fromIdx) ? 'translateX(96px)' : '';
+          } else {
+            t.style.transform = '';
+          }
+        });
+      });
       el.addEventListener('drop', (e) => {
         e.preventDefault();
-        el.classList.remove('drag-over');
         const fromIdx = parseInt(e.dataTransfer.getData('text/plain'));
         const toIdx = index;
         if (fromIdx !== toIdx) {
