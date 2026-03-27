@@ -4056,8 +4056,8 @@ class GameController {
       const texture = this.renderer.createTileTexture(tile);
       const srcCanvas = texture.image;
       face.style.backgroundImage = `url(${srcCanvas.toDataURL()})`;
-      face.style.backgroundSize = 'cover';
-      face.style.backgroundPosition = 'center';
+      face.style.backgroundSize = '100% 138%';
+      face.style.backgroundPosition = 'top center';
 
       body.appendChild(face);
       el.appendChild(body);
