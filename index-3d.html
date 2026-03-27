@@ -3488,10 +3488,10 @@ class Renderer {
       // TOP layer = accent face on front + accent sides (becomes BOTTOM after flip = visible from camera front)
       // BOTTOM layer = accent face on top (becomes TOP after flip = back of tile visible from above)
       const backFaceMat = new THREE.MeshStandardMaterial({ map: faceTex, color: 0xffffff, roughness: 0.3, metalness: 0.0 });
-      // Bottom = white sides (becomes the front-facing top part after flip)
-      bottomBody = new THREE.Mesh(layer1Geo, [whiteSide, whiteSide, whiteSide]);
-      // Top = accent all around + back texture on face (becomes bottom=visible from front after flip)
-      topBody = new THREE.Mesh(layer2Geo, [backFaceMat, accentMat, accentMat]);
+      // Bottom = accent (after π flip becomes TOP = purple back visible from above) ✓
+      bottomBody = new THREE.Mesh(layer1Geo, [accentMat, accentMat, accentMat]);
+      // Top = white/back texture (after π flip becomes BOTTOM = white edge visible from front) ✓
+      topBody = new THREE.Mesh(layer2Geo, [backFaceMat, whiteSide, whiteSide]);
     } else {
       // Face-up: bottom=accent, top=white with face texture (normal)
       bottomBody = new THREE.Mesh(layer1Geo, [accentMat, accentMat, accentMat]);
