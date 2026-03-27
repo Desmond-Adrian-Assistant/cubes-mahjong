@@ -3481,11 +3481,12 @@ class Renderer {
     const layer1D = D * 0.20;
     const layer2D = D * 0.80;
 
+    const bevel = 0.02;
     const layer1Geo = new THREE.ExtrudeGeometry(shape, {
-      depth: layer1D, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 3
+      depth: layer1D, bevelEnabled: false // flat top — meets white layer cleanly
     });
     const layer2Geo = new THREE.ExtrudeGeometry(shape, {
-      depth: layer2D, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 3
+      depth: layer2D, bevelEnabled: true, bevelThickness: bevel, bevelSize: bevel, bevelSegments: 3
     });
 
     // Fix UVs on face texture layer
@@ -3522,7 +3523,7 @@ class Renderer {
     bottomBody.castShadow = true;
     group.add(bottomBody);
 
-    topBody.rotation.x = -Math.PI / 2;
+    topBody.position.y = layer1D + layer2D + bevel;
     topBody.position.y = layer1D + layer2D - 0.05;
     topBody.castShadow = true;
     topBody.receiveShadow = true;
