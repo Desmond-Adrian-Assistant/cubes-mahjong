@@ -3659,9 +3659,9 @@ class Renderer {
   renderOpponentTiles(playerIndex, tileCount) {
     // Face-down tile rows OUTSIDE the walls, near table edge
     const positions = {
-      0: { x: 4.5, z: 0, along: 'z', rotY: -Math.PI / 2 },    // East — outside east wall
-      2: { x: -4.5, z: 0, along: 'z', rotY: Math.PI / 2 },     // West — outside west wall
-      3: { x: 0, z: -4.3, along: 'x', rotY: Math.PI },          // North — outside north wall
+      0: { x: 5.5, z: 0, along: 'z', rotY: -Math.PI / 2 },    // East — outside east wall
+      2: { x: -5.5, z: 0, along: 'z', rotY: Math.PI / 2 },     // West — outside west wall
+      3: { x: 0, z: -5.3, along: 'x', rotY: Math.PI },          // North — outside north wall
     };
 
     const pos = positions[playerIndex];
