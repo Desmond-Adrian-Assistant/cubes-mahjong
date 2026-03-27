@@ -3455,7 +3455,7 @@ class Renderer {
     const sideColor = this.tileAccentColor || defaultSide;
 
     // === SANDWICH: Bottom layer (40%) = accent color ===
-    const bottomD = D * 0.45; // slightly taller to overlap into top layer's bevel
+    const bottomD = D * 0.50; // tall enough to fill behind top layer's bevel
     const bottomGeo = new THREE.ExtrudeGeometry(shape, {
       depth: bottomD, bevelEnabled: false // no bevel on bottom — clean edge where they meet
     });
@@ -3482,7 +3482,7 @@ class Renderer {
     const whiteSide = new THREE.MeshStandardMaterial({ color: 0xf8f4ec, roughness: 0.4, metalness: 0.0 });
     const topBody = new THREE.Mesh(topGeo, [faceMat, faceMat, whiteSide]);
     topBody.rotation.x = -Math.PI / 2;
-    topBody.position.y = bottomD + topD - 0.02; // overlap slightly to close gap
+    topBody.position.y = bottomD + topD - 0.05; // overlap aggressively to hide bevel gap
     topBody.castShadow = true;
     topBody.receiveShadow = true;
     group.add(topBody);
