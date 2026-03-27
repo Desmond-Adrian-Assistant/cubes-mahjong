@@ -4104,6 +4104,33 @@ class GameController {
     const spacerR = document.createElement('div');
     spacerR.style.cssText = 'min-width:20px;flex-shrink:0;';
     tray.appendChild(spacerR);
+
+    // Tray-level drop handler — find nearest tile to drop position
+    tray.addEventListener('dragover', (e) => e.preventDefault());
+    tray.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const fromIdx = parseInt(e.dataTransfer.getData('text/plain'));
+      if (isNaN(fromIdx)) return;
+      // Find which tile we're closest to
+      const tiles = tray.querySelectorAll('.tile');
+      let closestIdx = hand.length - 1;
+      let closestDist = Infinity;
+      tiles.forEach((t) => {
+        const rect = t.getBoundingClientRect();
+        const dist = Math.abs(e.clientX - (rect.left + rect.width / 2));
+        const idx = parseInt(t.dataset.index);
+        if (dist < closestDist && !isNaN(idx)) {
+          closestDist = dist;
+          closestIdx = idx;
+        }
+      });
+      if (fromIdx !== closestIdx) {
+        const tile = hand.splice(fromIdx, 1)[0];
+        hand.splice(closestIdx, 0, tile);
+        this.gs.selectedTileIndex = -1;
+        this.renderPlayerHand();
+      }
+    });
   }
 
   renderMelds() {
