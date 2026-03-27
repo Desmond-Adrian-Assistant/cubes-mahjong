@@ -246,8 +246,8 @@ body::after {
 /* ========== PLAYER HAND (2D overlay at bottom) ========== */
 
 /* Hand tile drag-and-drop */
-.tile.dragging { opacity: 0.01; }
-.tile.drag-over { border-left: 3px solid #c8a040; }
+
+
 
 /* Square crop modal */
 .crop-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 200; align-items: center; justify-content: center; flex-direction: column; }
@@ -260,6 +260,14 @@ body::after {
 .crop-btns button { padding: 8px 24px; border-radius: 8px; border: none; font-size: 14px; cursor: pointer; font-family: 'Helvetica Neue', sans-serif; }
 .crop-apply { background: #C0A878; color: #fff; font-weight: 600; }
 .crop-cancel { background: rgba(255,255,255,0.2); color: #fff; }
+
+.tile.being-dragged { 
+  position: fixed !important; z-index: 999; pointer-events: none; 
+  transform: scale(1.08) rotate(-3deg) !important; 
+  box-shadow: 0 12px 40px rgba(0,0,0,0.3) !important; opacity: 0.92; 
+  transition: none !important;
+}
+.tile.drop-placeholder { opacity: 0.25; border: 2px dashed #c8a040; }
 
 .hand-sort-btn {
   position: fixed; bottom: 36px; left: 50%; transform: translateX(-50%);
@@ -4049,88 +4057,81 @@ class GameController {
       body.appendChild(face);
       el.appendChild(body);
       el.addEventListener('click', () => this.selectTile(index));
-      // Drag-and-drop rearrangement
-      el.draggable = true;
-      el.dataset.index = index;
-      el.style.transition = 'transform 0.15s ease';
-      el.addEventListener('dragstart', (e) => {
-        e.dataTransfer.setData('text/plain', index);
-        el.classList.add('dragging');
-        el.style.opacity = '0.4';
-        this._dragFromIdx = index;
+
+      // Pointer-based drag rearrangement
+      let dragStartX = 0, dragStartY = 0, isDragging = false;
+      el.addEventListener('pointerdown', (pe) => {
+        dragStartX = pe.clientX; dragStartY = pe.clientY;
+        isDragging = false;
+        el._dragTimer = setTimeout(() => {
+          isDragging = true;
+          el.classList.add('being-dragged');
+          el.setPointerCapture(pe.pointerId);
+          el.style.left = (pe.clientX - 46) + 'px';
+          el.style.top = (pe.clientY - 60) + 'px';
+          // Create placeholder
+          const ph = document.createElement('div');
+          ph.className = 'tile drop-placeholder';
+          ph.style.cssText = 'width:92px;height:120px;flex-shrink:0;border-radius:12px;';
+          el.parentNode.insertBefore(ph, el);
+          el._placeholder = ph;
+          el._fromIdx = index;
+        }, 200); // 200ms hold to start drag
       });
-      el.addEventListener('dragend', () => {
-        el.classList.remove('dragging');
-        el.style.opacity = '1';
-        // Reset all shifts
-        tray.querySelectorAll('.tile').forEach(t => t.style.transform = '');
-        this._dragFromIdx = null;
-      });
-      el.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        // Dynamic shift: move tiles to make gap for dragged tile
-        const fromIdx = this._dragFromIdx;
-        if (fromIdx == null) return;
-        const tiles = tray.querySelectorAll('.tile');
-        tiles.forEach((t, i) => {
-          if (t.classList.contains('dragging')) return;
-          const ti = parseInt(t.dataset.index);
-          if (fromIdx < index) {
-            // Dragging right: shift tiles between from+1..here to the left
-            t.style.transform = (ti > fromIdx && ti <= index) ? 'translateX(-96px)' : '';
-          } else if (fromIdx > index) {
-            // Dragging left: shift tiles between here..from-1 to the right
-            t.style.transform = (ti >= index && ti < fromIdx) ? 'translateX(96px)' : '';
-          } else {
-            t.style.transform = '';
+      el.addEventListener('pointermove', (pe) => {
+        if (!isDragging) {
+          // Cancel drag if moved before hold time
+          if (Math.abs(pe.clientX - dragStartX) > 10 || Math.abs(pe.clientY - dragStartY) > 10) {
+            clearTimeout(el._dragTimer);
           }
-        });
+          return;
+        }
+        el.style.left = (pe.clientX - 46) + 'px';
+        el.style.top = (pe.clientY - 60) + 'px';
+        // Find which tile we're over and move placeholder there
+        const tiles = [...tray.querySelectorAll('.tile:not(.being-dragged):not(.drop-placeholder)')];
+        let insertBefore = null;
+        for (const t of tiles) {
+          const r = t.getBoundingClientRect();
+          if (pe.clientX < r.left + r.width / 2) { insertBefore = t; break; }
+        }
+        if (el._placeholder) {
+          if (insertBefore) tray.insertBefore(el._placeholder, insertBefore);
+          else tray.insertBefore(el._placeholder, spacerR);
+        }
       });
-      el.addEventListener('drop', (e) => {
-        e.preventDefault();
-        const fromIdx = parseInt(e.dataTransfer.getData('text/plain'));
-        const toIdx = index;
-        if (fromIdx !== toIdx) {
-          const hand = this.gs.players[1].hand;
-          const tile = hand.splice(fromIdx, 1)[0];
-          hand.splice(toIdx, 0, tile);
+      const endDrag = () => {
+        clearTimeout(el._dragTimer);
+        if (!isDragging) return;
+        isDragging = false;
+        el.classList.remove('being-dragged');
+        el.style.left = ''; el.style.top = ''; el.style.position = '';
+        // Find where placeholder is and insert tile there
+        if (el._placeholder) {
+          const allTiles = [...tray.querySelectorAll('.tile:not(.drop-placeholder)')];
+          const phIdx = [...tray.children].indexOf(el._placeholder);
+          const spacerCount = 1; // left spacer
+          let toIdx = Math.max(0, phIdx - spacerCount);
+          el._placeholder.remove();
+          const fromIdx = el._fromIdx;
+          if (fromIdx !== toIdx && fromIdx !== undefined) {
+            const tile = hand.splice(fromIdx, 1)[0];
+            if (toIdx > fromIdx) toIdx--;
+            hand.splice(toIdx, 0, tile);
+          }
           this.gs.selectedTileIndex = -1;
           this.renderPlayerHand();
         }
-      });
+      };
+      el.addEventListener('pointerup', endDrag);
+      el.addEventListener('pointercancel', endDrag);
+
       tray.appendChild(el);
     });
-    // Right spacer too
+    // Right spacer
     const spacerR = document.createElement('div');
     spacerR.style.cssText = 'min-width:20px;flex-shrink:0;';
     tray.appendChild(spacerR);
-
-    // Tray-level drop handler — find nearest tile to drop position
-    tray.addEventListener('dragover', (e) => e.preventDefault());
-    tray.addEventListener('drop', (e) => {
-      e.preventDefault();
-      const fromIdx = parseInt(e.dataTransfer.getData('text/plain'));
-      if (isNaN(fromIdx)) return;
-      // Find which tile we're closest to
-      const tiles = tray.querySelectorAll('.tile');
-      let closestIdx = hand.length - 1;
-      let closestDist = Infinity;
-      tiles.forEach((t) => {
-        const rect = t.getBoundingClientRect();
-        const dist = Math.abs(e.clientX - (rect.left + rect.width / 2));
-        const idx = parseInt(t.dataset.index);
-        if (dist < closestDist && !isNaN(idx)) {
-          closestDist = dist;
-          closestIdx = idx;
-        }
-      });
-      if (fromIdx !== closestIdx) {
-        const tile = hand.splice(fromIdx, 1)[0];
-        hand.splice(closestIdx, 0, tile);
-        this.gs.selectedTileIndex = -1;
-        this.renderPlayerHand();
-      }
-    });
   }
 
   renderMelds() {
