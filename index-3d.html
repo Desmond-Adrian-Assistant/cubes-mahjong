@@ -3484,9 +3484,14 @@ class Renderer {
       // So: original bottom = back texture (becomes top=visible from above after flip)
       //     original top = accent (becomes bottom=visible from front after flip)
       // BUT the back texture uses accent color — need white sides on the bottom layer
+      // After π flip: original top→bottom (visible from front), original bottom→top (visible from above)
+      // TOP layer = accent face on front + accent sides (becomes BOTTOM after flip = visible from camera front)
+      // BOTTOM layer = accent face on top (becomes TOP after flip = back of tile visible from above)
       const backFaceMat = new THREE.MeshStandardMaterial({ map: faceTex, color: 0xffffff, roughness: 0.3, metalness: 0.0 });
-      bottomBody = new THREE.Mesh(layer1Geo, [backFaceMat, backFaceMat, whiteSide]);
-      topBody = new THREE.Mesh(layer2Geo, [accentMat, accentMat, accentMat]);
+      // Bottom = white sides (becomes the front-facing top part after flip)
+      bottomBody = new THREE.Mesh(layer1Geo, [whiteSide, whiteSide, whiteSide]);
+      // Top = accent all around + back texture on face (becomes bottom=visible from front after flip)
+      topBody = new THREE.Mesh(layer2Geo, [backFaceMat, accentMat, accentMat]);
     } else {
       // Face-up: bottom=accent, top=white with face texture (normal)
       bottomBody = new THREE.Mesh(layer1Geo, [accentMat, accentMat, accentMat]);
