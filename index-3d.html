@@ -3481,18 +3481,18 @@ class Renderer {
     body.receiveShadow = true;
     group.add(body);
 
-    // Accent base — BoxGeometry underneath the main tile body
-    // This creates the colored "base material" visible below the white tile from any angle
-    const baseThick = 0.08;
-    const baseGeo = new THREE.BoxGeometry(W * 1.01, baseThick, H * 1.01);
-    const baseMat = new THREE.MeshStandardMaterial({ color: actualSideColor, roughness: 0.4, metalness: 0.0 });
-    const baseMesh = new THREE.Mesh(baseGeo, baseMat);
-    baseMesh.position.y = baseThick / 2; // sits at y=0 (table level)
-    baseMesh.castShadow = true;
-    group.add(baseMesh);
-    
-    // Shift main tile body up to sit on the base
-    body.position.y += baseThick;
+    // Accent strip on the TALL FRONT FACE visible from camera
+    // The front face after -π/2 rotation is at z=+H/2 in group space
+    // The face is W wide × D tall. We want the bottom 30% colored.
+    const accentH = D * 0.30;
+    const accentGeo = new THREE.PlaneGeometry(W * 0.98, accentH);
+    const accentMat = new THREE.MeshStandardMaterial({ 
+      color: actualSideColor, roughness: 0.4, metalness: 0.0, side: THREE.DoubleSide 
+    });
+    const accentMesh = new THREE.Mesh(accentGeo, accentMat);
+    // Position at bottom of the front face
+    accentMesh.position.set(0, accentH / 2 + 0.005, H / 2 + 0.008);
+    group.add(accentMesh);
 
     group.userData = { tile, faceDown };
     return group;
