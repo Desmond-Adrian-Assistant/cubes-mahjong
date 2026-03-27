@@ -3457,7 +3457,7 @@ class Renderer {
     // === SANDWICH: Bottom layer (40%) = accent color ===
     const bottomD = D * 0.50; // tall enough to fill behind top layer's bevel
     const bottomGeo = new THREE.ExtrudeGeometry(shape, {
-      depth: bottomD, bevelEnabled: false // no bevel on bottom — clean edge where they meet
+      depth: bottomD, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 3 // same bevel as top so dimensions match
     });
     const accentMat = new THREE.MeshStandardMaterial({ color: sideColor, roughness: 0.4, metalness: 0.0 });
     const bottomBody = new THREE.Mesh(bottomGeo, [accentMat, accentMat, accentMat]);
