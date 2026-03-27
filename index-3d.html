@@ -976,6 +976,7 @@ body::after {
 
   <!-- Player hand tray -->
   <button class="hand-sort-btn" id="hand-sort-btn" title="Sort hand">排 Sort</button>
+  <button class="hand-sort-btn" id="hand-fit-btn" title="Toggle fit" style="left:auto;right:16px;transform:none;">⊞ Fit</button>
   <div class="hand-tray" id="hand-tray"></div>
 
   <!-- Action buttons -->
@@ -3873,6 +3874,29 @@ class GameController {
     document.getElementById('btn-discards').addEventListener('click', () => this.toggleDiscardView());
     document.getElementById('btn-sort-hand')?.addEventListener('click', () => this.sortPlayerHand());
     document.getElementById('hand-sort-btn')?.addEventListener('click', () => this.sortPlayerHand());
+    // Fit toggle
+    this._fitMode = false;
+    document.getElementById('hand-fit-btn')?.addEventListener('click', () => {
+      this._fitMode = !this._fitMode;
+      const tray = document.getElementById('hand-tray');
+      const tiles = tray.querySelectorAll('.tile');
+      const btn = document.getElementById('hand-fit-btn');
+      if (this._fitMode) {
+        // Shrink tiles to fit screen
+        const count = tiles.length || 13;
+        const trayW = tray.clientWidth - 40; // minus padding/spacers
+        const tileW = Math.min(92, Math.floor(trayW / count) - 4);
+        const tileH = Math.round(tileW * 1.3);
+        tiles.forEach(t => { t.style.width = tileW+'px'; t.style.height = tileH+'px'; });
+        tray.style.flexWrap = 'nowrap';
+        btn.textContent = '⊟ Big';
+      } else {
+        // Restore original size
+        tiles.forEach(t => { t.style.width = ''; t.style.height = ''; });
+        tray.style.flexWrap = '';
+        btn.textContent = '⊞ Fit';
+      }
+    });
     document.getElementById('discard-close-btn').addEventListener('click', () => this.closeDiscardOverlay());
     document.getElementById('discard-sort-btn').addEventListener('click', () => this.toggleDiscardSort());
     // Top-right toolbar buttons (single toolbar — bottom-right removed)
