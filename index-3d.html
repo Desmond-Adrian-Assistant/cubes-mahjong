@@ -3499,14 +3499,14 @@ class Renderer {
       // So: original bottom = back texture (becomes top=visible from above after flip)
       //     original top = accent (becomes bottom=visible from front after flip)
       // BUT the back texture uses accent color — need white sides on the bottom layer
-      // After π flip: original top→bottom (visible from front), original bottom→top (visible from above)
-      // TOP layer = accent face on front + accent sides (becomes BOTTOM after flip = visible from camera front)
-      // BOTTOM layer = accent face on top (becomes TOP after flip = back of tile visible from above)
-      const backFaceMat = new THREE.MeshStandardMaterial({ map: faceTex, color: 0xffffff, roughness: 0.3, metalness: 0.0 });
-      // Bottom = accent (after π flip becomes TOP = purple back visible from above) ✓
-      bottomBody = new THREE.Mesh(layer1Geo, [accentMat, accentMat, accentMat]);
-      // Top = white/back texture (after π flip becomes BOTTOM = white edge visible from front) ✓
-      topBody = new THREE.Mesh(layer2Geo, [backFaceMat, whiteSide, whiteSide]);
+      // After π flip: original top→bottom, original bottom→top
+      // We SEE: top (from above) = should be accent, front (from camera) = should be white on top + accent below
+      // SWAP: bottom=white (→ becomes TOP after flip? NO)
+      // Actually: π flip means the whole group flips. top goes down, bottom goes up.
+      // So original BOTTOM becomes the TOP (visible from above) = needs to be ACCENT
+      // And original TOP becomes the BOTTOM (visible from front) = needs to be WHITE
+      bottomBody = new THREE.Mesh(layer1Geo, [accentMat, accentMat, accentMat]); // becomes TOP after flip = accent ✓
+      topBody = new THREE.Mesh(layer2Geo, [whiteSide, whiteSide, whiteSide]);     // becomes BOTTOM after flip = white ✓
     } else {
       // Face-up: bottom=accent, top=white with face texture (normal)
       bottomBody = new THREE.Mesh(layer1Geo, [accentMat, accentMat, accentMat]);
