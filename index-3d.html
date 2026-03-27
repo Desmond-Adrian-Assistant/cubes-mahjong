@@ -3481,17 +3481,18 @@ class Renderer {
     body.receiveShadow = true;
     group.add(body);
 
-    // Colored base pedestal — thin flat plate under the tile, visible as accent strip all around bottom
-    const baseH = 0.06; // thin base
-    const baseGeo = new THREE.BoxGeometry(W + 0.01, baseH, H + 0.01);
+    // Accent base — BoxGeometry underneath the main tile body
+    // This creates the colored "base material" visible below the white tile from any angle
+    const baseThick = 0.08;
+    const baseGeo = new THREE.BoxGeometry(W * 1.01, baseThick, H * 1.01);
     const baseMat = new THREE.MeshStandardMaterial({ color: actualSideColor, roughness: 0.4, metalness: 0.0 });
     const baseMesh = new THREE.Mesh(baseGeo, baseMat);
-    baseMesh.position.y = baseH / 2; // sits at y=0
+    baseMesh.position.y = baseThick / 2; // sits at y=0 (table level)
     baseMesh.castShadow = true;
     group.add(baseMesh);
-
-    // Shift tile body UP to sit on the base
-    body.position.y += baseH;
+    
+    // Shift main tile body up to sit on the base
+    body.position.y += baseThick;
 
     group.userData = { tile, faceDown };
     return group;
