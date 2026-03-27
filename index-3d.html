@@ -3671,17 +3671,21 @@ class Renderer {
     const count = Math.min(tileCount, 14);
 
     for (let i = 0; i < count; i++) {
+      // Same as wall tiles — exact same geometry and orientation
       const mesh = this.create3DTile({}, true);
+      const D = 0.25;
+      const yPos = 2 * D; // same as wall layer 0
       const offset = (i - count / 2 + 0.5) * spacing;
 
       if (pos.along === 'x') {
-        mesh.position.set(pos.x + offset, -0.005, pos.z);
+        mesh.position.set(pos.x + offset, yPos, pos.z);
       } else {
-        mesh.position.set(pos.x, -0.005, pos.z + offset);
+        mesh.position.set(pos.x, yPos, pos.z + offset);
       }
       mesh.rotation.y = pos.rotY;
+      mesh.rotation.x = Math.PI; // face down — same as walls
 
-      mesh.scale.set(0.78, 0.95, 0.78);
+      mesh.scale.set(0.70, 0.90, 0.70); // same as wall tiles
       this.scene.add(mesh);
       this.tileMeshes.push(mesh);
     }
