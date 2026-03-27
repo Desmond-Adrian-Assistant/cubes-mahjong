@@ -3454,35 +3454,52 @@ class Renderer {
     const defaultSide = 0xC0A878;
     const sideColor = this.tileAccentColor || defaultSide;
 
-    // === SANDWICH: Bottom layer (40%) = accent color ===
-    const bottomD = D * 0.50; // tall enough to fill behind top layer's bevel
-    const bottomGeo = new THREE.ExtrudeGeometry(shape, {
-      depth: bottomD, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 3 // same bevel as top so dimensions match
-    });
     const accentMat = new THREE.MeshStandardMaterial({ color: sideColor, roughness: 0.4, metalness: 0.0 });
-    const bottomBody = new THREE.Mesh(bottomGeo, [accentMat, accentMat, accentMat]);
-    bottomBody.rotation.x = -Math.PI / 2;
-    bottomBody.position.y = bottomD;
-    bottomBody.castShadow = true;
-    group.add(bottomBody);
+    const faceMat = new THREE.MeshStandardMaterial({ map: faceTex, color: 0xffffff, roughness: 0.3, metalness: 0.0 });
+    const whiteSide = new THREE.MeshStandardMaterial({ color: 0xf8f4ec, roughness: 0.4, metalness: 0.0 });
 
-    // === SANDWICH: Top layer (60%) = white with face texture ===
-    const topD = D * 0.60;
-    const topGeo = new THREE.ExtrudeGeometry(shape, {
-      depth: topD, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 3
+    // For face-down tiles (walls): swap layers so accent stays visible on top after π flip
+    const layer1D = D * 0.50;
+    const layer2D = D * 0.60;
+
+    const layer1Geo = new THREE.ExtrudeGeometry(shape, {
+      depth: layer1D, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 3
     });
-    // Fix UVs for texture mapping on top layer
-    const uvAttr = topGeo.attributes.uv;
+    const layer2Geo = new THREE.ExtrudeGeometry(shape, {
+      depth: layer2D, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 3
+    });
+
+    // Fix UVs on face texture layer
+    const uvGeo = faceDown ? layer1Geo : layer2Geo; // face texture goes on: bottom for faceDown, top for faceUp
+    const uvAttr = uvGeo.attributes.uv;
     for (let i = 0; i < uvAttr.count; i++) {
       uvAttr.setXY(i, (uvAttr.getX(i) + W/2) / W, (uvAttr.getY(i) + H/2) / H);
     }
     uvAttr.needsUpdate = true;
 
-    const faceMat = new THREE.MeshStandardMaterial({ map: faceTex, color: 0xffffff, roughness: 0.3, metalness: 0.0 });
-    const whiteSide = new THREE.MeshStandardMaterial({ color: 0xf8f4ec, roughness: 0.4, metalness: 0.0 });
-    const topBody = new THREE.Mesh(topGeo, [faceMat, faceMat, whiteSide]);
+    let bottomBody, topBody;
+    if (faceDown) {
+      // Face-down: bottom=white/face texture (hidden after flip), top=accent (visible after flip)
+      // After π flip: accent ends up on bottom (visible from front), white/face on top (hidden)
+      // Wait — we want accent visible from FRONT after flip. After π flip:
+      //   - top becomes bottom → accent on bottom visible
+      //   - bottom becomes top → face texture faces up (back of tile, seen from above)
+      // So: bottom = face texture (back pattern), top = accent
+      bottomBody = new THREE.Mesh(layer1Geo, [faceMat, faceMat, whiteSide]);
+      topBody = new THREE.Mesh(layer2Geo, [accentMat, accentMat, accentMat]);
+    } else {
+      // Face-up: bottom=accent, top=white with face texture (normal)
+      bottomBody = new THREE.Mesh(layer1Geo, [accentMat, accentMat, accentMat]);
+      topBody = new THREE.Mesh(layer2Geo, [faceMat, faceMat, whiteSide]);
+    }
+
+    bottomBody.rotation.x = -Math.PI / 2;
+    bottomBody.position.y = layer1D;
+    bottomBody.castShadow = true;
+    group.add(bottomBody);
+
     topBody.rotation.x = -Math.PI / 2;
-    topBody.position.y = bottomD + topD - 0.02; // overlap exactly the bevel zone (0.02)
+    topBody.position.y = layer1D + layer2D - 0.02;
     topBody.castShadow = true;
     topBody.receiveShadow = true;
     group.add(topBody);
