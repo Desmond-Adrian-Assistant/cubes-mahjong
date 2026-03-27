@@ -320,7 +320,7 @@ body::after {
   border-radius: 14px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   position: relative; overflow: hidden;
-  background: #ffffff;
+  background: linear-gradient(180deg, #ffffff 0%, #ffffff 72%, var(--tile-accent, #C0A878) 72%, var(--tile-accent, #C0A878) 100%);
   border: 2px solid var(--tile-accent, #C0A878);
   box-shadow:
     0 4px 0 #B8A080,
@@ -2247,22 +2247,27 @@ class Renderer {
     const accentHex = this.tileAccentColor 
       ? '#' + this.tileAccentColor.toString(16).padStart(6, '0')
       : '#C0A878';
+    // Bottom 28% = accent color, top 72% = white
+    const splitY = Math.round(352 * 0.72);
+    
+    // Fill top with white
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, 256, splitY);
+    
+    // Fill bottom with accent
     ctx.fillStyle = accentHex;
-    ctx.fillRect(0, 0, 256, 352);
-
-    // Full white rounded rectangle (face-up tiles show white with artwork)
-    const r = 16;
-    const m = 6;
+    ctx.fillRect(0, splitY, 256, 352 - splitY);
+    
+    // Rounded corners on top only (white zone)
+    const r = 14;
     ctx.beginPath();
-    ctx.moveTo(m + r, m);
-    ctx.lineTo(256 - m - r, m);
-    ctx.arcTo(256 - m, m, 256 - m, m + r, r);
-    ctx.lineTo(256 - m, 352 - m - r);
-    ctx.arcTo(256 - m, 352 - m, 256 - m - r, 352 - m, r);
-    ctx.lineTo(m + r, 352 - m);
-    ctx.arcTo(m, 352 - m, m, 352 - m - r, r);
-    ctx.lineTo(m, m + r);
-    ctx.arcTo(m, m, m + r, m, r);
+    ctx.moveTo(r, 0);
+    ctx.lineTo(256 - r, 0);
+    ctx.arcTo(256, 0, 256, r, r);
+    ctx.lineTo(256, splitY);
+    ctx.lineTo(0, splitY);
+    ctx.lineTo(0, r);
+    ctx.arcTo(0, 0, r, 0, r);
     ctx.closePath();
 
     ctx.fillStyle = '#ffffff';
