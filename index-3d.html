@@ -263,15 +263,11 @@ body::after {
 
 .tile.being-dragged { 
   position: fixed !important; z-index: 999; pointer-events: none; 
-  transform: scale(1.1) rotate(-2deg) !important; 
-  box-shadow: 0 16px 48px rgba(0,0,0,0.35) !important; opacity: 1; 
+  transform: scale(1.08) rotate(-3deg) !important; 
+  box-shadow: 0 12px 40px rgba(0,0,0,0.3) !important; opacity: 0.92; 
   transition: none !important;
 }
-.tile.drop-placeholder { 
-  width: 92px; height: 120px; flex-shrink: 0; border-radius: 12px;
-  background: rgba(200,170,80,0.15); border: 2px dashed rgba(200,170,80,0.5);
-  transition: all 0.15s ease;
-}
+.tile.drop-placeholder { opacity: 0.25; border: 2px dashed #c8a040; }
 
 .hand-sort-btn {
   position: fixed; bottom: 36px; left: 50%; transform: translateX(-50%);
@@ -3478,8 +3474,8 @@ class Renderer {
     const whiteSide = new THREE.MeshStandardMaterial({ color: 0xf8f4ec, roughness: 0.4, metalness: 0.0 });
 
     // For face-down tiles (walls): swap layers so accent stays visible on top after π flip
-    const layer1D = D * 0.50;
-    const layer2D = D * 0.60;
+    const layer1D = D * 0.30;
+    const layer2D = D * 0.70;
 
     const layer1Geo = new THREE.ExtrudeGeometry(shape, {
       depth: layer1D, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 3
@@ -3503,14 +3499,14 @@ class Renderer {
       // So: original bottom = back texture (becomes top=visible from above after flip)
       //     original top = accent (becomes bottom=visible from front after flip)
       // BUT the back texture uses accent color — need white sides on the bottom layer
-      // After π flip: original top→bottom, original bottom→top
-      // We SEE: top (from above) = should be accent, front (from camera) = should be white on top + accent below
-      // SWAP: bottom=white (→ becomes TOP after flip? NO)
-      // Actually: π flip means the whole group flips. top goes down, bottom goes up.
-      // So original BOTTOM becomes the TOP (visible from above) = needs to be ACCENT
-      // And original TOP becomes the BOTTOM (visible from front) = needs to be WHITE
-      bottomBody = new THREE.Mesh(layer1Geo, [accentMat, accentMat, accentMat]); // becomes TOP after flip = accent ✓
-      topBody = new THREE.Mesh(layer2Geo, [whiteSide, whiteSide, whiteSide]);     // becomes BOTTOM after flip = white ✓
+      // After π flip: original top→bottom (visible from front), original bottom→top (visible from above)
+      // TOP layer = accent face on front + accent sides (becomes BOTTOM after flip = visible from camera front)
+      // BOTTOM layer = accent face on top (becomes TOP after flip = back of tile visible from above)
+      const backFaceMat = new THREE.MeshStandardMaterial({ map: faceTex, color: 0xffffff, roughness: 0.3, metalness: 0.0 });
+      // Bottom = accent (after π flip becomes TOP = purple back visible from above) ✓
+      bottomBody = new THREE.Mesh(layer1Geo, [accentMat, accentMat, accentMat]);
+      // Top = white/back texture (after π flip becomes BOTTOM = white edge visible from front) ✓
+      topBody = new THREE.Mesh(layer2Geo, [backFaceMat, whiteSide, whiteSide]);
     } else {
       // Face-up: bottom=accent, top=white with face texture (normal)
       bottomBody = new THREE.Mesh(layer1Geo, [accentMat, accentMat, accentMat]);
@@ -3522,7 +3518,8 @@ class Renderer {
     bottomBody.castShadow = true;
     group.add(bottomBody);
 
-    topBody.position.y = layer1D + layer2D - 0.02;
+    topBody.rotation.x = -Math.PI / 2;
+    topBody.position.y = layer1D + layer2D - 0.035;
     topBody.castShadow = true;
     topBody.receiveShadow = true;
     group.add(topBody);
@@ -3585,7 +3582,7 @@ class Renderer {
           // ExtrudeGeometry: body at y=D after -π/2 rotation. After π flip, tile at [-2D, -D]
           // To sit on table (y=0): yPos = 2*D. Layer 1 stacks: yPos = 2*D + D
           // Add 0.10 gap between layers so they're clearly separate
-          const yPos = 2 * D + layer * (D + 0.04);
+          const yPos = 2 * D + layer * (D + 0.005);
 
           if (side.along === 'x') {
             mesh.position.set(side.baseX + offset, yPos, side.baseZ);
@@ -3674,19 +3671,17 @@ class Renderer {
     const count = Math.min(tileCount, 14);
 
     for (let i = 0; i < count; i++) {
-      // Same tile as walls — exact same code
       const mesh = this.create3DTile({}, true);
-      const D = 0.25;
       const offset = (i - count / 2 + 0.5) * spacing;
-      const yPos = 2 * D + 0 * (D + 0.005); // same as wall layer 0
+
       if (pos.along === 'x') {
-        mesh.position.set(pos.x + offset, yPos, pos.z);
+        mesh.position.set(pos.x + offset, -0.005, pos.z);
       } else {
-        mesh.position.set(pos.x, yPos, pos.z + offset);
+        mesh.position.set(pos.x, -0.005, pos.z + offset);
       }
       mesh.rotation.y = pos.rotY;
-      mesh.rotation.x = Math.PI;
-      mesh.scale.set(0.70, 0.90, 0.70); // same as wall tiles
+
+      mesh.scale.set(0.78, 0.95, 0.78);
       this.scene.add(mesh);
       this.tileMeshes.push(mesh);
     }
@@ -4124,7 +4119,7 @@ class GameController {
           el.parentNode.insertBefore(ph, el);
           el._placeholder = ph;
           el._fromIdx = index;
-        }, 150); // 150ms hold to start drag
+        }, 200); // 200ms hold to start drag
       });
       el.addEventListener('pointermove', (pe) => {
         if (!isDragging) {
