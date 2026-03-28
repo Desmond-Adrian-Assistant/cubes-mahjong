@@ -3653,19 +3653,23 @@ class Renderer {
       for (const t of (allDiscards[p] || [])) allTiles.push({ tile: t, player: p });
     }
 
-    for (let i = 0; i < allTiles.length && i < gridCols * gridRows; i++) {
-      const col = i % gridCols;
-      const row = Math.floor(i / gridCols);
-      const x = startX + col * cellW;
-      const z = startZ + row * cellH;
+    // Shuffle grid slots for random placement
+    const gridSlots = [];
+    for (let r = 0; r < gridRows; r++)
+      for (let c = 0; c < gridCols; c++)
+        gridSlots.push({ x: startX + c * cellW, z: startZ + r * cellH });
+    for (let i = gridSlots.length - 1; i > 0; i--) {
+      const j = ((i * 9301 + 49297) % 233280) % (i + 1);
+      [gridSlots[i], gridSlots[j]] = [gridSlots[j], gridSlots[i]];
+    }
 
+    for (let i = 0; i < allTiles.length && i < gridSlots.length; i++) {
+      const { x, z } = gridSlots[i];
       const mesh = this.create3DTile(allTiles[i].tile, false);
-
-      // Seeded random rotation for organic feel
       const seed = (i * 9301 + 49297) % 233280;
       const rng = seed / 233280;
       mesh.position.set(x, -0.005, z);
-      mesh.rotation.y = (rng - 0.5) * 0.25; // slight random rotation ±7°
+      mesh.rotation.y = (rng - 0.5) * 0.7; // ±20° rotation
       mesh.scale.set(0.70, 0.70, 0.70);
       this.scene.add(mesh);
       this.discardMeshes.push(mesh);
@@ -4959,7 +4963,7 @@ class GameController {
       this.setDiscardSort('player');
     } else {
       // Animate camera back to normal
-      this.renderer.animateCameraTo([0, 6, 9], [0, 0, 0], 500);
+      this.renderer.animateCameraTo([0, 7, 10.5], [0, 0, 0], 500);
       bar.classList.remove('show');
       // Restore organic layout
       const allDiscards = this.gs.players.map(p => p.discards);
