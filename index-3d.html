@@ -3635,47 +3635,31 @@ class Renderer {
   renderDiscards(allDiscards) {
     this.clearDiscards();
 
-    // Player discard zones: each player's discards go on their side
-    // Player 0=East, 1=South(you), 2=West, 3=North
-    const zones = [
-      { baseX: 1.5, baseZ: 0, cols: 6, along: 'z', rotY: 0 },      // East discards
-      { baseX: 0, baseZ: 1.5, cols: 6, along: 'x', rotY: 0 },      // South discards
-      { baseX: -1.5, baseZ: 0, cols: 6, along: 'z', rotY: 0 },     // West discards
-      { baseX: 0, baseZ: -1.5, cols: 6, along: 'x', rotY: 0 },     // North discards
-    ];
+    // Grid-based center discard area — no overlap, random placement + rotation
+    const gridCols = 6, gridRows = 6;
+    const cellW = 0.75, cellH = 0.95;
+    const startX = -(gridCols * cellW) / 2 + cellW / 2;
+    const startZ = -(gridRows * cellH) / 2 + cellH / 2;
+    const gridSlots = [];
+    for (let r = 0; r < gridRows; r++)
+      for (let c = 0; c < gridCols; c++)
+        gridSlots.push({ x: startX + c * cellW, z: startZ + r * cellH });
+    for (let i = gridSlots.length - 1; i > 0; i--) {
+      const j = ((i * 9301 + 49297) % 233280) % (i + 1);
+      [gridSlots[i], gridSlots[j]] = [gridSlots[j], gridSlots[i]];
+    }
+    const allTiles = [];
+    for (let p = 0; p < 4; p++)
+      for (const t of (allDiscards[p] || [])) allTiles.push(t);
 
-    for (let p = 0; p < 4; p++) {
-      const discards = allDiscards[p] || [];
-      const zone = zones[p];
-      const spacing = 0.90;
-      const rowSpacing = 1.05;
-
-      for (let i = 0; i < discards.length; i++) {
-        const col = i % zone.cols;
-        const row = Math.floor(i / zone.cols);
-        const offset = (col - zone.cols / 2 + 0.5) * spacing;
-        const rowOff = row * rowSpacing;
-
-        const mesh = this.create3DTile(discards[i], false);
-        let x, z;
-        if (zone.along === 'x') {
-          x = zone.baseX + offset;
-          z = zone.baseZ > 0 ? zone.baseZ + rowOff : zone.baseZ - rowOff;
-        } else {
-          x = zone.baseX > 0 ? zone.baseX + rowOff : zone.baseX - rowOff;
-          z = zone.baseZ + offset;
-        }
-        // Organic scatter: small random offsets for natural discard pile look
-        const seed = (i * 9301 + p * 49297) % 233280;
-        const rng = seed / 233280;
-        const seed2 = (seed * 49297 + 11) % 233280;
-        const rng2 = seed2 / 233280;
-        const seed3 = (seed2 * 49297 + 11) % 233280;
-        const rng3 = seed3 / 233280;
-        mesh.position.set(x + (rng - 0.5) * 0.04, -0.005, z + (rng2 - 0.5) * 0.04);
-        mesh.rotation.y = (rng3 - 0.5) * 0.3;  // +/- ~14 degrees
-        mesh.rotation.z = (rng - 0.5) * 0.06;   // slight tilt
-        mesh.scale.set(0.95, 0.95, 0.95);
+    for (let i = 0; i < allTiles.length && i < gridSlots.length; i++) {
+      const { x, z } = gridSlots[i];
+      const mesh = this.create3DTile(allTiles[i], false);
+      const seed = (i * 9301 + 49297) % 233280;
+      const rng = seed / 233280;
+      mesh.position.set(x, -0.005, z);
+      mesh.rotation.y = (rng - 0.5) * 0.7;
+      mesh.scale.set(0.70, 0.70, 0.70);
         this.scene.add(mesh);
         this.discardMeshes.push(mesh);
       }
