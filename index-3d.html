@@ -232,7 +232,7 @@ body::after {
   width: 130px; height: 130px; /* large when active */
   border-color: #e04030;
   border-width: 4px;
-  box-shadow: 0 0 20px rgba(224,64,48,0.6), 0 0 0 6px rgba(224,64,48,0.25);
+  box-shadow: 0 0 30px rgba(224,64,48,0.8), 0 0 0 8px rgba(224,64,48,0.35), 0 0 60px rgba(224,64,48,0.3);
   animation: pulse 1.2s ease infinite;
 }
 .player-bubble.active .bubble-info .name {
@@ -240,7 +240,7 @@ body::after {
   font-weight: 800;
 }
 @keyframes pulse {
-  0%, 100% { box-shadow: 0 0 20px rgba(224,64,48,0.6), 0 0 0 6px rgba(224,64,48,0.25); }
+  0%, 100% { box-shadow: 0 0 30px rgba(224,64,48,0.8), 0 0 0 8px rgba(224,64,48,0.35), 0 0 60px rgba(224,64,48,0.3); }
   50% { box-shadow: 0 0 30px rgba(224,64,48,0.8), 0 0 0 10px rgba(224,64,48,0.15); }
 }
 
@@ -510,7 +510,7 @@ body::after {
 }
 
 /* ========== TURN INDICATOR ========== */
-.turn-indicator {
+.turn-indicator { display:none;
   position: fixed;
   top: 50%; transform: translateX(-50%) translateY(-50%);
   left: 50%;
@@ -1457,7 +1457,7 @@ class Renderer {
 
     // Camera setup - close isometric view for table to fill viewport
     // Lower camera angle to see tile SIDES (two-tone effect)
-    this.camera.position.set(0, 6, 9);
+    this.camera.position.set(0, 7, 10.5);
     this.camera.lookAt(0, 0, 0);
 
     this.tileTextures = {};
