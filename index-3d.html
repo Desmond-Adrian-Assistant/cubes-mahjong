@@ -3897,8 +3897,8 @@ class GameController {
         const tileH = Math.round(tileW * 1.3);
         tiles.forEach(t => { 
           t.style.width = tileW+'px'; t.style.height = tileH+'px';
-          t.querySelector('.tile-body').style.borderRadius = '6px';
-          t.querySelector('.face').style.borderRadius = '4px';
+          t.querySelector('.tile-body').style.borderRadius = '2px';
+          t.querySelector('.face').style.borderRadius = '0px';
         });
         tray.style.flexWrap = 'nowrap';
         btn.textContent = '⊟ Big';
