@@ -2073,40 +2073,6 @@ class Renderer {
 
     // Decorative border lines — now baked into table-mat.jpg
 
-    // Brass corner brackets on table border
-    const bracketMat = new THREE.MeshStandardMaterial({
-      color: 0xc8a84a,
-      roughness: 0.35,
-      metalness: 0.7,
-    });
-    const cornerPositions = [
-      { x: -7.3, z: -7.3, rot: 0 },
-      { x: 7.3, z: -7.3, rot: Math.PI / 2 },
-      { x: 7.3, z: 7.3, rot: Math.PI },
-      { x: -7.3, z: 7.3, rot: -Math.PI / 2 },
-    ];
-    for (const cp of cornerPositions) {
-      const bracketGroup = new THREE.Group();
-      // L-shaped bracket: two arms
-      const armGeo = new THREE.BoxGeometry(1.2, 0.06, 0.18);
-      const arm1 = new THREE.Mesh(armGeo, bracketMat);
-      arm1.position.set(0.5, 0, 0);
-      bracketGroup.add(arm1);
-      const arm2 = new THREE.Mesh(armGeo, bracketMat);
-      arm2.rotation.y = Math.PI / 2;
-      arm2.position.set(0, 0, 0.5);
-      bracketGroup.add(arm2);
-      // Small corner nub
-      const nubGeo = new THREE.BoxGeometry(0.25, 0.08, 0.25);
-      const nub = new THREE.Mesh(nubGeo, bracketMat);
-      bracketGroup.add(nub);
-
-      bracketGroup.position.set(cp.x, 0.01, cp.z);
-      bracketGroup.rotation.y = cp.rot;
-      this.scene.add(bracketGroup);
-    }
-  }
-
   createInkDecorations() {
     const canvas = document.createElement('canvas');
     canvas.width = 1024;
