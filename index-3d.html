@@ -269,9 +269,11 @@ body::after {
 
 .tile.being-dragged { 
   position: fixed !important; z-index: 999; pointer-events: none; 
-  transform: scale(1.08) rotate(-3deg) !important; 
-  box-shadow: 0 12px 40px rgba(0,0,0,0.3) !important; opacity: 0.92; 
+  width: 92px !important; height: 120px !important;
+  transform: scale(1.1) rotate(-2deg) !important; 
+  box-shadow: 0 16px 48px rgba(0,0,0,0.35) !important; opacity: 1 !important; 
   transition: none !important;
+  background: #fff; border-radius: 12px;
 }
 .tile.drop-placeholder { opacity: 0.25; border: 2px dashed #c8a040; }
 
