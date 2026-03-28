@@ -739,23 +739,20 @@ body::after {
 /* ========== SETTINGS MODAL ========== */
 .settings-overlay {
   position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(40,32,24,0.5);
-  backdrop-filter: blur(8px);
-  display: none; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.1);
+  display: none;
   z-index: 200;
 }
-.settings-overlay.show { display: flex; }
+.settings-overlay.show { display: block; }
 .settings-modal {
   background: rgba(248,244,236,0.98);
-  border-radius: 20px;
   padding: 28px 36px 24px;
-  box-shadow: 0 16px 48px rgba(40,30,20,0.25);
-  max-width: 440px;
-  min-width: 320px;
-  max-height: 85vh;
+  position: fixed; right: 0; top: 0; bottom: 0;
+  width: 300px; max-width: 85vw;
   overflow-y: auto;
-  border: 1px solid rgba(160,140,110,0.3);
-  position: relative;
+  border-left: 2px solid rgba(180,160,130,0.3);
+  box-shadow: -4px 0 20px rgba(0,0,0,0.15);
+  border-radius: 0;
 }
 .settings-modal h2 {
   font-size: 28px; color: #4a3a28; margin-bottom: 18px;
@@ -881,6 +878,7 @@ body::after {
 <body>
 
 <canvas id="game-canvas"></canvas>
+<button id="btn-discards" title="View Discards" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;border:2px solid rgba(255,255,255,0.4);background:rgba(0,0,0,0.2);cursor:pointer;z-index:15;display:flex;align-items:center;justify-content:center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg></button>
 <div class="scene-vignette"></div>
 
 <div id="discard-sort-bar" class="discard-sort-bar">
@@ -897,25 +895,9 @@ body::after {
       <div class="header-subtitle" id="header-subtitle">ROUND: 1/4 | EAST WINDS | TILES LEFT: 136</div>
     </div>
     <div class="top-btns">
-      <button class="toolbar-btn" id="btn-discards" title="View Discards">
-        <span class="tb-icon"><svg viewBox="0 0 20 20" fill="none" stroke="#5a4a3a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 7l.6 9.2c.1.9.8 1.3 1.6 1.3h4.8c.8 0 1.5-.4 1.6-1.3L14.5 7"/><path d="M3.5 7h13"/><path d="M8 4.5h4c.4 0 .7.3.7.7v1.3H7.3V5.2c0-.4.3-.7.7-.7z"/><path d="M8.5 9.5v6M11.5 9.5v6"/></svg></span>
-        <span class="tb-label">Discard</span>
-      </button>
-      <button class="toolbar-btn" id="btn-pong-top" title="Pong">
-        <span class="tb-icon"><svg viewBox="0 0 20 20" fill="none" stroke="#5a4a3a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 11c0-1.5 1-3.5 1.5-4.5.3-.6.5-1.2.5-2 0-1-.5-1.8-1.2-1.8s-1.3.6-1.3 1.5"/><path d="M8.5 6.5c.3-.8.5-1.5.5-2.2 0-1-.5-1.6-1.2-1.6"/><path d="M10 6c.2-.6.4-1.2.4-1.8 0-.9-.5-1.5-1.1-1.5"/><path d="M11.5 6.5c.1-.5.3-1 .3-1.5 0-.8-.4-1.3-1-1.3"/><path d="M6 11c-.8 0-2 .2-2.5.8-.4.5-.3 1.2.2 1.5"/><path d="M6.5 11v3.5c0 1.2.8 2.5 3.5 2.5s3.5-1.3 3.5-2.5V9.5c0-1-.5-2-1.5-2.5"/></svg></span>
-        <span class="tb-label">Pong</span>
-      </button>
-      <button class="toolbar-btn" id="btn-mahjong-top" title="Mahjong">
-        <span class="tb-icon"><svg viewBox="0 0 20 20" fill="none" stroke="#5a4a3a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="2.5" width="13" height="15" rx="1.5"/><rect x="5.5" y="4.5" width="9" height="11" rx="0.8"/><circle cx="10" cy="10" r="2" fill="#5a4a3a" stroke="none"/></svg></span>
-        <span class="tb-label">Mahjong</span>
-      </button>
       <button class="toolbar-btn" id="tb-top-settings" title="Settings">
         <span class="tb-icon"><svg viewBox="0 0 20 20" fill="none" stroke="#5a4a3a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="3"/><path d="M10 2.5v2M10 15.5v2M17.5 10h-2M4.5 10h-2M15.3 4.7l-1.4 1.4M6.1 13.9l-1.4 1.4M15.3 15.3l-1.4-1.4M6.1 6.1L4.7 4.7"/></svg></span>
         <span class="tb-label">Settings</span>
-      </button>
-      <button class="toolbar-btn" id="tb-top-help" title="Help">
-        <span class="tb-icon"><svg viewBox="0 0 20 20" fill="none" stroke="#5a4a3a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 7.5c0-2 1.5-3.2 2.8-3.2 1.5 0 2.7 1 2.7 2.5 0 1.8-2.5 2.2-2.5 4.2"/><circle cx="10.2" cy="15" r="0.8" fill="#5a4a3a" stroke="none"/></svg></span>
-        <span class="tb-label">Help</span>
       </button>
     </div>
   </div>
@@ -982,8 +964,10 @@ body::after {
   </div>
 
   <!-- Player hand tray -->
-  <button class="hand-sort-btn" id="hand-sort-btn" title="Sort hand">排 Sort</button>
-  <button class="hand-sort-btn" id="hand-fit-btn" title="Toggle fit" style="left:auto;right:16px;transform:none;">⊞ Fit</button>
+  <div style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:25;">
+    <button class="hand-sort-btn" id="hand-sort-btn" title="Sort hand" style="position:static;transform:none;">排 Sort</button>
+    <button class="hand-sort-btn" id="hand-fit-btn" title="Toggle fit" style="position:static;transform:none;">⊞ Fit</button>
+  </div>
   <div class="hand-tray" id="hand-tray"></div>
 
   <!-- Action buttons -->
@@ -1049,10 +1033,23 @@ body::after {
     <div class="settings-section">
       <div class="settings-section-title">Tile Color</div>
       <div class="color-picker-row">
-        <label for="tile-color-picker">Side accent</label>
-        <input type="color" id="tile-color-picker" value="#7A6848">
+<div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+  <canvas id="color-wheel" width="160" height="160" style="border-radius:50%;cursor:crosshair;touch-action:none;"></canvas>
+  <div style="display:flex;align-items:center;gap:6px;width:100%;"><span style="font-size:11px;">☀️</span><input type="range" id="brightness-slider" min="0" max="100" value="50" style="flex:1;"><span style="font-size:11px;">🌑</span></div>
+  <div id="color-preview" style="width:100%;height:20px;border-radius:6px;background:#7A6848;border:1px solid rgba(0,0,0,0.15);"></div>
+</div>
+<input type="color" id="tile-color-picker" value="#7A6848" style="display:none;">
       </div>
     </div>
+<div class="settings-section">
+  <div class="settings-section-title">Lighting</div>
+  <div style="display:flex;flex-direction:column;gap:8px;">
+    <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:11px;width:60px;">Brightness</span><input type="range" id="light-brightness" min="20" max="200" value="130" style="flex:1;"></div>
+    <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:11px;width:60px;">Angle</span><input type="range" id="light-angle" min="0" max="360" value="45" style="flex:1;"></div>
+    <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:11px;width:60px;">Warmth</span><input type="range" id="light-warmth" min="0" max="100" value="70" style="flex:1;"></div>
+    <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:11px;width:60px;">Ambient</span><input type="range" id="light-ambient" min="10" max="100" value="45" style="flex:1;"></div>
+  </div>
+</div>
   </div>
 </div>
 
@@ -3616,50 +3613,33 @@ class Renderer {
   renderDiscards(allDiscards) {
     this.clearDiscards();
 
-    // Player discard zones: each player's discards go on their side
-    // Player 0=East, 1=South(you), 2=West, 3=North
-    const zones = [
-      { baseX: 1.5, baseZ: 0, cols: 6, along: 'z', rotY: 0 },      // East discards
-      { baseX: 0, baseZ: 1.5, cols: 6, along: 'x', rotY: 0 },      // South discards
-      { baseX: -1.5, baseZ: 0, cols: 6, along: 'z', rotY: 0 },     // West discards
-      { baseX: 0, baseZ: -1.5, cols: 6, along: 'x', rotY: 0 },     // North discards
-    ];
+    var gridCols = 6, gridRows = 6;
+    var cellW = 0.75, cellH = 0.95;
+    var gStartX = -(gridCols * cellW) / 2 + cellW / 2;
+    var gStartZ = -(gridRows * cellH) / 2 + cellH / 2;
+    var gridSlots = [];
+    for (var gr = 0; gr < gridRows; gr++)
+      for (var gc = 0; gc < gridCols; gc++)
+        gridSlots.push([gStartX + gc * cellW, gStartZ + gr * cellH]);
+    for (var gi = gridSlots.length - 1; gi > 0; gi--) {
+      var gj = ((gi * 9301 + 49297) % 233280) % (gi + 1);
+      var tmp = gridSlots[gi]; gridSlots[gi] = gridSlots[gj]; gridSlots[gj] = tmp;
+    }
+    var allTiles = [];
+    for (var gp = 0; gp < 4; gp++)
+      for (var gt = 0; gt < (allDiscards[gp] || []).length; gt++)
+        allTiles.push(allDiscards[gp][gt]);
 
-    for (let p = 0; p < 4; p++) {
-      const discards = allDiscards[p] || [];
-      const zone = zones[p];
-      const spacing = 0.90;
-      const rowSpacing = 1.05;
-
-      for (let i = 0; i < discards.length; i++) {
-        const col = i % zone.cols;
-        const row = Math.floor(i / zone.cols);
-        const offset = (col - zone.cols / 2 + 0.5) * spacing;
-        const rowOff = row * rowSpacing;
-
-        const mesh = this.create3DTile(discards[i], false);
-        let x, z;
-        if (zone.along === 'x') {
-          x = zone.baseX + offset;
-          z = zone.baseZ > 0 ? zone.baseZ + rowOff : zone.baseZ - rowOff;
-        } else {
-          x = zone.baseX > 0 ? zone.baseX + rowOff : zone.baseX - rowOff;
-          z = zone.baseZ + offset;
-        }
-        // Organic scatter: small random offsets for natural discard pile look
-        const seed = (i * 9301 + p * 49297) % 233280;
-        const rng = seed / 233280;
-        const seed2 = (seed * 49297 + 11) % 233280;
-        const rng2 = seed2 / 233280;
-        const seed3 = (seed2 * 49297 + 11) % 233280;
-        const rng3 = seed3 / 233280;
-        mesh.position.set(x + (rng - 0.5) * 0.04, -0.005, z + (rng2 - 0.5) * 0.04);
-        mesh.rotation.y = (rng3 - 0.5) * 0.3;  // +/- ~14 degrees
-        mesh.rotation.z = (rng - 0.5) * 0.06;   // slight tilt
-        mesh.scale.set(0.95, 0.95, 0.95);
-        this.scene.add(mesh);
-        this.discardMeshes.push(mesh);
-      }
+    for (var gi2 = 0; gi2 < allTiles.length && gi2 < gridSlots.length; gi2++) {
+      var gx = gridSlots[gi2][0], gz = gridSlots[gi2][1];
+      var mesh = this.create3DTile(allTiles[gi2], false);
+      var gseed = (gi2 * 9301 + 49297) % 233280;
+      var grng = gseed / 233280;
+      mesh.position.set(gx, -0.005, gz);
+      mesh.rotation.y = (grng - 0.5) * 0.7;
+      mesh.scale.set(0.70, 0.70, 0.70);
+      this.scene.add(mesh);
+      this.discardMeshes.push(mesh);
     }
   }
 
@@ -4013,6 +3993,59 @@ class GameController {
     // Close settings on overlay click (outside modal)
     document.getElementById('settings-overlay').addEventListener('click', (e) => {
       if (e.target === e.currentTarget) this.closeSettings();
+    });
+    // Color wheel
+    const wheelCanvas = document.getElementById("color-wheel");
+    if (wheelCanvas) {
+      const wheelCtx = wheelCanvas.getContext("2d");
+      const wheelR = 80;
+      let wheelBrightness = 50;
+      const drawWheel = () => {
+        for (let a = 0; a < 360; a++) {
+          const g = wheelCtx.createRadialGradient(wheelR,wheelR,0,wheelR,wheelR,wheelR);
+          const l = 100 - wheelBrightness;
+          g.addColorStop(0, l > 50 ? "white" : "hsl(0,0%," + l + "%)");
+          g.addColorStop(1, "hsl(" + a + ",100%," + l + "%)");
+          wheelCtx.beginPath(); wheelCtx.moveTo(wheelR,wheelR);
+          wheelCtx.arc(wheelR,wheelR,wheelR,(a-1)*Math.PI/180,(a+1)*Math.PI/180);
+          wheelCtx.fillStyle = g; wheelCtx.fill();
+        }
+      };
+      drawWheel();
+      const bSlider = document.getElementById("brightness-slider");
+      if (bSlider) bSlider.addEventListener("input", function(e) { wheelBrightness = parseInt(e.target.value); drawWheel(); });
+      let wd = false;
+      const pickC = (e) => {
+        const r = wheelCanvas.getBoundingClientRect();
+        const px = wheelCtx.getImageData(Math.round((e.clientX-r.left)*160/r.width), Math.round((e.clientY-r.top)*160/r.height),1,1).data;
+        const hex = "#" + [px[0],px[1],px[2]].map(function(v){return v.toString(16).padStart(2,"0");}).join("");
+        document.getElementById("color-preview").style.background = hex;
+        document.getElementById("tile-color-picker").value = hex;
+        document.getElementById("tile-color-picker").dispatchEvent(new Event("input"));
+      };
+      wheelCanvas.addEventListener("pointerdown", function(e){wd=true;pickC(e);});
+      wheelCanvas.addEventListener("pointermove", function(e){if(wd)pickC(e);});
+      wheelCanvas.addEventListener("pointerup", function(){wd=false;});
+    }
+    // Lighting controls
+    var rr = this.renderer;
+    var lightB = document.getElementById("light-brightness");
+    if (lightB) lightB.addEventListener("input", function(e) {
+      rr.scene.traverse(function(c) { if (c.isDirectionalLight && c.castShadow) c.intensity = parseInt(e.target.value)/100; });
+    });
+    var lightA = document.getElementById("light-angle");
+    if (lightA) lightA.addEventListener("input", function(e) {
+      var a = parseInt(e.target.value)*Math.PI/180;
+      rr.scene.traverse(function(c) { if (c.isDirectionalLight && c.castShadow) c.position.set(Math.cos(a)*8,9,Math.sin(a)*8); });
+    });
+    var lightW = document.getElementById("light-warmth");
+    if (lightW) lightW.addEventListener("input", function(e) {
+      var w = parseInt(e.target.value)/100;
+      rr.scene.traverse(function(c) { if (c.isDirectionalLight && c.castShadow) c.color = new THREE.Color().setHSL(0.1,w*0.5,0.9+w*0.1); });
+    });
+    var lightAm = document.getElementById("light-ambient");
+    if (lightAm) lightAm.addEventListener("input", function(e) {
+      rr.scene.traverse(function(c) { if (c.isAmbientLight) c.intensity = parseInt(e.target.value)/100; });
     });
     // Tile accent color picker
     document.getElementById('tile-color-picker')?.addEventListener('input', (e) => {
