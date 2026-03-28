@@ -1053,11 +1053,15 @@ body::after {
     <div class="settings-section">
       <div class="settings-section-title">Tile Color</div>
       <div class="color-picker-row">
-        <label>Tile accent color</label>
-        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:4px;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
           <canvas id="color-wheel" width="180" height="180" style="border-radius:50%;cursor:crosshair;touch-action:none;"></canvas>
-          <div id="color-preview" style="width:100%;height:28px;border-radius:8px;background:#7A6848;border:1px solid rgba(0,0,0,0.15);"></div>
-          <span id="color-hex" style="font-size:12px;color:#8a7a6a;font-family:monospace;">#7A6848</span>
+          <div style="display:flex;align-items:center;gap:6px;width:100%;">
+            <span style="font-size:11px;color:#8a7a6a;">☀️</span>
+            <input type="range" id="brightness-slider" min="0" max="100" value="50" style="flex:1;accent-color:#8a7a6a;">
+            <span style="font-size:11px;color:#8a7a6a;">🌑</span>
+          </div>
+          <div id="color-preview" style="width:100%;height:24px;border-radius:8px;background:#7A6848;border:1px solid rgba(0,0,0,0.15);"></div>
+          <span id="color-hex" style="font-size:11px;color:#8a7a6a;font-family:monospace;">#7A6848</span>
         </div>
         <input type="color" id="tile-color-picker" value="#7A6848" style="display:none;">
       </div>
@@ -4035,14 +4039,16 @@ class GameController {
     const wheelCtx = wheelCanvas.getContext('2d');
     const wheelR = 90;
     // Draw wheel
+    let wheelBrightness = 50;
     function drawWheel() {
       const cx = wheelR, cy = wheelR;
       for (let angle = 0; angle < 360; angle++) {
         const startAngle = (angle - 1) * Math.PI / 180;
         const endAngle = (angle + 1) * Math.PI / 180;
         const gradient = wheelCtx.createRadialGradient(cx, cy, 0, cx, cy, wheelR);
-        gradient.addColorStop(0, 'white');
-        gradient.addColorStop(1, `hsl(${angle}, 100%, 50%)`);
+        const l = wheelBrightness;
+        gradient.addColorStop(0, l > 50 ? 'white' : `hsl(0, 0%, ${l}%)`);
+        gradient.addColorStop(1, `hsl(${angle}, 100%, ${l}%)`);
         wheelCtx.beginPath();
         wheelCtx.moveTo(cx, cy);
         wheelCtx.arc(cx, cy, wheelR, startAngle, endAngle);
@@ -4052,6 +4058,10 @@ class GameController {
       }
     }
     drawWheel();
+    document.getElementById('brightness-slider').addEventListener('input', (e) => {
+      wheelBrightness = 100 - parseInt(e.target.value); // invert: left=bright, right=dark
+      drawWheel();
+    });
     
     function pickColor(e) {
       const rect = wheelCanvas.getBoundingClientRect();
