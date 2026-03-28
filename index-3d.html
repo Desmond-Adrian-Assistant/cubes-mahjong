@@ -3004,7 +3004,7 @@ class Renderer {
 
         // Flower number in top-left corner
         ctx.save();
-        ctx.font = 'bold 28px serif';
+        ctx.font = 'bold 36px Helvetica, Arial, sans-serif';
         ctx.fillStyle = '#8a3a5a';
         ctx.textAlign = 'left';
         ctx.textBaseline = 'top';
@@ -3332,7 +3332,7 @@ class Renderer {
 
         // Season number in top-left corner
         ctx.save();
-        ctx.font = 'bold 28px serif';
+        ctx.font = 'bold 36px Helvetica, Arial, sans-serif';
         ctx.fillStyle = '#5a6a3a';
         ctx.textAlign = 'left';
         ctx.textBaseline = 'top';
@@ -3361,7 +3361,7 @@ class Renderer {
     if (cornerLabel) {
       ctx.save();
       ctx.font = 'bold 28px Helvetica, Arial, sans-serif';
-      ctx.fillStyle = 'rgba(80,60,40,0.45)';
+      ctx.fillStyle = 'rgba(60,40,20,0.65)';
       ctx.textAlign = 'left';
       ctx.textBaseline = 'top';
       ctx.fillText(cornerLabel, 22, 18);
@@ -3895,12 +3895,20 @@ class GameController {
         const trayW = tray.clientWidth - 40; // minus padding/spacers
         const tileW = Math.min(92, Math.floor(trayW / count) - 4);
         const tileH = Math.round(tileW * 1.3);
-        tiles.forEach(t => { t.style.width = tileW+'px'; t.style.height = tileH+'px'; });
+        tiles.forEach(t => { 
+          t.style.width = tileW+'px'; t.style.height = tileH+'px';
+          t.querySelector('.tile-body').style.borderRadius = '6px';
+          t.querySelector('.face').style.borderRadius = '4px';
+        });
         tray.style.flexWrap = 'nowrap';
         btn.textContent = '⊟ Big';
       } else {
         // Restore original size
-        tiles.forEach(t => { t.style.width = ''; t.style.height = ''; });
+        tiles.forEach(t => { 
+          t.style.width = ''; t.style.height = '';
+          t.querySelector('.tile-body').style.borderRadius = '';
+          t.querySelector('.face').style.borderRadius = '';
+        });
         tray.style.flexWrap = '';
         btn.textContent = '⊞ Fit';
       }
