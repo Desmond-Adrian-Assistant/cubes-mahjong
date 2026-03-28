@@ -1055,8 +1055,21 @@ body::after {
     <div class="settings-section">
       <div class="settings-section-title">Tile Color</div>
       <div class="color-picker-row">
-        <label for="tile-color-picker">Side accent</label>
-        <input type="color" id="tile-color-picker" value="#7A6848">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+          <canvas id="color-wheel" width="160" height="160" style="border-radius:50%;cursor:crosshair;touch-action:none;"></canvas>
+          <div style="display:flex;align-items:center;gap:6px;width:100%;"><span style="font-size:11px;">☀️</span><input type="range" id="brightness-slider" min="0" max="100" value="50" style="flex:1;"><span style="font-size:11px;">🌑</span></div>
+          <div id="color-preview" style="width:100%;height:20px;border-radius:6px;background:#7A6848;border:1px solid rgba(0,0,0,0.15);"></div>
+        </div>
+        <input type="color" id="tile-color-picker" value="#7A6848" style="display:none;">
+      </div>
+    </div>
+    <div class="settings-section">
+      <div class="settings-section-title">Lighting</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:11px;width:60px;">Brightness</span><input type="range" id="light-brightness" min="20" max="200" value="130" style="flex:1;"></div>
+        <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:11px;width:60px;">Angle</span><input type="range" id="light-angle" min="0" max="360" value="45" style="flex:1;"></div>
+        <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:11px;width:60px;">Warmth</span><input type="range" id="light-warmth" min="0" max="100" value="70" style="flex:1;"></div>
+        <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:11px;width:60px;">Ambient</span><input type="range" id="light-ambient" min="10" max="100" value="45" style="flex:1;"></div>
       </div>
     </div>
   </div>
@@ -4019,6 +4032,54 @@ class GameController {
     // Close settings on overlay click (outside modal)
     document.getElementById('settings-overlay').addEventListener('click', (e) => {
       if (e.target === e.currentTarget) this.closeSettings();
+    });
+    // Color wheel
+    const wheelCanvas = document.getElementById('color-wheel');
+    if (wheelCanvas) {
+      const wheelCtx = wheelCanvas.getContext('2d');
+      const wheelR = 80;
+      let wheelBrightness = 50;
+      function drawWheel() {
+        for (let a = 0; a < 360; a++) {
+          const g = wheelCtx.createRadialGradient(wheelR,wheelR,0,wheelR,wheelR,wheelR);
+          const l = 100 - wheelBrightness;
+          g.addColorStop(0, l > 50 ? 'white' : `hsl(0,0%,${l}%)`);
+          g.addColorStop(1, `hsl(${a},100%,${l}%)`);
+          wheelCtx.beginPath(); wheelCtx.moveTo(wheelR,wheelR);
+          wheelCtx.arc(wheelR,wheelR,wheelR,(a-1)*Math.PI/180,(a+1)*Math.PI/180);
+          wheelCtx.fillStyle = g; wheelCtx.fill();
+        }
+      }
+      drawWheel();
+      document.getElementById('brightness-slider')?.addEventListener('input', (e) => { wheelBrightness = parseInt(e.target.value); drawWheel(); });
+      let wd = false;
+      function pickC(e) {
+        const r = wheelCanvas.getBoundingClientRect();
+        const px = wheelCtx.getImageData(Math.round((e.clientX-r.left)*160/r.width), Math.round((e.clientY-r.top)*160/r.height),1,1).data;
+        const hex = '#'+[px[0],px[1],px[2]].map(v=>v.toString(16).padStart(2,'0')).join('');
+        document.getElementById('color-preview').style.background = hex;
+        document.getElementById('tile-color-picker').value = hex;
+        document.getElementById('tile-color-picker').dispatchEvent(new Event('input'));
+      }
+      wheelCanvas.addEventListener('pointerdown', (e)=>{wd=true;pickC(e);});
+      wheelCanvas.addEventListener('pointermove', (e)=>{if(wd)pickC(e);});
+      wheelCanvas.addEventListener('pointerup', ()=>{wd=false;});
+    }
+    // Lighting controls
+    const rr = this.renderer;
+    document.getElementById('light-brightness')?.addEventListener('input', (e) => {
+      rr.scene.traverse(c => { if (c.isDirectionalLight && c.castShadow) c.intensity = parseInt(e.target.value)/100; });
+    });
+    document.getElementById('light-angle')?.addEventListener('input', (e) => {
+      const a = parseInt(e.target.value)*Math.PI/180;
+      rr.scene.traverse(c => { if (c.isDirectionalLight && c.castShadow) c.position.set(Math.cos(a)*8,9,Math.sin(a)*8); });
+    });
+    document.getElementById('light-warmth')?.addEventListener('input', (e) => {
+      const w = parseInt(e.target.value)/100;
+      rr.scene.traverse(c => { if (c.isDirectionalLight && c.castShadow) c.color = new THREE.Color().setHSL(0.1,w*0.5,0.9+w*0.1); });
+    });
+    document.getElementById('light-ambient')?.addEventListener('input', (e) => {
+      rr.scene.traverse(c => { if (c.isAmbientLight) c.intensity = parseInt(e.target.value)/100; });
     });
     // Tile accent color picker
     document.getElementById('tile-color-picker')?.addEventListener('input', (e) => {
