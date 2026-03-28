@@ -640,7 +640,11 @@ body::after {
 .melds-area {
   position: fixed; display: flex; gap: 6px; flex-wrap: wrap; z-index: 12;
 }
-.melds-area.bottom { display: none; }
+.melds-area.bottom { 
+  display: flex; gap: 6px; 
+  position: fixed; bottom: 195px; left: 50%; transform: translateX(-50%);
+  z-index: 26; 
+}
 .melds-area.top { top: 70px; display: none; right: 16px; max-width: 40%; flex-direction: row-reverse; }
 .melds-area.left { left: 70px; display: none; top: calc(45% + 60px); flex-direction: column; }
 .melds-area.right { right: 70px; display: none; top: calc(45% + 60px); flex-direction: column; }
