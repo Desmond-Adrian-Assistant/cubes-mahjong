@@ -1066,6 +1066,27 @@ body::after {
         <input type="color" id="tile-color-picker" value="#7A6848" style="display:none;">
       </div>
     </div>
+    <div class="settings-section">
+      <div class="settings-section-title">Lighting</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:12px;width:70px;color:#6a5a4a;">Brightness</span>
+          <input type="range" id="light-brightness" min="20" max="200" value="130" style="flex:1;">
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:12px;width:70px;color:#6a5a4a;">Angle</span>
+          <input type="range" id="light-angle" min="0" max="360" value="45" style="flex:1;">
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:12px;width:70px;color:#6a5a4a;">Warmth</span>
+          <input type="range" id="light-warmth" min="0" max="100" value="70" style="flex:1;">
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:12px;width:70px;color:#6a5a4a;">Ambient</span>
+          <input type="range" id="light-ambient" min="10" max="100" value="45" style="flex:1;">
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -3936,6 +3957,29 @@ class GameController {
     document.getElementById('dsb-organic').addEventListener('click', () => this.setDiscardSort('organic'));
     document.getElementById('dsb-back').addEventListener('click', () => this.toggleDiscardView());
     document.getElementById('settings-close').addEventListener('click', () => this.closeSettings());
+    // Lighting controls
+    const r = this.renderer;
+    document.getElementById('light-brightness')?.addEventListener('input', (e) => {
+      const v = parseInt(e.target.value) / 100;
+      r.scene.traverse(c => { if (c.isDirectionalLight && c.castShadow) c.intensity = v; });
+    });
+    document.getElementById('light-angle')?.addEventListener('input', (e) => {
+      const angle = parseInt(e.target.value) * Math.PI / 180;
+      r.scene.traverse(c => { 
+        if (c.isDirectionalLight && c.castShadow) {
+          c.position.set(Math.cos(angle) * 8, 9, Math.sin(angle) * 8);
+        }
+      });
+    });
+    document.getElementById('light-warmth')?.addEventListener('input', (e) => {
+      const w = parseInt(e.target.value) / 100;
+      const warm = new THREE.Color().setHSL(0.1, w * 0.5, 0.9 + w * 0.1);
+      r.scene.traverse(c => { if (c.isDirectionalLight && c.castShadow) c.color = warm; });
+    });
+    document.getElementById('light-ambient')?.addEventListener('input', (e) => {
+      const v = parseInt(e.target.value) / 100;
+      r.scene.traverse(c => { if (c.isAmbientLight) c.intensity = v; });
+    });
     // Mat upload
     document.getElementById('mat-upload-btn').addEventListener('click', () => {
       document.getElementById('mat-file-input').click();
