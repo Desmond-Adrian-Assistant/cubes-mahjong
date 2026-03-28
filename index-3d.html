@@ -746,19 +746,22 @@ body::after {
 /* ========== SETTINGS MODAL ========== */
 .settings-overlay {
   position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(40,32,24,0.5);
-  backdrop-filter: blur(8px);
-  display: none; align-items: center; justify-content: center;
-  z-index: 200;
+  background: rgba(0,0,0,0.1);
+  display: none;
+  z-index: 199;
 }
-.settings-overlay.show { display: flex; }
+.settings-overlay.show { display: block; }
 .settings-modal {
-  background: rgba(248,244,236,0.98);
-  border-radius: 20px;
-  padding: 28px 36px 24px;
-  box-shadow: 0 16px 48px rgba(40,30,20,0.25);
-  max-width: 440px;
-  min-width: 320px;
+  position: fixed; right: 0; top: 0; bottom: 0;
+  width: 300px; max-width: 85vw;
+  background: rgba(248,244,236,0.97);
+  backdrop-filter: blur(12px);
+  border-left: 2px solid rgba(180,160,130,0.3);
+  padding: 20px 24px;
+  box-shadow: -4px 0 20px rgba(0,0,0,0.15);
+  overflow-y: auto;
+  z-index: 200;
+  border-radius: 0;
   max-height: 85vh;
   overflow-y: auto;
   border: 1px solid rgba(160,140,110,0.3);
