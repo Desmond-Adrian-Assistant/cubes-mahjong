@@ -1,0 +1,27 @@
+node:events:486
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EADDRINUSE: address already in use :::8877
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at Object.<anonymous> (/Users/adrianai/Projects/cubes-mahjong/server.js:890:8)
+    at Module._compile (node:internal/modules/cjs/loader:1803:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1934:10)
+    at Module.load (node:internal/modules/cjs/loader:1524:32)
+    at Module._load (node:internal/modules/cjs/loader:1326:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+Emitted 'error' event on WebSocketServer instance at:
+    at Server.emit (node:events:508:20)
+    at emitErrorNT (node:net:1976:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'EADDRINUSE',
+  errno: -48,
+  syscall: 'listen',
+  address: '::',
+  port: 8877
+}
+
+Node.js v25.5.0

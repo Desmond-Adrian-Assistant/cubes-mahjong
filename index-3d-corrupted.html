@@ -45,8 +45,7 @@ html, body {
       #BB9570 80%,
       #B89A6A 100%
     );
-  background-size: cover !important;
-  background-attachment: fixed;
+  background-size: auto;
   font-family: 'ZCOOL XiaoWei', 'Ma Shan Zheng', serif;
   color: #3a3028;
   overflow: hidden;
@@ -57,14 +56,14 @@ canvas#game-canvas {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
   z-index: 0;
   /* Cel-shading look: boost contrast + slight posterize feel */
-  /* filter removed for alpha transparency */
+  filter: contrast(1.10) saturate(1.08);
 }
 
 /* Warm atmospheric vignette overlay */
 body::after {
   content: '';
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: none;
+  background: radial-gradient(ellipse at center, transparent 25%, rgba(45,25,5,0.55) 100%);
   pointer-events: none;
   z-index: 5;
 }
@@ -231,17 +230,18 @@ body::after {
 }
 .player-bubble.active .bubble-avatar {
   width: 130px; height: 130px;
-  border: 4px solid #e04030;
-  box-shadow: 0 0 0 4px rgba(255,140,80,0.6), 0 0 0 8px rgba(224,64,48,0.3), 0 0 30px rgba(224,64,48,0.5);
-  animation: activeGlow 1.5s ease-in-out infinite;
+  border-color: #e04030;
+  border-width: 4px;
+  box-shadow: 0 0 30px rgba(224,64,48,0.8), 0 0 0 8px rgba(224,64,48,0.35), 0 0 60px rgba(224,64,48,0.3);
+  animation: pulse 1.2s ease infinite;
 }
 .player-bubble.active .bubble-info .name {
   color: #e04030;
   font-weight: 800;
 }
-@keyframes activeGlow {
-  0%, 100% { box-shadow: 0 0 0 4px rgba(255,140,80,0.6), 0 0 0 8px rgba(224,64,48,0.3), 0 0 30px rgba(224,64,48,0.5); border-color: #e04030; }
-  50% { box-shadow: 0 0 0 6px rgba(255,200,80,0.7), 0 0 0 12px rgba(255,140,80,0.4), 0 0 50px rgba(224,64,48,0.7); border-color: #ff8a50; }
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(224,64,48,0.6), 0 0 0 6px rgba(224,64,48,0.25); }
+  50% { box-shadow: 0 0 30px rgba(224,64,48,0.8), 0 0 0 10px rgba(224,64,48,0.15); }
 }
 
 #p-north { top: 80px; left: 50%; transform: translateX(-50%); }
@@ -273,11 +273,6 @@ body::after {
   box-shadow: 0 12px 40px rgba(0,0,0,0.3) !important; opacity: 0.92; 
   transition: none !important;
 }
-.tile.drag-clone {
-  position: fixed !important; z-index: 1000; pointer-events: none;
-  transform: scale(1.12); box-shadow: 0 16px 48px rgba(0,0,0,0.35);
-  opacity: 1; transition: none !important;
-}
 .tile.drop-placeholder { opacity: 0.25; border: 2px dashed #c8a040; }
 
 .hand-sort-btn {
@@ -297,11 +292,8 @@ body::after {
   backdrop-filter: blur(16px);
   border-radius: 16px;
   padding: 12px 20px;
-  padding-top: 32px;
-  margin-top: -20px;
   display: flex;
   justify-content: safe center;
-  align-items: flex-end;
   gap: 4px;
   /* Fade edges to imply scrollability */
   -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 2%, black 98%, transparent 100%);
@@ -312,8 +304,7 @@ body::after {
   
   overflow-x: auto;
   overflow-y: hidden;
-  -webkit-overflow-scrolling: auto;
-  touch-action: none;
+  -webkit-overflow-scrolling: touch;
   scroll-snap-type: x proximity;
   padding-left: 4px;
   padding-right: 4px;
@@ -329,9 +320,6 @@ body::after {
   transition: transform 0.2s cubic-bezier(.34,1.56,.64,1), box-shadow 0.2s;
   transform-origin: bottom center;
   flex-shrink: 0;
-  touch-action: none;
-  user-select: none;
-  -webkit-user-select: none;
 }
 .tile-body {
   width: 100%; height: 100%;
@@ -372,8 +360,6 @@ body::after {
   width: 100%; height: 100%;
 }
 
-.hand-tray.dealing .tile { pointer-events: none; }
-.hand-tray.dealing .tile:hover { transform: none; }
 .tile:hover { transform: translateY(-8px); }
 .tile.selected { transform: translateY(-14px); }
 .tile.selected .tile-body {
@@ -655,19 +641,7 @@ body::after {
 .melds-area {
   position: fixed; display: flex; gap: 6px; flex-wrap: wrap; z-index: 12;
 }
-.melds-area.bottom {
-  position: fixed;
-  bottom: 210px;
-  left: 8px;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 4px;
-  z-index: 31;
-  max-width: 60%;
-}
-.melds-area.bottom .meld-group { padding: 3px; border-radius: 6px; }
-.melds-area.bottom .meld-tile { width: 26px; height: 34px; border-radius: 4px; font-size: 13px; border-width: 1.5px; }
+.melds-area.bottom { display: none; }
 .melds-area.top { top: 70px; display: none; right: 16px; max-width: 40%; flex-direction: row-reverse; }
 .melds-area.left { left: 70px; display: none; top: calc(45% + 60px); flex-direction: column; }
 .melds-area.right { right: 70px; display: none; top: calc(45% + 60px); flex-direction: column; }
@@ -712,155 +686,22 @@ body::after {
 }
 .wall-info .tiles-left { font-size: 10px; color: #8a7a6a; }
 
-/* ========== FLOATING DRAWN TILE ========== */
-#drawn-tile-float {
-  position: fixed; bottom: 240px; left: 50%; transform: translateX(-50%);
-  z-index: 35; display: none; flex-direction: column; align-items: center; gap: 8px;
-}
-#drawn-tile-float .float-tile {
-  width: 80px; height: 104px; border-radius: 12px;
-  background: #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.25);
-  display: flex; align-items: center; justify-content: center;
-  border: 2px solid var(--tile-accent, #C0A878);
-  background-size: cover; background-position: center;
-}
-#drawn-tile-float .float-buttons { display: flex; gap: 8px; }
-#drawn-tile-float .float-btn {
-  padding: 8px 18px; border: none; border-radius: 10px;
-  font-size: 14px; font-weight: 700; color: #fff; cursor: pointer;
-  font-family: 'Helvetica Neue', sans-serif;
-}
-#drawn-tile-float .float-btn.discard-btn { background: #8b4a3a; border: 2px solid rgba(255,255,255,0.8); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-#drawn-tile-float .float-btn.keep-btn { background: #3a6a3a; border: 2px solid rgba(255,255,255,0.8); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-
-/* ========== ACTIVE PLAYER INDICATOR ========== */
-
-}
-.player-bubble.active .avatar-wrap::before {
-  content: '';
-  position: absolute; top: -3px; left: -3px; right: -3px; bottom: -3px;
-  border-radius: 50%;
-  background: conic-gradient(#c0392b, #e67e22, #f1c40f, #c0392b);
-  animation: spinBorder 1.5s linear infinite;
-  z-index: -1;
-  -webkit-mask: radial-gradient(circle, transparent 60%, black 62%);
-  mask: radial-gradient(circle, transparent 60%, black 62%);
-}
-.player-bubble .avatar-wrap { position: relative; }
-
-/* ========== CONFETTI ========== */
-@keyframes confettiFall {
-  0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
-  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
-}
-.confetti-overlay {
-  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-  pointer-events: none; z-index: 300; overflow: hidden;
-}
-.confetti-piece {
-  position: absolute; top: -20px; font-size: 24px;
-  animation: confettiFall linear forwards;
-}
-
-/* ========== IN-GAME CHAT ========== */
-#ingame-chat-btn {
-  background: rgba(245,240,232,0.95); border: 1px solid rgba(180,160,130,0.3);
-  border-radius: 8px; padding: 4px 8px; font-size: 16px; cursor: pointer;
-  position: relative; display: none;
-}
-#ingame-chat-btn .badge {
-  position: absolute; top: -4px; right: -4px;
-  background: #c0392b; color: white; font-size: 9px;
-  width: 16px; height: 16px; border-radius: 50%;
-  display: none; align-items: center; justify-content: center;
-}
-#ingame-chat-panel {
-  position: fixed; right: -320px; top: 0; bottom: 0;
-  width: 300px; background: rgba(248,244,236,0.98);
-  border-left: 2px solid rgba(180,160,130,0.3);
-  box-shadow: -4px 0 20px rgba(0,0,0,0.15);
-  z-index: 201; transition: right 0.3s;
-  display: flex; flex-direction: column;
-}
-#ingame-chat-panel.open { right: 0; }
-
-/* ========== SETUP SCREEN ========== */
-.setup-container { padding: 16px 0; max-height: 50vh; overflow-y: auto; }
-.setup-container .setup-section { margin-bottom: 16px; }
-.setup-container .setup-label {
-  font-size: 12px; font-weight: 700; color: #5a4a3a;
-  margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;
-  font-family: 'Helvetica Neue', sans-serif;
-}
-.setup-container input[type="text"] {
-  width: 100%; padding: 8px 12px; border-radius: 8px;
-  border: 1px solid rgba(180,160,130,0.5); font-size: 14px; background: #fff;
-}
-.setup-container .avatar-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
-.setup-container .avatar-option {
-  width: 100%; aspect-ratio: 1; border-radius: 50%; overflow: hidden;
-  cursor: pointer; border: 3px solid transparent;
-}
-.setup-container .avatar-option.selected {
-  border-color: #c0392b; box-shadow: 0 0 8px rgba(192,57,43,0.5);
-}
-.setup-container .avatar-option img { width: 100%; height: 100%; object-fit: cover; }
-.setup-container .color-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
-.setup-container .color-swatch {
-  width: 100%; aspect-ratio: 1; border-radius: 8px; cursor: pointer;
-  border: 3px solid transparent; display: flex; align-items: center; justify-content: center; font-size: 18px;
-}
-.setup-container .color-swatch.selected {
-  border-color: #c0392b; box-shadow: 0 0 8px rgba(192,57,43,0.5);
-}
-.setup-container .preset-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-.setup-container .preset-thumb {
-  width: 100%; aspect-ratio: 1; border-radius: 8px; cursor: pointer;
-  border: 3px solid transparent; background-size: cover; background-position: center;
-  display: flex; align-items: center; justify-content: center; font-size: 14px;
-  color: #5a4a3a;
-}
-.setup-container .preset-thumb.selected {
-  border-color: #c0392b; box-shadow: 0 0 8px rgba(192,57,43,0.5);
-}
-
-/* ========== SETTINGS IMPROVEMENTS ========== */
-.settings-modal .mat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 8px; }
-.settings-modal .mat-thumb {
-  width: 100%; aspect-ratio: 1; border-radius: 8px; cursor: pointer;
-  border: 2px solid transparent; background-size: cover; background-position: center;
-}
-.settings-modal .mat-thumb.selected { border-color: #c0392b; }
-.settings-modal .bg-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-bottom: 8px; }
-.settings-modal .bg-thumb {
-  width: 100%; aspect-ratio: 16/9; border-radius: 6px; cursor: pointer;
-  border: 2px solid transparent; background-size: cover; background-position: center;
-  font-size: 9px; display: flex; align-items: flex-end; justify-content: center;
-  color: white; text-shadow: 0 1px 2px black; padding-bottom: 2px;
-}
-.settings-modal .bg-thumb.selected { border-color: #c0392b; }
-
 /* ========== MODAL ========== */
 .modal-overlay {
   position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(40,32,24,0.4);
-  backdrop-filter: blur(12px);
+  background: rgba(40,32,24,0.5);
+  backdrop-filter: blur(8px);
   display: none; align-items: center; justify-content: center;
   z-index: 200;
 }
 .modal-overlay.show { display: flex; }
-.modal-divider { width: 60px; height: 1px; background: #c8b898; margin: 0 auto 20px; opacity: 0.6; }
-.modal-subtitle { font-size: 12px; color: #a09080; margin-bottom: 24px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; }
 .modal {
   background: rgba(255,252,245,0.98);
   border-radius: 24px;
   padding: 0;
   box-shadow: 0 20px 60px rgba(40,30,20,0.3);
   text-align: center;
-  max-width: 520px;
-  width: 92vw;
-  max-height: 88vh;
-  overflow-y: auto;
+  max-width: 420px;
   min-width: 320px;
   border: 2px solid rgba(180,160,130,0.3);
   overflow: hidden;
@@ -871,7 +712,7 @@ body::after {
   background: url('assets/welcome-banner.jpg') center/cover;
   border-bottom: 3px solid var(--tile-accent, #C0A878);
 }
-.modal-body { padding: 24px 28px 36px; }
+.modal-body { padding: 24px 32px 28px; }
 .modal h2 {
   font-size: 32px; color: #3a2a18; margin-bottom: 8px;
   font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: 800;
@@ -1009,7 +850,7 @@ body::after {
 .scene-vignette {
   position: fixed; top: 0; left: 0; right: 0; bottom: 0;
   pointer-events: none; z-index: 1;
-  background: none;
+  background: radial-gradient(ellipse at center, transparent 45%, rgba(40,25,10,0.35) 100%);
 }
 /* Discard view sort bar */
 .discard-sort-bar {
@@ -1032,10 +873,6 @@ body::after {
 .discard-sort-bar button.active {
   background: #5a4a38; color: #faf6ee; border-color: #5a4a38;
 }
-
-#drawn-tile-float .tile { width: 72px; height: 94px; cursor: pointer; animation: drawnFloat 2s ease-in-out infinite; }
-#drawn-tile-float .tile .tile-body { box-shadow: 0 0 12px 3px rgba(220,180,60,0.5), 0 6px 20px rgba(0,0,0,0.2); border: 2px solid rgba(220,180,60,0.6); }
-@keyframes drawnFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
 </style>
 </head>
 <body>
@@ -1045,8 +882,9 @@ body::after {
 <div class="scene-vignette"></div>
 
 <div id="discard-sort-bar" class="discard-sort-bar">
-  <button id="dsb-default" class="active">Default</button>
+  <button id="dsb-player" class="active">By Player</button>
   <button id="dsb-suit">By Suit</button>
+  <button id="dsb-organic">Organic</button>
   <button id="dsb-back">Back</button>
 </div>
 
@@ -1057,12 +895,6 @@ body::after {
       <div class="header-subtitle" id="header-subtitle">ROUND: 1/4 | EAST WINDS | TILES LEFT: 136</div>
     </div>
     <div class="top-btns">
-<button class="toolbar-btn" id="tb-top-chat" title="Chat" style="display:none;position:relative;">
-  <span class="tb-icon"><svg viewBox="0 0 20 20" fill="none" stroke="#5a4a3a" stroke-width="1.5"><path d="M3 4h14a1 1 0 011 1v7a1 1 0 01-1 1H7l-4 3V5a1 1 0 011-1z"/></svg></span>
-  <span class="tb-label">Chat</span>
-  <span id="chat-badge" style="display:none;position:absolute;top:-2px;right:-2px;background:#c0392b;color:white;font-size:9px;font-weight:700;min-width:16px;height:16px;border-radius:8px;align-items:center;justify-content:center;">0</span>
-</button>
-      <button id="ingame-chat-btn">💬<span class="badge" id="chat-badge">0</span></button>
       <button class="toolbar-btn" id="tb-top-settings" title="Settings">
         <span class="tb-icon"><svg viewBox="0 0 20 20" fill="none" stroke="#5a4a3a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="3"/><path d="M10 2.5v2M10 15.5v2M17.5 10h-2M4.5 10h-2M15.3 4.7l-1.4 1.4M6.1 13.9l-1.4 1.4M15.3 15.3l-1.4-1.4M6.1 6.1L4.7 4.7"/></svg></span>
         <span class="tb-label">Settings</span>
@@ -1134,7 +966,7 @@ body::after {
   <!-- Player hand tray -->
   <div style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:25;">
     <button class="hand-sort-btn" id="hand-sort-btn" title="Sort hand" style="position:static;transform:none;">排 Sort</button>
-    <button class="hand-sort-btn" id="hand-fit-btn" title="Toggle fit" style="position:static;transform:none;">⊟ Big</button>
+    <button class="hand-sort-btn" id="hand-fit-btn" title="Toggle fit" style="position:static;transform:none;">⊞ Fit</button>
   </div>
   <div class="hand-tray" id="hand-tray"></div>
 
@@ -1144,7 +976,7 @@ body::after {
     <button class="action-btn chi" id="btn-chi">Chi</button>
     <button class="action-btn pong" id="btn-pong">Pong</button>
     <button class="action-btn kong" id="btn-kong">Kong</button>
-    <button class="action-btn mahjong" id="btn-mahjong">Mahjong!</button>
+    <button class="action-btn mahjong" id="btn-mahjong">Hu!</button>
     <button class="action-btn discard" id="btn-discard">Discard</button>
   </div>
 
@@ -1173,102 +1005,15 @@ body::after {
   </div>
 </div>
 
-<!-- Floating drawn tile -->
-<div id="drawn-tile-float"></div>
-
-<!-- In-game Chat Panel -->
-<div id="ingame-chat-panel">
-  <div class="chat-header" style="padding:12px 16px;border-bottom:1px solid rgba(180,160,130,0.3);display:flex;justify-content:space-between;align-items:center;">
-    <span style="font-weight:700;font-size:14px;">Chat</span>
-    <button id="ingame-chat-close" style="background:none;border:none;font-size:18px;cursor:pointer;color:#8a7a6a;">&times;</button>
-  </div>
-  <div class="chat-log" id="ingame-chat-log" style="flex:1;overflow-y:auto;padding:8px 12px;font-size:12px;"></div>
-  <div style="display:flex;gap:4px;padding:8px 12px;border-top:1px solid rgba(180,160,130,0.3);">
-    <input type="text" id="ingame-chat-input" placeholder="Type a message..." style="flex:1;padding:6px 8px;border-radius:6px;border:1px solid #c0a878;font-size:12px;" maxlength="200">
-    <button id="ingame-chat-send" style="padding:6px 10px;border-radius:6px;border:none;background:#c0a878;color:white;font-size:12px;cursor:pointer;">Send</button>
-  </div>
-</div>
-
 <!-- Modal -->
 <div class="modal-overlay show" id="modal">
   <div class="modal">
+    <div class="modal-banner"></div>
     <div class="modal-body">
       <h2 id="modal-title">紙墨麻雀</h2>
-      <div class="modal-subtitle">Paper &amp; Ink Mahjong</div>
-      <div class="modal-divider"></div>
-      <div id="modal-step-mode">
-        <button class="modal-btn" id="modal-solo-btn">Solo Play</button>
-        <button class="modal-btn" id="modal-mp-mode-btn" style="background:#3a5a3a;margin-top:8px;">Multiplayer</button>
-      </div>
-      <div id="modal-step-solo" style="display:none;">
-        <div id="modal-setup-solo"></div>
-        <div style="height:16px;"></div><button class="modal-btn" id="modal-start-solo">Start Game</button>
-        <button class="modal-btn" id="modal-back-solo" style="background:transparent;color:#8a7a6a;box-shadow:none;margin-top:6px;font-size:12px;padding:8px;">← Back</button>
-      </div>
-      <div id="modal-step-mp-choice" style="display:none;">
-        <button class="modal-btn" id="modal-mp-create-btn">Create Room</button>
-        <button class="modal-btn" id="modal-mp-join-btn" style="background:#4a6a8a;margin-top:8px;">Join Room</button>
-        <button class="modal-btn" id="modal-back-mp" style="background:transparent;color:#8a7a6a;box-shadow:none;margin-top:6px;font-size:12px;padding:8px;">← Back</button>
-      </div>
-      <div id="modal-step-mp-create" style="display:none;">
-        <div id="modal-setup-host"></div>
-        <div style="height:16px;"></div><button class="modal-btn" id="modal-create-room">Create Room</button>
-        <button class="modal-btn" id="modal-back-create" style="background:transparent;color:#8a7a6a;box-shadow:none;margin-top:6px;font-size:12px;padding:8px;">← Back</button>
-      </div>
-      <div id="modal-step-mp-join" style="display:none;">
-        <div style="margin-bottom:16px;text-align:left;">
-          <label style="font-size:10px;font-weight:700;color:#8a7a6a;letter-spacing:1px;text-transform:uppercase;">Room Code</label>
-          <input type="text" id="modal-join-code" placeholder="ABCD" maxlength="4" style="width:100%;padding:12px;border-radius:10px;border:1px solid rgba(180,160,120,0.4);font-size:24px;text-align:center;text-transform:uppercase;letter-spacing:6px;background:rgba(255,252,245,0.6);box-sizing:border-box;">
-        </div>
-        <button class="modal-btn" id="modal-join-room" style="background:#4a6a8a;">Join</button>
-        <button class="modal-btn" id="modal-back-join" style="background:transparent;color:#8a7a6a;box-shadow:none;margin-top:6px;font-size:12px;padding:8px;">← Back</button>
-      </div>
-      <div id="modal-step-mp-guest" style="display:none;">
-        <div id="modal-setup-guest"></div>
-        <button class="modal-btn" id="modal-join-go" style="background:#4a6a8a;">Join Game</button>
-        <button class="modal-btn" id="modal-back-guest" style="background:transparent;color:#8a7a6a;box-shadow:none;margin-top:6px;font-size:12px;padding:8px;">← Back</button>
-      </div>
-      <p id="modal-text" style="display:none;"></p>
+      <p id="modal-text">Paper & Ink Mahjong — Ready to play?</p>
       <div id="modal-content"></div>
-      <button class="modal-btn" id="modal-btn" style="display:none;">Start Game</button>
-      <button class="modal-btn" id="modal-mp-btn" style="display:none;">MP</button>
-    </div>
-  </div>
-</div>
-
-<!-- Multiplayer Lobby -->
-<div class="settings-overlay" id="mp-overlay" style="display:none;">
-  <div class="settings-modal" style="max-width:380px;">
-    <button class="settings-close" id="mp-close">&times;</button>
-    <h2 style="font-size:22px;">🌐 Multiplayer</h2>
-    <div id="mp-waiting" style="text-align:center;">
-      <div style="font-size:16px;font-weight:700;color:#3a2a18;margin:12px 0;">Room: <span id="mp-code-display" style="font-size:24px;letter-spacing:3px;color:#b33a2a;"></span></div>
-      <p style="font-size:11px;color:#8a7a6a;">Share this code with friends!</p>
-      <div id="mp-player-list" style="margin:16px 0;text-align:left;"></div>
-      <div id="mp-host-controls" style="display:none;">
-        <button class="modal-btn" id="mp-start-game" style="width:100%;font-size:14px;">Start Game</button>
-      </div>
-      <p id="mp-status" style="font-size:11px;color:#8a7a6a;margin-top:8px;"></p>
-    </div>
-    <div id="mp-chat" style="margin-top:12px;border-top:1px solid rgba(180,160,130,0.3);padding-top:8px;">
-      <div id="mp-chat-log" style="height:80px;overflow-y:auto;font-size:11px;color:#5a4a3a;"></div>
-      <div style="display:flex;gap:4px;margin-top:4px;">
-        <input type="text" id="mp-chat-input" placeholder="Chat..." style="flex:1;padding:6px 8px;border-radius:6px;border:1px solid #c0a878;font-size:11px;" maxlength="200">
-        <button id="mp-chat-send" style="padding:6px 10px;border-radius:6px;border:none;background:#c0a878;color:white;font-size:11px;cursor:pointer;">Send</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<div class="settings-overlay" id="game-chat-overlay" style="display:none;">
-  <div class="settings-modal" style="max-width:320px;">
-    <button class="settings-close" id="game-chat-close">&times;</button>
-    <h2 style="font-size:20px;margin-bottom:12px;">💬 Chat</h2>
-    <div id="game-chat-log" style="height:300px;overflow-y:auto;font-size:13px;color:#5a4a3a;background:rgba(245,240,232,0.5);border-radius:10px;padding:10px;margin-bottom:10px;"></div>
-    <div style="display:flex;gap:6px;">
-      <input type="text" id="game-chat-input" placeholder="Type a message..." maxlength="200" style="flex:1;padding:10px 12px;border-radius:10px;border:1px solid rgba(180,160,120,0.4);font-size:14px;">
-      <button id="game-chat-send" style="padding:10px 16px;border-radius:10px;border:none;background:#5a4a38;color:#f5ead8;font-size:13px;font-weight:700;cursor:pointer;">Send</button>
+      <button class="modal-btn" id="modal-btn">▶ PLAY</button>
     </div>
   </div>
 </div>
@@ -1280,14 +1025,7 @@ body::after {
     <h2>設定 Settings</h2>
     <div class="settings-section">
       <div class="settings-section-title">Table Mat</div>
-      <div class="mat-grid" id="mat-grid">
-        <div class="mat-thumb" data-mat="classic" style="background-image:url(assets/table-mat.jpg)"></div>
-        <div class="mat-thumb" data-mat="jade" style="background-image:url(assets/mat-jade.jpg)"></div>
-        <div class="mat-thumb" data-mat="crimson" style="background-image:url(assets/mat-crimson.jpg)"></div>
-        <div class="mat-thumb" data-mat="night" style="background-image:url(assets/mat-night.jpg)"></div>
-        <div class="mat-thumb" data-mat="bamboo" style="background-image:url(assets/mat-bamboo.jpg)"></div>
-      </div>
-      <div style="display:flex;align-items:center;gap:6px;margin:6px 0;"><span style="font-size:11px;width:60px;">Opacity</span><input type="range" id="mat-opacity" min="5" max="100" value="100" style="flex:1;"></div>
+      <div class="mat-grid" id="mat-grid"></div>
       <button class="mat-upload-btn" id="mat-upload-btn">Upload Custom</button>
       <button class="mat-upload-btn" id="mat-reset-btn" style="background:linear-gradient(135deg,#8a7a5a,#6a5a3a);">Reset Default</button>
       <input type="file" id="mat-file-input" accept="image/*" style="display:none">
@@ -1304,34 +1042,27 @@ body::after {
       </div>
     </div>
 <div class="settings-section">
-  <div class="settings-section-title">Background</div>
-  <div class="bg-grid" id="settings-bg-grid">
-    <div class="bg-thumb" data-bg="wood" style="background-color:#B89A6A;">Wood</div>
-    <div class="bg-thumb" data-bg="bamboo" style="background-image:url(assets/bg-bamboo.jpg)">Bamboo</div>
-    <div class="bg-thumb" data-bg="galaxy" style="background-image:url(assets/bg-galaxy.jpg)">Galaxy</div>
-    <div class="bg-thumb" data-bg="mountains" style="background-image:url(assets/bg-mountains.jpg)">Mountains</div>
-    <div class="bg-thumb" data-bg="beach" style="background-image:url(assets/bg-beach.jpg)">Beach</div>
-    <div class="bg-thumb" data-bg="sakura" style="background-image:url(assets/bg-sakura.jpg)">Sakura</div>
-    <div class="bg-thumb" data-bg="temple" style="background-image:url(assets/bg-temple.jpg)">Temple</div>
-  </div>
-</div>
-<div class="settings-section">
   <div class="settings-section-title">Lighting</div>
   <div style="display:flex;flex-direction:column;gap:8px;">
-    <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:11px;width:60px;">Brightness</span><input type="range" id="light-brightness" min="20" max="200" value="30" style="flex:1;"></div>
-    <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:11px;width:60px;">Angle</span><input type="range" id="light-angle" min="0" max="360" value="100" style="flex:1;"></div>
-    <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:11px;width:60px;">Warmth</span><input type="range" id="light-warmth" min="0" max="100" value="65" style="flex:1;"></div>
-    <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:11px;width:60px;">Ambient</span><input type="range" id="light-ambient" min="25" max="100" value="30" style="flex:1;"></div>
+    <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:11px;width:60px;">Brightness</span><input type="range" id="light-brightness" min="20" max="200" value="130" style="flex:1;"></div>
+    <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:11px;width:60px;">Angle</span><input type="range" id="light-angle" min="0" max="360" value="45" style="flex:1;"></div>
+    <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:11px;width:60px;">Warmth</span><input type="range" id="light-warmth" min="0" max="100" value="70" style="flex:1;"></div>
+    <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:11px;width:60px;">Ambient</span><input type="range" id="light-ambient" min="10" max="100" value="45" style="flex:1;"></div>
   </div>
 </div>
-<div class="settings-section">
-  <div class="settings-section-title">Hand Tiles</div>
-  <label style="font-size:12px;color:#5a4a3a;display:flex;align-items:center;gap:6px;cursor:pointer;">
-    <input type="checkbox" id="hand-labels-toggle" checked style="width:18px;height:18px;accent-color:#C0A878;">
-    Show tile labels
-  </label>
-</div>
+  <div class="settings-section">
+  <div class="settings-section-title">Background</div>
+  <div class="mat-grid" id="bg-grid">
+    <div class="mat-thumb" data-bg="wood" title="Wood" style="background:linear-gradient(135deg,#C4A882,#B89A6A)"></div>
+    <div class="mat-thumb" data-bg="bamboo" title="Bamboo" style="background-image:url(assets/bg-bamboo.jpg)"></div>
+    <div class="mat-thumb" data-bg="galaxy" title="Galaxy" style="background-image:url(assets/bg-galaxy.jpg)"></div>
+    <div class="mat-thumb" data-bg="mountains" title="Mountains" style="background-image:url(assets/bg-mountains.jpg)"></div>
+    <div class="mat-thumb" data-bg="beach" title="Beach" style="background-image:url(assets/bg-beach.jpg)"></div>
+    <div class="mat-thumb" data-bg="sakura" title="Sakura" style="background-image:url(assets/bg-sakura.jpg)"></div>
+    <div class="mat-thumb" data-bg="temple" title="Temple" style="background-image:url(assets/bg-temple.jpg)"></div>
   </div>
+</div>
+</div>
 </div>
 
 <script>
@@ -1364,7 +1095,7 @@ TILE_LABELS['winds-West'] = { top: '西', bottom: '', color: '#2a2a2a' };
 TILE_LABELS['winds-North'] = { top: '北', bottom: '', color: '#2a2a2a' };
 TILE_LABELS['dragons-Red'] = { top: '中', bottom: '', color: '#b33a2a' };
 TILE_LABELS['dragons-Green'] = { top: '發', bottom: '', color: '#2a6a3a' };
-TILE_LABELS['dragons-White'] = { top: '白', bottom: '', color: '#3a3a4a' };
+TILE_LABELS['dragons-White'] = { top: '白', bottom: '', color: '#6a6a7a' };
 
 function getTileKey(tile) {
   if (tile.num !== undefined) return `${tile.suit}-${tile.num}`;
@@ -1684,7 +1415,7 @@ class Renderer {
     this.renderer = new THREE.WebGLRenderer({
       canvas: document.getElementById('game-canvas'),
       antialias: true,
-      alpha: true
+      alpha: false
     });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -1697,7 +1428,7 @@ class Renderer {
 
     // Camera setup - close isometric view for table to fill viewport
     // Lower camera angle to see tile SIDES (two-tone effect)
-    this.camera.position.set(0, 9, 13);
+    this.camera.position.set(0, 7, 10.5);
     this.camera.lookAt(0, 0, 0);
 
     this.tileTextures = {};
@@ -1792,15 +1523,15 @@ class Renderer {
     this.scene.fog = new THREE.Fog(0xC4A882, 22, 45);
 
     // Ambient light — lower for toon shading contrast
-    const ambient = new THREE.AmbientLight(0xfff5e0, 0.30);
+    const ambient = new THREE.AmbientLight(0xfff5e0, 0.35);
     this.scene.add(ambient);
 
     // Hemisphere light for natural sky/ground bounce
-    const hemiLight = new THREE.HemisphereLight(0xfff0d8, 0xe8d8c0, 0.35);
+    const hemiLight = new THREE.HemisphereLight(0xfff0d8, 0xe8d8c0, 0.20);
     this.scene.add(hemiLight);
 
     // Main directional light — warm, from above-front
-    const dirLight = new THREE.DirectionalLight(0xfff0d0, 0.35);
+    const dirLight = new THREE.DirectionalLight(0xfff0d0, 1.6);
     dirLight.position.set(2, 9, 5);
     dirLight.castShadow = true;
     dirLight.shadow.mapSize.width = 2048;
@@ -1817,12 +1548,12 @@ class Renderer {
     this.scene.add(dirLight);
 
     // Warm fill light from opposite side
-    const fillLight = new THREE.DirectionalLight(0xfce4c8, 0.20);
+    const fillLight = new THREE.DirectionalLight(0xfce4c8, 0.60);
     fillLight.position.set(-4, 6, -3);
     this.scene.add(fillLight);
 
     // Subtle warm rim light from behind
-    const rimLight = new THREE.DirectionalLight(0xffd8a8, 0.12);
+    const rimLight = new THREE.DirectionalLight(0xffd8a8, 0.35);
     rimLight.position.set(0, 3, -6);
     this.scene.add(rimLight);
 
@@ -2265,25 +1996,10 @@ class Renderer {
 
     // Main table surface
     const tableGeo = new THREE.BoxGeometry(14, 0.15, 14);
-    // Procedural felt texture: warm beige with fiber noise
-    const feltCanvas = document.createElement('canvas');
-    feltCanvas.width = 1024; feltCanvas.height = 1024;
-    const feltCtx = feltCanvas.getContext('2d');
-    feltCtx.fillStyle = '#D4C5A0';
-    feltCtx.fillRect(0, 0, 1024, 1024);
-    for (let fi = 0; fi < 80000; fi++) {
-      const fx = Math.random() * 1024, fy = Math.random() * 1024;
-      const flen = 2 + Math.random() * 4, fang = Math.random() * Math.PI;
-      feltCtx.beginPath(); feltCtx.moveTo(fx, fy);
-      feltCtx.lineTo(fx + Math.cos(fang) * flen, fy + Math.sin(fang) * flen);
-      feltCtx.strokeStyle = 'rgba('+(180+Math.random()*30|0)+','+(165+Math.random()*30|0)+','+(130+Math.random()*30|0)+','+(0.05+Math.random()*0.08)+')';
-      feltCtx.lineWidth = 0.5; feltCtx.stroke();
-    }
-    const feltTexture = new THREE.CanvasTexture(feltCanvas);
     const tableMat = new THREE.MeshStandardMaterial({
-      map: feltTexture,
-      color: 0xD4C5A0,
-      roughness: 0.95,
+      map: tableTexture,
+      color: 0xF2E6C8,
+      roughness: 0.88,
       metalness: 0.0,
     });
     const table = new THREE.Mesh(tableGeo, tableMat);
@@ -2294,17 +2010,16 @@ class Renderer {
     // Table mat design overlay — single image with all decorations
     const matLoader = new THREE.TextureLoader();
     matLoader.load('assets/table-mat.jpg', (matTex) => {
-      const matGeo = new THREE.PlaneGeometry(14, 14);
+      const matGeo = new THREE.PlaneGeometry(12, 12);
       const matMat = new THREE.MeshStandardMaterial({
         map: matTex, roughness: 0.85, metalness: 0.0,
-        transparent: true, opacity: 1.0, depthWrite: false,
+        transparent: true, opacity: 0.25, depthWrite: false,
       });
       const matPlane = new THREE.Mesh(matGeo, matMat);
       matPlane.rotation.x = -Math.PI / 2;
       matPlane.position.y = 0.005;
       matPlane.receiveShadow = true;
       this.scene.add(matPlane);
-      this._matPlane = matPlane;
     });
 
     // Table border/frame — dark lacquered wood
@@ -2336,7 +2051,38 @@ class Renderer {
 
     // Decorative border lines — now baked into table-mat.jpg
 
-    // Corner brackets removed
+    // Brass corner brackets on table border
+    const bracketMat = new THREE.MeshStandardMaterial({
+      color: 0xc8a84a,
+      roughness: 0.35,
+      metalness: 0.7,
+    });
+    const cornerPositions = [
+      { x: -7.3, z: -7.3, rot: 0 },
+      { x: 7.3, z: -7.3, rot: Math.PI / 2 },
+      { x: 7.3, z: 7.3, rot: Math.PI },
+      { x: -7.3, z: 7.3, rot: -Math.PI / 2 },
+    ];
+    for (const cp of cornerPositions) {
+      const bracketGroup = new THREE.Group();
+      // L-shaped bracket: two arms
+      const armGeo = new THREE.BoxGeometry(1.2, 0.06, 0.18);
+      const arm1 = new THREE.Mesh(armGeo, bracketMat);
+      arm1.position.set(0.5, 0, 0);
+      bracketGroup.add(arm1);
+      const arm2 = new THREE.Mesh(armGeo, bracketMat);
+      arm2.rotation.y = Math.PI / 2;
+      arm2.position.set(0, 0, 0.5);
+      bracketGroup.add(arm2);
+      // Small corner nub
+      const nubGeo = new THREE.BoxGeometry(0.25, 0.08, 0.25);
+      const nub = new THREE.Mesh(nubGeo, bracketMat);
+      bracketGroup.add(nub);
+
+      bracketGroup.position.set(cp.x, 0.01, cp.z);
+      bracketGroup.rotation.y = cp.rot;
+      this.scene.add(bracketGroup);
+    }
   }
 
   createInkDecorations() {
@@ -2802,17 +2548,16 @@ class Renderer {
           3: [[88, 80], [128, 80], [168, 80]],
           4: [[98, 80], [158, 80], [98, 212], [158, 212]],
           5: [[78, 80], [128, 80], [178, 80], [98, 212], [158, 212]],
-          6: [[78, 70], [128, 70], [178, 70], [78, 170], [128, 170], [178, 170]],
+          6: [[98, 80], [158, 80], [98, 146], [158, 146], [98, 212], [158, 212]],
           7: [[78, 50], [128, 50], [178, 50], [128, 120], [78, 190], [128, 190], [178, 190]],
-          8: [[100, 48], [156, 48], [100, 118], [156, 118], [100, 188], [156, 188], [100, 258], [156, 258]],
+          8: [[98, 50], [158, 50], [98, 110], [158, 110], [98, 170], [158, 170], [98, 230], [158, 230]],
           9: [[78, 45], [128, 45], [178, 45], [78, 115], [128, 115], [178, 115], [78, 185], [128, 185], [178, 185]],
         };
         const sticks = stickLayouts[bambooNum] || [];
         // Adjust stick dimensions based on count
         let stickW, stickH, segments;
         if (bambooNum <= 3) { stickW = 20; stickH = 120; segments = 5; }
-        else if (bambooNum <= 5) { stickW = 18; stickH = 100; segments = 4; }
-        else if (bambooNum === 6) { stickW = 14; stickH = 55; segments = 2; }
+        else if (bambooNum <= 6) { stickW = 20; stickH = 100; segments = 4; }
         else { stickW = 16; stickH = 55; segments = 2; }
 
         for (const [cx, cy] of sticks) {
@@ -3057,11 +2802,11 @@ class Renderer {
 
         // Outer frame
         ctx.save();
-        ctx.strokeStyle = 'rgba(50, 50, 60, 0.8)';
+        ctx.strokeStyle = 'rgba(120, 115, 110, 0.35)';
         ctx.lineWidth = 3;
         ctx.strokeRect(44, 76, 168, 200);
         // Inner frame (double-line border)
-        ctx.strokeStyle = 'rgba(50, 50, 60, 0.5)';
+        ctx.strokeStyle = 'rgba(120, 115, 110, 0.2)';
         ctx.lineWidth = 1.5;
         ctx.strokeRect(54, 86, 148, 180);
         ctx.restore();
@@ -3069,7 +2814,7 @@ class Renderer {
         // Faint 白 character in center
         ctx.save();
         ctx.font = 'bold 60px "Ma Shan Zheng", serif';
-        ctx.fillStyle = 'rgba(60, 60, 70, 0.6)';
+        ctx.fillStyle = 'rgba(140, 135, 130, 0.18)';
         ctx.fillText(label.top, cx, cy);
         ctx.restore();
 
@@ -3742,8 +3487,8 @@ class Renderer {
     const sideColor = this.tileAccentColor || defaultSide;
 
     const accentMat = new THREE.MeshStandardMaterial({ color: sideColor, roughness: 0.4, metalness: 0.0 });
-    const faceMat = new THREE.MeshStandardMaterial({ map: faceTex, color: 0xf0ece4, roughness: 0.95, metalness: 0.0 });
-    const whiteSide = new THREE.MeshStandardMaterial({ color: 0xf8f4ec, roughness: 0.9, metalness: 0.0 });
+    const faceMat = new THREE.MeshStandardMaterial({ map: faceTex, color: 0xf0ece4, roughness: 0.7, metalness: 0.0 });
+    const whiteSide = new THREE.MeshStandardMaterial({ color: 0xf8f4ec, roughness: 0.4, metalness: 0.0 });
 
     // For face-down tiles (walls): swap layers so accent stays visible on top after π flip
     const layer1D = D * 0.50;
@@ -3774,7 +3519,7 @@ class Renderer {
       // After π flip: original top→bottom (visible from front), original bottom→top (visible from above)
       // TOP layer = accent face on front + accent sides (becomes BOTTOM after flip = visible from camera front)
       // BOTTOM layer = accent face on top (becomes TOP after flip = back of tile visible from above)
-      const backFaceMat = new THREE.MeshStandardMaterial({ map: faceTex, color: 0xf0ece4, roughness: 0.95, metalness: 0.0 });
+      const backFaceMat = new THREE.MeshStandardMaterial({ map: faceTex, color: 0xf0ece4, roughness: 0.7, metalness: 0.0 });
       // Bottom = accent (after π flip becomes TOP = purple back visible from above) ✓
       bottomBody = new THREE.Mesh(layer1Geo, [accentMat, accentMat, accentMat]);
       // Top = white/back texture (after π flip becomes BOTTOM = white edge visible from front) ✓
@@ -3880,70 +3625,33 @@ class Renderer {
   renderDiscards(allDiscards) {
     this.clearDiscards();
 
-    var zones = [
-      { dir: 'east',  baseX: 2.7, baseZ: 0, cols: 6, along: 'z', rotY: -Math.PI/2, inward: -1 },
-      { dir: 'south', baseX: 0, baseZ: 2.7, cols: 6, along: 'x', rotY: 0, inward: -1 },
-      { dir: 'west',  baseX: -2.7, baseZ: 0, cols: 6, along: 'z', rotY: Math.PI/2, inward: 1 },
-      { dir: 'north', baseX: 0, baseZ: -2.7, cols: 6, along: 'x', rotY: Math.PI, inward: 1 },
-    ];
-    var tileSpacing = 0.52;
-    var rowSpacing = 0.62;
-
-    for (var p = 0; p < 4; p++) {
-      var discards = allDiscards[p] || [];
-      var zone = zones[p];
-      for (var ti = 0; ti < discards.length; ti++) {
-        var col = ti % zone.cols;
-        var row = Math.floor(ti / zone.cols);
-        var colOffset = (col - (zone.cols - 1) / 2) * tileSpacing;
-        var rowOffset = row * rowSpacing * zone.inward;
-
-        var seed = ((ti * 9301 + p * 49297) % 233280);
-        var rng = seed / 233280;
-        var jitterA = (rng - 0.5) * 0.04;
-        var seed2 = ((seed * 9301 + 49297) % 233280);
-        var rng2 = seed2 / 233280;
-        var jitterB = (rng2 - 0.5) * 0.04;
-        var wobble = (rng - 0.5) * 0.15;
-
-        var x, z;
-        if (zone.along === 'x') {
-          x = zone.baseX + colOffset + jitterA;
-          z = zone.baseZ + rowOffset + jitterB;
-        } else {
-          x = zone.baseX + rowOffset + jitterA;
-          z = zone.baseZ + colOffset + jitterB;
-        }
-
-        var mesh = this.create3DTile(discards[ti], false);
-        mesh.position.set(x, -0.005, z);
-        mesh.rotation.y = zone.rotY + wobble;
-        mesh.scale.set(0.70, 0.70, 0.70);
-        this.scene.add(mesh);
-        this.discardMeshes.push(mesh);
-      }
+    var gridCols = 6, gridRows = 6;
+    var cellW = 0.75, cellH = 0.95;
+    var gStartX = -(gridCols * cellW) / 2 + cellW / 2;
+    var gStartZ = -(gridRows * cellH) / 2 + cellH / 2;
+    var gridSlots = [];
+    for (var gr = 0; gr < gridRows; gr++)
+      for (var gc = 0; gc < gridCols; gc++)
+        gridSlots.push([gStartX + gc * cellW, gStartZ + gr * cellH]);
+    for (var gi = gridSlots.length - 1; gi > 0; gi--) {
+      var gj = ((gi * 9301 + 49297) % 233280) % (gi + 1);
+      var tmp = gridSlots[gi]; gridSlots[gi] = gridSlots[gj]; gridSlots[gj] = tmp;
     }
-  }
+    var allTiles = [];
+    for (var gp = 0; gp < 4; gp++)
+      for (var gt = 0; gt < (allDiscards[gp] || []).length; gt++)
+        allTiles.push(allDiscards[gp][gt]);
 
-  highlightLastDiscard(tileId) {
-    // Remove old ring from its parent
-    if (this._lastDiscardRing) {
-      if (this._lastDiscardRing.parent) this._lastDiscardRing.parent.remove(this._lastDiscardRing);
-      this._lastDiscardRing = null;
-    }
-    if (!tileId) return;
-    for (var i = 0; i < this.discardMeshes.length; i++) {
-      var m = this.discardMeshes[i];
-      if (m.userData && m.userData.tile && m.userData.tile.id === tileId) {
-        var ringGeo = new THREE.RingGeometry(0.38, 0.44, 32);
-        var ringMat = new THREE.MeshBasicMaterial({ color: 0xff2222, side: THREE.DoubleSide, transparent: true, opacity: 0.7 });
-        var ring = new THREE.Mesh(ringGeo, ringMat);
-        ring.rotation.x = -Math.PI / 2;
-        ring.position.set(0, 0.02, 0); // local offset (slightly above tile)
-        m.add(ring); // child of tile — moves with it
-        this._lastDiscardRing = ring;
-        break;
-      }
+    for (var gi2 = 0; gi2 < allTiles.length && gi2 < gridSlots.length; gi2++) {
+      var gx = gridSlots[gi2][0], gz = gridSlots[gi2][1];
+      var mesh = this.create3DTile(allTiles[gi2], false);
+      var gseed = (gi2 * 9301 + 49297) % 233280;
+      var grng = gseed / 233280;
+      mesh.position.set(gx, -0.005, gz);
+      mesh.rotation.y = (grng - 0.5) * 0.7;
+      mesh.scale.set(0.70, 0.70, 0.70);
+      this.scene.add(mesh);
+      this.discardMeshes.push(mesh);
     }
   }
 
@@ -4072,36 +3780,13 @@ class Renderer {
         }
       }
     } else if (mode === 'player') {
-      // Zone-based layout matching renderDiscards
-      var zones = [
-        { baseX: 2.7, baseZ: 0, cols: 6, along: 'z', rotY: -Math.PI/2, inward: -1 },
-        { baseX: 0, baseZ: 2.7, cols: 6, along: 'x', rotY: 0, inward: -1 },
-        { baseX: -2.7, baseZ: 0, cols: 6, along: 'z', rotY: Math.PI/2, inward: 1 },
-        { baseX: 0, baseZ: -2.7, cols: 6, along: 'x', rotY: Math.PI, inward: 1 },
-      ];
-      var spacing2 = 0.52, rowSpacing = 0.62;
-      for (var p = 0; p < 4; p++) {
-        var discards = allDiscards[p] || [];
-        var zone = zones[p];
-        for (var ti = 0; ti < discards.length; ti++) {
-          var col = ti % zone.cols;
-          var row = Math.floor(ti / zone.cols);
-          var offset = (col - (Math.min(discards.length, zone.cols) - 1) / 2) * spacing2;
-          var rowOff = row * rowSpacing;
-          var x, z;
-          if (zone.along === 'x') { x = zone.baseX + offset; z = zone.baseZ + rowOff * zone.inward; }
-          else { x = zone.baseX + rowOff * zone.inward; z = zone.baseZ + offset; }
-          var seed = (ti * 9301 + p * 49297) % 233280;
-          var rng1 = seed / 233280;
-          var seed2 = (seed * 49297 + 11) % 233280;
-          var rng2 = seed2 / 233280;
-          var seed3 = (seed2 * 49297 + 11) % 233280;
-          var rng3 = seed3 / 233280;
-          positions.push({ meshIdx: positions.length,
-            x: x + (rng1 - 0.5) * 0.08,
-            z: z + (rng2 - 0.5) * 0.08,
-            rotY: zone.rotY + (rng3 - 0.5) * 0.15
-          });
+      const rows = [-2, -0.7, 0.7, 2];
+      for (let p = 0; p < 4; p++) {
+        const discards = allDiscards[p] || [];
+        const spacing = 0.65;
+        for (let i = 0; i < discards.length; i++) {
+          const x = (i - discards.length / 2 + 0.5) * spacing;
+          positions.push({ meshIdx: positions.length, x, z: rows[p], rotY: 0 });
         }
       }
     } else if (mode === 'suit') {
@@ -4173,87 +3858,12 @@ class GameController {
     this.gs = new GameState();
     this.renderer = new Renderer();
     this.discardSorted = false;
-    this._showTileLabels = true;
 
     this.bindEvents();
   }
 
   bindEvents() {
-    // Menu flow + MP
-    this.mpClient = null;
-    this.mpMode = false;
-    this._floatingDrawnTile = null;
-    this._chatUnread = 0;
-    this._lastMpState = null;
-
-    const showStep = (step) => {
-      ['modal-step-mode','modal-step-solo','modal-step-mp-choice','modal-step-mp-create','modal-step-mp-join'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.style.display = 'none';
-      });
-      const el = document.getElementById(step);
-      if (el) el.style.display = 'block';
-    };
-
-    document.getElementById('modal-solo-btn').addEventListener('click', () => {
-      showStep('modal-step-solo');
-      this.initSetupScreen(document.getElementById('modal-setup-solo'), 'solo');
-    });
-    document.getElementById('modal-mp-mode-btn').addEventListener('click', () => showStep('modal-step-mp-choice'));
-    document.getElementById('modal-back-solo')?.addEventListener('click', () => showStep('modal-step-mode'));
-    document.getElementById('modal-back-mp')?.addEventListener('click', () => showStep('modal-step-mode'));
-    document.getElementById('modal-start-solo')?.addEventListener('click', () => this.startGame());
-    document.getElementById('modal-mp-create-btn')?.addEventListener('click', () => {
-      showStep('modal-step-mp-create');
-      this.initSetupScreen(document.getElementById('modal-setup-host'), 'solo');
-    });
-    document.getElementById('modal-mp-join-btn')?.addEventListener('click', () => {
-      showStep('modal-step-mp-join');
-      this.initSetupScreen(document.getElementById('modal-setup-guest'), 'multiplayer');
-    });
-    document.getElementById('modal-back-create')?.addEventListener('click', () => showStep('modal-step-mp-choice'));
-    document.getElementById('modal-join-room')?.addEventListener('click', () => {
-      var code = document.getElementById('modal-join-code').value.trim().toUpperCase();
-      if (code.length !== 4) { alert('Enter a 4-character room code'); return; }
-      this._pendingJoinCode = code;
-      showStep('modal-step-mp-guest');
-      this.initSetupScreen(document.getElementById('modal-setup-guest'), 'multiplayer');
-    });
-    document.getElementById('modal-back-join')?.addEventListener('click', () => showStep('modal-step-mp-choice'));
-    document.getElementById('modal-join-go')?.addEventListener('click', () => {
-      var name = localStorage.getItem('mj_name') || 'Guest';
-      var avatar = localStorage.getItem('mj_avatar') || 'chen';
-      this.hideModal();
-      this._mpJoinWithCode(this._pendingJoinCode, name, avatar);
-    });
-    document.getElementById('modal-back-guest')?.addEventListener('click', () => showStep('modal-step-mp-join'));
-    document.getElementById('modal-create-room')?.addEventListener('click', () => {
-      var name = localStorage.getItem('mj_name') || 'Host';
-      var avatar = localStorage.getItem('mj_avatar') || 'chen';
-      this.hideModal();
-      this._mpCreateWithSettings(name, avatar);
-    });
-
-    document.getElementById('modal-back-join')?.addEventListener('click', () => showStep('modal-step-mp-choice'));
-    document.getElementById('create-room-btn')?.addEventListener('click', () => { this.applySetupSettings(); this.mpCreateRoom(); });
-    document.getElementById('join-go-btn')?.addEventListener('click', () => {
-      const code = document.getElementById('join-room-code')?.value?.trim()?.toUpperCase();
-      if (!code || code.length !== 4) { alert('Enter a 4-character room code'); return; }
-      this.applySetupSettings(); this.mpJoinRoom(code);
-    });
-    document.getElementById('mp-close')?.addEventListener('click', () => this.closeMPLobby());
-    document.getElementById('mp-overlay')?.addEventListener('click', (e) => { if (e.target === e.currentTarget) this.closeMPLobby(); });
-    document.getElementById('mp-start-game')?.addEventListener('click', () => this.mpStartGame());
-    document.getElementById('mp-chat-send')?.addEventListener('click', () => this.mpSendChat());
-    document.getElementById('mp-chat-input')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') this.mpSendChat(); });
-    document.getElementById('ingame-chat-btn')?.addEventListener('click', () => {
-      const panel = document.getElementById('ingame-chat-panel');
-      panel.classList.toggle('open');
-      if (panel.classList.contains('open')) { this._chatUnread = 0; const b = document.getElementById('chat-badge'); if(b){b.style.display='none';b.textContent='0';} }
-    });
-    document.getElementById('ingame-chat-close')?.addEventListener('click', () => document.getElementById('ingame-chat-panel')?.classList.remove('open'));
-    document.getElementById('ingame-chat-send')?.addEventListener('click', () => { const i=document.getElementById('ingame-chat-input'); const t=i?.value?.trim(); if(!t)return; this.mpSend({type:'chat',text:t}); i.value=''; });
-    document.getElementById('ingame-chat-input')?.addEventListener('keydown', (e) => { if(e.key==='Enter') document.getElementById('ingame-chat-send')?.click(); });
+    document.getElementById('modal-btn').addEventListener('click', () => this.startGame());
     document.getElementById('btn-skip').addEventListener('click', () => this.skipClaim());
     document.getElementById('btn-chi').addEventListener('click', () => this.showChiOptions());
     document.getElementById('btn-pong').addEventListener('click', () => this.claimPong());
@@ -4264,7 +3874,7 @@ class GameController {
     document.getElementById('btn-sort-hand')?.addEventListener('click', () => this.sortPlayerHand());
     document.getElementById('hand-sort-btn')?.addEventListener('click', () => this.sortPlayerHand());
     // Fit toggle
-    this._fitMode = true;
+    this._fitMode = false;
     document.getElementById('hand-fit-btn')?.addEventListener('click', () => {
       this._fitMode = !this._fitMode;
       const tray = document.getElementById('hand-tray');
@@ -4294,61 +3904,11 @@ class GameController {
     document.getElementById('tb-top-settings').addEventListener('click', () => this.openSettings());
     document.getElementById('tb-top-help')?.addEventListener('click', () => { this.showToast('Paper & Ink Mahjong — Chi, Pong, Kong, Hu!'); });
     // Discard view sort bar buttons
-    document.getElementById('dsb-default').addEventListener('click', () => {
-      document.getElementById('dsb-default').classList.add('active');
-      document.getElementById('dsb-suit').classList.remove('active');
-      // Animate tiles back to per-player zone positions
-      var allDiscards = this.gs.players.map(function(p) { return p.discards; });
-      this.renderer.animateDiscardsToPositions(allDiscards, 'player');
-      // Adjust zoom for player layout (needs wider view)
-      var totalD = allDiscards.reduce(function(s,a){return s+a.length;},0);
-      var zY = Math.max(12, Math.min(18, 10 + totalD * 0.18));
-      this.renderer.animateCameraTo([0, zY, 0.1], [0, 0, 0], 400);
-      this._discardZoomMode = 'default';
-    });
-    document.getElementById('dsb-suit').addEventListener('click', () => {
-      document.getElementById('dsb-suit').classList.add('active');
-      document.getElementById('dsb-default').classList.remove('active');
-      var allDiscards = this.gs.players.map(function(p) { return p.discards; });
-      this.renderer.animateDiscardsToPositions(allDiscards, 'suit');
-      // Adjust zoom for suit layout (more compact, can zoom closer)
-      var totalD2 = allDiscards.reduce(function(s,a){return s+a.length;},0);
-      var zY2 = Math.max(10, Math.min(16, 8 + totalD2 * 0.15));
-      this.renderer.animateCameraTo([0, zY2, 0.1], [0, 0, 0], 400);
-      this._discardZoomMode = 'suit';
-    });
+    document.getElementById('dsb-player').addEventListener('click', () => this.setDiscardSort('player'));
+    document.getElementById('dsb-suit').addEventListener('click', () => this.setDiscardSort('suit'));
+    document.getElementById('dsb-organic').addEventListener('click', () => this.setDiscardSort('organic'));
     document.getElementById('dsb-back').addEventListener('click', () => this.toggleDiscardView());
     document.getElementById('settings-close').addEventListener('click', () => this.closeSettings());
-    // Tile labels toggle
-    var labelsToggle = document.getElementById('hand-labels-toggle');
-    if (labelsToggle) {
-      labelsToggle.addEventListener('change', () => {
-        this._showTileLabels = labelsToggle.checked;
-        this.renderPlayerHand();
-      });
-    }
-    // Settings: mat thumbnails
-    document.querySelectorAll('#mat-grid .mat-thumb').forEach(thumb => {
-      thumb.addEventListener('click', () => {
-        document.querySelectorAll('#mat-grid .mat-thumb').forEach(t => t.classList.remove('selected'));
-        thumb.classList.add('selected');
-        const m = {classic:'assets/table-mat.jpg',jade:'assets/mat-jade.jpg',crimson:'assets/mat-crimson.jpg',night:'assets/mat-night.jpg',bamboo:'assets/mat-bamboo.jpg'};
-        if (m[thumb.dataset.mat]) this.applyMat(m[thumb.dataset.mat]);
-      });
-    });
-    document.getElementById('mat-opacity')?.addEventListener('input', (e) => {
-      if (this.renderer._matPlane && this.renderer._matPlane.material) { this.renderer._matPlane.material.opacity = parseInt(e.target.value)/100; this.renderer._matPlane.material.needsUpdate = true; }
-    });
-    document.querySelectorAll('#settings-bg-grid .bg-thumb').forEach(thumb => {
-      thumb.addEventListener('click', () => {
-        document.querySelectorAll('#settings-bg-grid .bg-thumb').forEach(t => t.classList.remove('selected'));
-        thumb.classList.add('selected');
-        const m = {wood:'#B89A6A',bamboo:'assets/bg-bamboo.jpg',galaxy:'assets/bg-galaxy.jpg',mountains:'assets/bg-mountains.jpg',beach:'assets/bg-beach.jpg',sakura:'assets/bg-sakura.jpg',temple:'assets/bg-temple.jpg'};
-        var bgFile = m[thumb.dataset.bg] || '#B89A6A';
-        localStorage.setItem('mj_bg', bgFile);
-        this.applyBackground(bgFile);
-      });
-    });
     // Mat upload
     document.getElementById('mat-upload-btn').addEventListener('click', () => {
       document.getElementById('mat-file-input').click();
@@ -4493,12 +4053,7 @@ class GameController {
     var lightW = document.getElementById("light-warmth");
     if (lightW) lightW.addEventListener("input", function(e) {
       var w = parseInt(e.target.value)/100;
-      var warmColor = new THREE.Color().setHSL(0.08+w*0.06,0.1+w*0.6,0.5+(1-w)*0.4);
-      rr.scene.traverse(function(c) {
-        if (c.isDirectionalLight) c.color.copy(warmColor);
-        if (c.isAmbientLight) c.color = new THREE.Color().setHSL(0.08+w*0.06,w*0.3,0.7+(1-w)*0.2);
-        if (c.isHemisphereLight) { c.color = new THREE.Color().setHSL(0.08+w*0.06,w*0.4,0.8); c.groundColor = new THREE.Color().setHSL(0.06,w*0.5,0.3+w*0.1); }
-      });
+      rr.scene.traverse(function(c) { if (c.isDirectionalLight && c.castShadow) c.color = new THREE.Color().setHSL(0.1,w*0.5,0.9+w*0.1); });
     });
     var lightAm = document.getElementById("light-ambient");
     if (lightAm) lightAm.addEventListener("input", function(e) {
@@ -4545,217 +4100,25 @@ class GameController {
     }
   }
 
-  // ========== DICE ROLL ==========
-  _createDiceFaceTexture(value) {
-    const size = 128;
-    const canvas = document.createElement('canvas');
-    canvas.width = size;
-    canvas.height = size;
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#fffff8';
-    ctx.fillRect(0, 0, size, size);
-    ctx.strokeStyle = '#d4c9a8';
-    ctx.lineWidth = 3;
-    ctx.strokeRect(2, 2, size - 4, size - 4);
-    const dotR = 10;
-    const positions = {
-      1: [[0.5, 0.5]],
-      2: [[0.25, 0.25], [0.75, 0.75]],
-      3: [[0.25, 0.25], [0.5, 0.5], [0.75, 0.75]],
-      4: [[0.25, 0.25], [0.75, 0.25], [0.25, 0.75], [0.75, 0.75]],
-      5: [[0.25, 0.25], [0.75, 0.25], [0.5, 0.5], [0.25, 0.75], [0.75, 0.75]],
-      6: [[0.25, 0.25], [0.75, 0.25], [0.25, 0.5], [0.75, 0.5], [0.25, 0.75], [0.75, 0.75]]
-    };
-    ctx.fillStyle = '#1a1a1a';
-    for (const [px, py] of positions[value]) {
-      ctx.beginPath();
-      ctx.arc(px * size, py * size, dotR, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.needsUpdate = true;
-    return texture;
-  }
-
-  rollDice() {
-    return new Promise((resolve) => {
-      this.showToast('\uD83C\uDFB2 Rolling dice...');
-      const scene = this.renderer.scene;
-      const diceCount = 3;
-      const dice = [];
-      const diceValues = [];
-      const faceOrder = [2, 5, 3, 4, 1, 6];
-      const baseMaterials = faceOrder.map(v => new THREE.MeshStandardMaterial({
-        map: this._createDiceFaceTexture(v),
-        roughness: 0.6,
-        metalness: 0.0
-      }));
-
-      for (let i = 0; i < diceCount; i++) {
-        const geom = new THREE.BoxGeometry(0.4, 0.4, 0.4);
-        const mats = baseMaterials.map(m => m.clone());
-        mats.forEach((m, idx) => { m.map = baseMaterials[idx].map; });
-        const mesh = new THREE.Mesh(geom, mats);
-        mesh.castShadow = true;
-        mesh.receiveShadow = true;
-        mesh.position.set((i - 1) * 0.7, 3, 0);
-        scene.add(mesh);
-
-        const val = Math.floor(Math.random() * 6) + 1;
-        diceValues.push(val);
-
-        dice.push({
-          mesh: mesh,
-          finalValue: val,
-          vel: { x: (Math.random() - 0.5) * 0.02, y: 0, z: (Math.random() - 0.5) * 0.02 },
-          angVel: {
-            x: (Math.random() - 0.5) * 0.3,
-            y: (Math.random() - 0.5) * 0.3,
-            z: (Math.random() - 0.5) * 0.3
-          },
-          bounces: 0
-        });
-      }
-
-      const gravity = 0.003;
-      const tableSurface = 0.4;
-      const dampening = 0.4;
-      const angDamp = 0.97;
-      const duration = 2000;
-      const startTime = performance.now();
-
-      const finalRotations = {
-        1: { x: Math.PI / 2, z: 0 },
-        2: { x: 0, z: -Math.PI / 2 },
-        3: { x: 0, z: 0 },
-        4: { x: Math.PI, z: 0 },
-        5: { x: 0, z: Math.PI / 2 },
-        6: { x: -Math.PI / 2, z: 0 }
-      };
-
-      const animate = () => {
-        const elapsed = performance.now() - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-
-        for (const die of dice) {
-          if (progress < 0.85) {
-            die.vel.y -= gravity;
-            die.mesh.position.x += die.vel.x;
-            die.mesh.position.y += die.vel.y;
-            die.mesh.position.z += die.vel.z;
-            die.mesh.rotation.x += die.angVel.x;
-            die.mesh.rotation.y += die.angVel.y;
-            die.mesh.rotation.z += die.angVel.z;
-
-            if (die.mesh.position.y < tableSurface) {
-              die.mesh.position.y = tableSurface;
-              die.vel.y = Math.abs(die.vel.y) * dampening;
-              die.angVel.x *= 0.5;
-              die.angVel.y *= 0.5;
-              die.angVel.z *= 0.5;
-              die.bounces++;
-              if (die.bounces >= 3) {
-                die.vel.y = 0;
-              }
-            }
-
-            die.angVel.x *= angDamp;
-            die.angVel.y *= angDamp;
-            die.angVel.z *= angDamp;
-          } else {
-            const settleT = (progress - 0.85) / 0.15;
-            const eased = settleT * settleT * (3 - 2 * settleT);
-            const finalRot = finalRotations[die.finalValue];
-
-            die.mesh.position.y += (tableSurface - die.mesh.position.y) * eased * 0.3;
-            die.mesh.rotation.x += (finalRot.x - die.mesh.rotation.x) * eased * 0.2;
-            die.mesh.rotation.z += (finalRot.z - die.mesh.rotation.z) * eased * 0.2;
-            const snapY = Math.round(die.mesh.rotation.y / (Math.PI / 2)) * (Math.PI / 2);
-            die.mesh.rotation.y += (snapY - die.mesh.rotation.y) * eased * 0.2;
-          }
-        }
-
-        this.renderer.renderer.render(this.renderer.scene, this.renderer.camera);
-
-        if (progress < 1) {
-          requestAnimationFrame(animate);
-        } else {
-          for (const die of dice) {
-            die.mesh.position.y = tableSurface;
-            const fr = finalRotations[die.finalValue];
-            die.mesh.rotation.x = fr.x;
-            die.mesh.rotation.z = fr.z;
-            die.mesh.rotation.y = Math.round(die.mesh.rotation.y / (Math.PI / 2)) * (Math.PI / 2);
-          }
-          this.renderer.renderer.render(this.renderer.scene, this.renderer.camera);
-
-          const total = diceValues.reduce((a, b) => a + b, 0);
-          this.showToast('\uD83C\uDFB2 Rolled: ' + total);
-
-          setTimeout(() => {
-            for (const die of dice) {
-              scene.remove(die.mesh);
-              die.mesh.geometry.dispose();
-              die.mesh.material.forEach(m => {
-                if (m.map) m.map.dispose();
-                m.dispose();
-              });
-            }
-            this.renderer.renderer.render(this.renderer.scene, this.renderer.camera);
-            resolve(total);
-          }, 1200);
-        }
-      };
-
-      requestAnimationFrame(animate);
-    });
-  }
-
   startGame() {
     this.hideModal();
-    this.hideFloatingDrawnTile();
-    // Show loading overlay
-    var loadingEl = document.createElement('div');
-    loadingEl.id = 'game-loading';
-    loadingEl.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:250;background:rgba(40,32,24,0.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;transition:opacity 0.4s;';
-    loadingEl.innerHTML = '<div style="font-size:32px;">🀄</div><div style="font-size:14px;color:#f5ead8;font-family:Helvetica Neue,sans-serif;font-weight:600;letter-spacing:1px;">Setting up table...</div>';
-    document.body.appendChild(loadingEl);
-    // Apply settings (async textures)
-    this.applySetupSettings();
     this.gs.reset();
     this.gs.phase = 'waiting';
     this.gs.currentPlayer = this.gs.dealerSeat;
-    var allTiles = this.gs.shuffle(this.gs.createTileSet());
-    this.gs.wall = allTiles;
-    this.gs.deadWall = [];
-    // Wait a beat for textures to load, then render and proceed
-    var self = this;
-    setTimeout(function() {
-      self.renderAll();
-      // Fade out loading
-      loadingEl.style.opacity = '0';
-      setTimeout(function() { if (loadingEl.parentNode) loadingEl.remove(); }, 400);
-    }, 800);
-    // Delay dice prompt to after loading
+    this.gs.dealTiles();
+    this.renderAll();
+
     setTimeout(() => {
-    this.showRollDicePrompt().then(() => this.rollDice()).then((diceTotal) => { this.gs.dealerSeat = (diceTotal - 1) % 4; this.gs.currentPlayer = this.gs.dealerSeat; return this.animatedDeal(); }).then(() => {
       if (this.gs.players[this.gs.currentPlayer].isAI) {
         this.gs.phase = 'discard';
         setTimeout(() => this.aiTurn(), 800);
       } else {
         this.gs.phase = 'discard';
-        const lastTile = this.gs.players[1].hand[this.gs.players[1].hand.length - 1];
-        if (lastTile) {
-          const idx = this.gs.players[1].hand.length - 1;
-          const removedTile = this.gs.players[1].hand.splice(idx, 1)[0];
-          this.showFloatingDrawnTile(removedTile);
-        }
+        this.gs.drawnTile = this.gs.players[1].hand[this.gs.players[1].hand.length - 1];
         this.renderAll();
       }
-    });
-  }, 1200);
+    }, 500);
   }
-
 
   // ========== RENDERING ==========
   renderAll() {
@@ -4773,16 +4136,11 @@ class GameController {
     this.renderer.clearDiscards();
 
     // Render wall tiles (stacked around the playing area)
-    if (this.mpMode && this.gs.mpTilesLeft > 0) {
-      this.renderer.createWalls(new Array(this.gs.mpTilesLeft).fill({id:-1,suit:'back'}));
-    } else {
-      this.renderer.createWalls(this.gs.wall);
-    }
+    this.renderer.createWalls(this.gs.wall);
 
     // Render discards in center
     const allDiscards = this.gs.players.map(p => p.discards);
     this.renderer.renderDiscards(allDiscards);
-    if (this.gs.lastDiscard) this.renderer.highlightLastDiscard(this.gs.lastDiscard.id);
 
     // Render opponent face-down tiles
     for (let i = 0; i < 4; i++) {
@@ -4821,198 +4179,82 @@ class GameController {
 
       body.appendChild(face);
       el.appendChild(body);
-      // Number/label below tile
-      if (this._showTileLabels !== false) {
-        var lbl = document.createElement('div');
-        lbl.style.cssText = 'position:absolute;top:-16px;left:0;right:0;text-align:center;font-size:12px;font-weight:700;color:#5a4a3a;font-family:Arial,sans-serif;pointer-events:none;';
-        if (tile.num) lbl.textContent = tile.num;
-        else if (tile.wind) lbl.textContent = tile.wind[0];
-        else if (tile.dragon) lbl.textContent = tile.dragon[0];
-        else if (tile.flower) lbl.textContent = '🌸';
-        else if (tile.season) lbl.textContent = '🍂';
-        el.style.position = 'relative';
-        el.style.overflow = 'visible';
-        el.appendChild(lbl);
-      }
-      // tile click/drag handled by unified pointer system below
+      el.addEventListener('click', () => this.selectTile(index));
+
+      // Pointer-based drag rearrangement
+      let dragStartX = 0, dragStartY = 0, isDragging = false;
+      el.addEventListener('pointerdown', (pe) => {
+        dragStartX = pe.clientX; dragStartY = pe.clientY;
+        isDragging = false;
+        el._dragTimer = setTimeout(() => {
+          isDragging = true;
+          el.classList.add('being-dragged');
+          el.setPointerCapture(pe.pointerId);
+          el.style.left = (pe.clientX - 46) + 'px';
+          el.style.top = (pe.clientY - 60) + 'px';
+          // Create placeholder
+          const ph = document.createElement('div');
+          ph.className = 'tile drop-placeholder';
+          ph.style.cssText = 'width:92px;height:120px;flex-shrink:0;border-radius:12px;';
+          el.parentNode.insertBefore(ph, el);
+          el._placeholder = ph;
+          el._fromIdx = index;
+        }, 200); // 200ms hold to start drag
+      });
+      el.addEventListener('pointermove', (pe) => {
+        if (!isDragging) {
+          // Cancel drag if moved before hold time
+          if (Math.abs(pe.clientX - dragStartX) > 10 || Math.abs(pe.clientY - dragStartY) > 10) {
+            clearTimeout(el._dragTimer);
+          }
+          return;
+        }
+        el.style.left = (pe.clientX - 46) + 'px';
+        el.style.top = (pe.clientY - 60) + 'px';
+        // Find which tile we're over and move placeholder there
+        const tiles = [...tray.querySelectorAll('.tile:not(.being-dragged):not(.drop-placeholder)')];
+        let insertBefore = null;
+        for (const t of tiles) {
+          const r = t.getBoundingClientRect();
+          if (pe.clientX < r.left + r.width / 2) { insertBefore = t; break; }
+        }
+        if (el._placeholder) {
+          if (insertBefore) tray.insertBefore(el._placeholder, insertBefore);
+          else tray.insertBefore(el._placeholder, spacerR);
+        }
+      });
+      const endDrag = () => {
+        clearTimeout(el._dragTimer);
+        if (!isDragging) return;
+        isDragging = false;
+        el.classList.remove('being-dragged');
+        el.style.left = ''; el.style.top = ''; el.style.position = '';
+        // Find where placeholder is and insert tile there
+        if (el._placeholder) {
+          const allTiles = [...tray.querySelectorAll('.tile:not(.drop-placeholder)')];
+          const phIdx = [...tray.children].indexOf(el._placeholder);
+          const spacerCount = 1; // left spacer
+          let toIdx = Math.max(0, phIdx - spacerCount);
+          el._placeholder.remove();
+          const fromIdx = el._fromIdx;
+          if (fromIdx !== toIdx && fromIdx !== undefined) {
+            const tile = hand.splice(fromIdx, 1)[0];
+            if (toIdx > fromIdx) toIdx--;
+            hand.splice(toIdx, 0, tile);
+          }
+          this.gs.selectedTileIndex = -1;
+          this.renderPlayerHand();
+        }
+      };
+      el.addEventListener('pointerup', endDrag);
+      el.addEventListener('pointercancel', endDrag);
 
       tray.appendChild(el);
     });
-
-    // ===== DRAG TO REORDER + TAP TO SELECT + SWIPE TO SCROLL =====
-    const HOLD_MS = 500;
-    const MOVE_THRESH = 8;
-    const self = this;
-    const handTiles = Array.from(tray.querySelectorAll('.tile'));
-    let dragState = null;
-
-    handTiles.forEach((el, idx) => {
-      el.addEventListener('pointerdown', (e) => {
-        e.preventDefault();
-        const pid = e.pointerId;
-        const startX = e.clientX, startY = e.clientY;
-        const scrollStart = tray.scrollLeft;
-        let moved = false, scrolling = false, grabbed = false;
-
-        const holdTimer = setTimeout(() => {
-          if (!moved) {
-            grabbed = true;
-            startDrag(el, idx, startX, startY, pid);
-          }
-        }, HOLD_MS);
-
-        const hintTimer = setTimeout(() => {
-          if (!moved && !grabbed) {
-            el.style.transform = 'scale(1.05)';
-            el.style.transition = 'transform 0.15s';
-          }
-        }, 200);
-
-        function onMove(ev) {
-          if (ev.pointerId !== pid) return;
-          const dx = ev.clientX - startX;
-          const dy = ev.clientY - startY;
-
-          if (dragState) {
-            dragState.clone.style.left = (ev.clientX - dragState.offsetX) + 'px';
-            dragState.clone.style.top = (ev.clientY - dragState.offsetY) + 'px';
-            updateDragPosition(ev.clientX);
-            return;
-          }
-
-          if (!moved && (Math.abs(dx) > MOVE_THRESH || Math.abs(dy) > MOVE_THRESH)) {
-            moved = true;
-            clearTimeout(holdTimer);
-            clearTimeout(hintTimer);
-            el.style.transform = '';
-            el.style.transition = '';
-            if (Math.abs(dx) > Math.abs(dy)) scrolling = true;
-          }
-
-          if (scrolling) {
-            tray.scrollLeft = scrollStart - dx;
-          }
-        }
-
-        function onUp(ev) {
-          if (ev.pointerId !== pid) return;
-          clearTimeout(holdTimer);
-          clearTimeout(hintTimer);
-          el.style.transform = '';
-          el.style.transition = '';
-          document.removeEventListener('pointermove', onMove);
-          document.removeEventListener('pointerup', onUp);
-          document.removeEventListener('pointercancel', onUp);
-
-          if (dragState) {
-            endDrag();
-            return;
-          }
-
-          if (!moved && !grabbed) {
-            self.selectTile(idx);
-          }
-        }
-
-        document.addEventListener('pointermove', onMove);
-        document.addEventListener('pointerup', onUp);
-        document.addEventListener('pointercancel', onUp);
-      });
-    });
-
-    function startDrag(el, fromIdx, px, py, pid) {
-      const rect = el.getBoundingClientRect();
-      const clone = el.cloneNode(true);
-      clone.style.cssText = 'position:fixed;z-index:1000;pointer-events:none;width:' + rect.width + 'px;height:' + rect.height + 'px;left:' + rect.left + 'px;top:' + rect.top + 'px;transform:scale(1.1);box-shadow:0 12px 40px rgba(0,0,0,0.35);opacity:1;transition:none;border-radius:14px;overflow:hidden;will-change:left,top;';
-      document.body.appendChild(clone);
-
-      el.style.opacity = '0.3';
-      el.style.transform = 'scale(0.95)';
-
-      const rects = handTiles.map(t => t.getBoundingClientRect());
-      if (navigator.vibrate) navigator.vibrate(30);
-
-      dragState = {
-        clone,
-        fromIdx,
-        toIdx: fromIdx,
-        el,
-        offsetX: px - rect.left,
-        offsetY: py - rect.top,
-        rects,
-        pid
-      };
-    }
-
-    function updateDragPosition(clientX) {
-      if (!dragState) return;
-      let newIdx = dragState.fromIdx;
-      for (let i = 0; i < dragState.rects.length; i++) {
-        const r = dragState.rects[i];
-        const mid = r.left + r.width / 2;
-        if (clientX < mid) { newIdx = i; break; }
-        if (i === dragState.rects.length - 1) newIdx = dragState.rects.length - 1;
-      }
-
-      if (newIdx !== dragState.toIdx) {
-        dragState.toIdx = newIdx;
-        const from = dragState.fromIdx;
-        const shiftDist = dragState.rects[0] ? dragState.rects[0].width + 4 : 60;
-
-        handTiles.forEach((t, i) => {
-          if (i === from) return;
-          t.style.transition = 'transform 0.15s ease';
-          if (from < newIdx) {
-            t.style.transform = (i > from && i <= newIdx) ? 'translateX(-' + shiftDist + 'px)' : '';
-          } else if (from > newIdx) {
-            t.style.transform = (i >= newIdx && i < from) ? 'translateX(' + shiftDist + 'px)' : '';
-          } else {
-            t.style.transform = '';
-          }
-        });
-      }
-    }
-
-    function endDrag() {
-      if (!dragState) return;
-      dragState.clone.remove();
-
-      handTiles.forEach(t => {
-        t.style.transform = '';
-        t.style.transition = '';
-        t.style.opacity = '';
-      });
-
-      const from = dragState.fromIdx;
-      const to = dragState.toIdx;
-      if (from !== to && from >= 0 && to >= 0) {
-        const moved = hand.splice(from, 1)[0];
-        hand.splice(to, 0, moved);
-      }
-
-      dragState = null;
-      self.gs.selectedTileIndex = -1;
-      self.renderPlayerHand();
-    }
-
     // Right spacer
     const spacerR = document.createElement('div');
     spacerR.style.cssText = 'min-width:20px;flex-shrink:0;';
     tray.appendChild(spacerR);
-
-    // Re-apply fit mode if active (tiles were just recreated)
-    if (this._fitMode) {
-      const tiles = tray.querySelectorAll('.tile');
-      const count = tiles.length || 13;
-      const trayW = tray.clientWidth - 40;
-      const tileW = Math.min(92, Math.floor(trayW / count) - 4);
-      const tileH = Math.round(tileW * 1.3);
-      tiles.forEach(t => { t.style.width = tileW+'px'; t.style.height = tileH+'px'; });
-      tray.style.flexWrap = 'nowrap';
-    }
-    // Sync button text
-    var fitBtn = document.getElementById('hand-fit-btn');
-    if (fitBtn) fitBtn.textContent = this._fitMode ? '⊟ Big' : '⊞ Fit';
   }
 
   renderMelds() {
@@ -5072,7 +4314,7 @@ class GameController {
       const bubble = document.getElementById(`p-${seat}`);
       if (!bubble) continue;
 
-      const isActive = (this.gs.phase !== 'waiting' && this.gs.phase !== 'dealing') && (i === this.gs.currentPlayer);
+      const isActive = (i === this.gs.currentPlayer);
       bubble.classList.toggle('active', isActive);
 
       const scoreEl = document.getElementById(`score-${seat}`);
@@ -5089,8 +4331,7 @@ class GameController {
   }
 
   updateWallInfo() {
-    const wallCount = this.mpMode ? (this.gs.mpTilesLeft || 0) : this.gs.wall.length;
-    document.getElementById('tiles-left').textContent = wallCount;
+    document.getElementById('tiles-left').textContent = this.gs.wall.length;
     document.getElementById('dealer-wind').textContent = WIND_CHARS[WINDS[this.gs.dealerSeat]];
     const wind = this.gs.roundWind ? this.gs.roundWind.toUpperCase() : 'EAST';
     const subtitle = document.getElementById('header-subtitle');
@@ -5108,7 +4349,6 @@ class GameController {
   }
 
   updateActionButtons() {
-    if (this.mpMode) return;
     const btns = {
       skip: document.getElementById('btn-skip'),
       chi: document.getElementById('btn-chi'),
@@ -5143,7 +4383,7 @@ class GameController {
       }
 
       // Check for self-kong or tsumo
-      if (this._floatingDrawnTile ? this.gs.canMahjong(1, this._floatingDrawnTile) : this.gs.canMahjong(1)) btns.mahjong.classList.add('visible');
+      if (this.gs.canMahjong(1)) btns.mahjong.classList.add('visible');
 
       const concealedKongs = gs.getConcealedKongs(1);
       const addKongs = gs.getAddKongs(1);
@@ -5156,29 +4396,21 @@ class GameController {
   // ========== PLAYER ACTIONS ==========
   selectTile(index) {
     if (this.gs.currentPlayer !== 1 || this.gs.phase !== 'discard') return;
-    // If floating drawn tile is showing, ignore hand tile taps — use Discard/Keep buttons
-    if (this._floatingDrawnTile) return;
     if (this.gs.selectedTileIndex === index) {
-      this.gs.selectedTileIndex = -1;
+      this.discardSelected();
     } else {
       this.gs.selectedTileIndex = index;
-    }
-    this.renderPlayerHand();
-    this.updateActionButtons();
-    if (this.mpMode && this._lastMpState) {
-      this.updateActionButtonsMP(this._lastMpState);
-      document.getElementById('btn-discard').classList.toggle('visible', this.gs.selectedTileIndex >= 0);
+      this.renderPlayerHand();
+      this.updateActionButtons();
     }
   }
 
   discardSelected() {
     if (this.gs.selectedTileIndex < 0) return;
-    if (this.mpMode) { this.mpSend({type:'discard',tileIndex:this.gs.selectedTileIndex}); this.gs.selectedTileIndex=-1; return; }
     this.discardTile(1, this.gs.selectedTileIndex);
   }
 
   sortPlayerHand() {
-    if (this.mpMode) { this.mpSend({ type: 'sort' }); return; }
     this.gs.sortHand(this.gs.players[1].hand);
     this.gs.selectedTileIndex = -1;
     this.renderPlayerHand();
@@ -5199,7 +4431,10 @@ class GameController {
   }
 
   drawPhase(pi) {
-    if (this.gs.wall.length === 0) { this.endGame('draw'); return; }
+    if (this.gs.wall.length === 0) {
+      this.endGame('draw');
+      return;
+    }
     const tile = this.gs.drawTileToHand(pi);
     this.gs.drawnTile = tile;
     if (this.gs.handleFlowers(pi)) {
@@ -5207,13 +4442,6 @@ class GameController {
     }
     this.gs.phase = 'discard';
     this.gs.justClaimed = false;
-    if (pi === 1 && !this.mpMode) {
-      const drawnIdx = this.gs.players[1].hand.findIndex(t => t.id === tile.id);
-      if (drawnIdx >= 0) {
-        const removedTile = this.gs.players[1].hand.splice(drawnIdx, 1)[0];
-        this.showFloatingDrawnTile(removedTile);
-      }
-    }
     this.renderAll();
   }
 
@@ -5288,7 +4516,6 @@ class GameController {
   }
 
   skipClaim() {
-    if (this.mpMode) { this.mpSend({ type: 'skip' }); return; }
     this.clearClaimTimer();
     this.hideClaimPanel();
     this.gs.claimWindow = false;
@@ -5510,7 +4737,6 @@ class GameController {
 
   // ========== HUMAN CLAIM ACTIONS ==========
   showChiOptions() {
-    if (this.mpMode) { this.mpSend({ type: 'claim', action: 'chi', combination: 0 }); return; }
     this.clearClaimTimer();
     const tile = this.gs.lastDiscard;
     const combos = this.gs.getChiCombinations(1, tile);
@@ -5552,7 +4778,6 @@ class GameController {
   }
 
   claimPong() {
-    if (this.mpMode) { this.mpSend({ type: 'claim', action: 'pong' }); return; }
     this.clearClaimTimer();
     this.hideClaimPanel();
     const tile = this.gs.lastDiscard;
@@ -5575,13 +4800,7 @@ class GameController {
   }
 
   showKongOptions() {
-    if (this.mpMode) { this.mpSend({ type: 'claim', action: 'kong' }); return; }
     this.clearClaimTimer();
-    let hadFloat = false;
-    if (this._floatingDrawnTile) {
-      hadFloat = true;
-      this.gs.players[1].hand.push(this._floatingDrawnTile);
-    }
     const options = [];
 
     if (this.gs.lastDiscard && this.gs.canKong(1, this.gs.lastDiscard)) {
@@ -5608,16 +4827,9 @@ class GameController {
       });
     }
 
-    // Remove floating tile after kong checks
-    if (hadFloat) {
-      const fIdx = this.gs.players[1].hand.findIndex(t => t.id === this._floatingDrawnTile.id);
-      if (fIdx >= 0) this.gs.players[1].hand.splice(fIdx, 1);
-    }
     if (options.length === 1) {
-      if (hadFloat) { this.gs.players[1].hand.push(this._floatingDrawnTile); this._floatingDrawnTile = null; this.hideFloatingDrawnTile(); }
       options[0].action();
     } else if (options.length > 1) {
-      if (hadFloat) { this.gs.players[1].hand.push(this._floatingDrawnTile); this._floatingDrawnTile = null; this.hideFloatingDrawnTile(); }
       this.showClaimPanel('Kong — Choose type:', options);
     }
   }
@@ -5649,7 +4861,6 @@ class GameController {
   }
 
   claimMahjong() {
-    if (this.mpMode) { this.mpSend({ type: 'mahjong' }); return; }
     this.clearClaimTimer();
     this.hideClaimPanel();
     const player = this.gs.players[1];
@@ -5659,13 +4870,6 @@ class GameController {
       this.gs.players[this.gs.lastDiscardPlayer].discards.pop();
       this.gs.winType = 'ron';
     } else {
-      // Tsumo: if floating tile exists, push it back into hand first
-      if (this._floatingDrawnTile) {
-        player.hand.push(this._floatingDrawnTile);
-        this.gs.drawnTile = this._floatingDrawnTile;
-        this.hideFloatingDrawnTile();
-        this.gs.sortHand(player.hand);
-      }
       this.gs.winType = 'tsumo';
     }
     this.gs.claimWindow = false;
@@ -5676,38 +4880,27 @@ class GameController {
   endGame(result, winner = -1) {
     this.gs.phase = 'ended';
     this.clearClaimTimer();
-    this.hideFloatingDrawnTile();
     this.renderAll();
 
     if (result === 'draw') {
-      this.showModal('流局 — Draw', 'No tiles remaining.', 'New Game');
-      document.getElementById('modal-btn').onclick = () => { this.hideModal(); this.showWelcome(); };
+      this.showModal('流局 — Draw', 'No tiles remaining.', 'Play Again');
     } else {
       const name = PLAYER_NAMES[winner];
       const emoji = PLAYER_EMOJIS[winner];
       const winLabel = this.gs.winType === 'tsumo' ? '自摸 Tsumo' : this.gs.winType === 'rob' ? '搶槓 Rob Kong' : '食糊 Ron';
-      const scoring = this.scoreHand(winner);
-      const isTsumo = this.gs.winType === 'tsumo';
-      for (let i = 0; i < 4; i++) {
-        if (i === winner) { this.gs.players[i].score += isTsumo ? scoring.points * 3 : scoring.points * 3; }
-        else if (isTsumo) { this.gs.players[i].score -= scoring.points; }
-        else if (i === this.gs.lastDiscardPlayer) { this.gs.players[i].score -= scoring.points * 3; }
-      }
-      this.showConfetti();
-      let content = '<p>' + emoji + ' ' + name + ' wins by ' + winLabel + '!</p>';
-      content += '<div style="margin:8px 0;padding:8px;background:rgba(192,168,120,0.1);border-radius:8px;text-align:left;font-size:12px;">';
-      content += '<div style="font-weight:700;margin-bottom:4px;">Scoring (' + scoring.totalFaan + ' Faan = ' + scoring.points.toLocaleString() + ' pts)</div>';
-      for (const f of scoring.faan) content += '<div>' + f.name + (f.value > 0 ? ' +' + f.value : '') + '</div>';
-      content += '</div>';
+
+      let content = `<p>${emoji} ${name} wins by ${winLabel}!</p>`;
       content += '<div class="score-table">';
       for (let i = 0; i < 4; i++) {
-        const isW = i === winner;
-        const diff = isW ? '+' + (isTsumo ? scoring.points*3 : scoring.points*3) : (i === this.gs.lastDiscardPlayer && !isTsumo ? '-' + scoring.points*3 : (isTsumo ? '-' + scoring.points : ''));
-        content += '<div class="score-row' + (isW ? ' winner' : '') + '"><span class="player-name">' + PLAYER_EMOJIS[i] + ' ' + PLAYER_NAMES[i] + '</span><span class="player-score">' + this.gs.players[i].score.toLocaleString() + ' <span style="font-size:11px;color:' + (isW?'#2a8a2a':'#aa3333') + '">' + diff + '</span></span></div>';
+        const isWinner = i === winner;
+        content += `<div class="score-row${isWinner ? ' winner' : ''}">
+          <span class="player-name">${PLAYER_EMOJIS[i]} ${PLAYER_NAMES[i]}</span>
+          <span class="player-score">${this.gs.players[i].score.toLocaleString()}</span>
+        </div>`;
       }
       content += '</div>';
-      this.showModal(emoji + ' ' + name + ' Wins!', '', 'New Game', content);
-      if (!this.mpMode) document.getElementById('modal-btn').onclick = () => { this.hideModal(); this.showWelcome(); };
+
+      this.showModal(`${emoji} ${name} Wins!`, '', 'Play Again', content);
     }
   }
 
@@ -5715,50 +4908,29 @@ class GameController {
   toggleDiscardView() {
     this.renderer.discardViewActive = !this.renderer.discardViewActive;
     const bar = document.getElementById('discard-sort-bar');
-    const floatEl = document.getElementById('drawn-tile-float');
-    const handArea = document.querySelector('.hand-tray');
-    const actionBar = document.getElementById('action-bar');
-
     if (this.renderer.discardViewActive) {
-      // Dynamic zoom based on discard count — just zoom, DON'T move tiles
-      var totalDiscards = this.gs.players.reduce(function(sum, p) { return sum + p.discards.length; }, 0);
-      var zoomY = Math.max(10, Math.min(18, 9 + totalDiscards * 0.2));
-      this.renderer.animateCameraTo([0, zoomY, 0.1], [0, 0, 0], 500);
+      // Animate camera to top-down
+      this.renderer.animateCameraTo([0, 12, 0.5], [0, 0, 0], 500);
       bar.classList.add('show');
-      // Hide hand UI
-      if (floatEl) floatEl.style.visibility = 'hidden';
-      ['p-north','p-south','p-east','p-west'].forEach(function(id){ var el=document.getElementById(id); if(el) el.style.visibility='hidden'; });
-      if (handArea) handArea.style.visibility = 'hidden';
-      if (actionBar) actionBar.style.visibility = 'hidden';
-      // Mark default as active
-      var dBtn = document.getElementById('dsb-default');
-      var sBtn = document.getElementById('dsb-suit');
-      if (dBtn) dBtn.classList.add('active');
-      if (sBtn) sBtn.classList.remove('active');
-      this._discardZoomMode = 'default';
+      // Default sort: by player
+      this.setDiscardSort('player');
     } else {
-      // Zoom back out to normal
-      this.renderer.animateCameraTo([0, 9, 13], [0, 0, 0], 500);
+      // Animate camera back to normal
+      this.renderer.animateCameraTo([0, 7, 10.5], [0, 0, 0], 500);
       bar.classList.remove('show');
-      // Show hand UI
-      if (floatEl) floatEl.style.visibility = '';
-      ['p-north','p-south','p-east','p-west'].forEach(function(id){ var el=document.getElementById(id); if(el) el.style.visibility=''; });
-      if (handArea) handArea.style.visibility = '';
-      if (actionBar) actionBar.style.visibility = '';
-      // Always restore tiles to default player positions
-      var allDiscards = this.gs.players.map(function(p) { return p.discards; });
-      this.renderer.animateDiscardsToPositions(allDiscards, 'player');
-      this._discardZoomMode = null;
+      // Restore organic layout
+      const allDiscards = this.gs.players.map(p => p.discards);
+      this.renderer.animateDiscardsToPositions(allDiscards, 'organic');
     }
   }
 
   setDiscardSort(mode) {
     this.renderer.discardSortMode = mode;
     // Update active button
-    for (const id of ['dsb-player']) {
+    for (const id of ['dsb-player', 'dsb-suit', 'dsb-organic']) {
       document.getElementById(id).classList.remove('active');
     }
-    const btnMap = { player: 'dsb-player' };
+    const btnMap = { player: 'dsb-player', suit: 'dsb-suit', organic: 'dsb-organic' };
     if (btnMap[mode]) document.getElementById(btnMap[mode]).classList.add('active');
     // Animate tiles
     const allDiscards = this.gs.players.map(p => p.discards);
@@ -5916,519 +5088,6 @@ class GameController {
     el.classList.add('show');
     setTimeout(() => el.classList.remove('show'), 1200);
   }
-
-  // ========== FEATURE: showWelcome ==========
-  showWelcome() {
-    ['modal-step-mode','modal-step-solo','modal-step-mp-choice','modal-step-mp-create','modal-step-mp-join'].forEach(id => {
-      const el = document.getElementById(id); if (el) el.style.display = 'none';
-    });
-    document.getElementById('modal-step-mode').style.display = 'block';
-    document.getElementById('modal-title').textContent = '紙墨麻雀';
-    document.getElementById('modal-text').textContent = 'Paper & Ink Mahjong';
-    document.getElementById('modal-content').innerHTML = '';
-    document.getElementById('modal').classList.add('show');
-    document.getElementById('modal-btn').onclick = null;
-    this.hideFloatingDrawnTile();
-  }
-
-  // ========== FEATURE: initSetupScreen ==========
-  initSetupScreen(targetEl, mode) {
-    const container = typeof targetEl === 'string' ? document.getElementById(targetEl) : targetEl;
-    if (!container) return;
-    container.innerHTML = '';
-    const wrap = document.createElement('div'); wrap.className = 'setup-container';
-    const avatars = ['chen','lin','kenji','keni','mei','takeshi','yuna','hao','robot','alien','shiba','panda','dragon','neko'];
-    const colors = [{name:'Random',color:null,emoji:'🎲'},{name:'Gold',color:'#C0A878'},{name:'Jade',color:'#4a7a4a'},{name:'Rose',color:'#8a4a5a'},{name:'Sky',color:'#4a6a8a'},{name:'Plum',color:'#6a4a7a'},{name:'Ink',color:'#3a3a3a'},{name:'Teal',color:'#3a7a7a'},{name:'Rust',color:'#8a5a3a'}];
-    const mats = [{name:'Random',file:null,emoji:'🎲'},{name:'Classic',file:'assets/table-mat.jpg'},{name:'Jade',file:'assets/mat-jade.jpg'},{name:'Crimson',file:'assets/mat-crimson.jpg'},{name:'Night',file:'assets/mat-night.jpg'},{name:'Bamboo',file:'assets/mat-bamboo.jpg'}];
-    const bgs = [{name:'Random',file:null,emoji:'🎲'},{name:'Wood',file:null,css:'#B89A6A'},{name:'Bamboo',file:'assets/bg-bamboo.jpg'},{name:'Galaxy',file:'assets/bg-galaxy.jpg'},{name:'Mountains',file:'assets/bg-mountains.jpg'},{name:'Beach',file:'assets/bg-beach.jpg'},{name:'Sakura',file:'assets/bg-sakura.jpg'},{name:'Temple',file:'assets/bg-temple.jpg'}];
-    let savedName = localStorage.getItem('mj_name') || '';
-    let savedAvatar = localStorage.getItem('mj_avatar') || 'chen';
-    let savedColor = localStorage.getItem('mj_color') || 'random';
-    let savedMat = localStorage.getItem('mj_mat') || 'random';
-    let savedBg = localStorage.getItem('mj_bg') || 'random';
-
-    const ns = document.createElement('div'); ns.className = 'setup-section';
-    ns.innerHTML = '<div class="setup-label">Your Name</div>';
-    const ni = document.createElement('input'); ni.type = 'text'; ni.placeholder = 'Enter name'; ni.maxLength = 12; ni.value = savedName;
-    ni.addEventListener('input', () => localStorage.setItem('mj_name', ni.value));
-    ns.appendChild(ni); wrap.appendChild(ns);
-
-    const as = document.createElement('div'); as.className = 'setup-section';
-    as.innerHTML = '<div class="setup-label">Avatar</div>';
-    const ag = document.createElement('div'); ag.className = 'avatar-grid';
-    avatars.forEach(av => {
-      const opt = document.createElement('div');
-      opt.className = 'avatar-option' + (av === savedAvatar ? ' selected' : '');
-      const img = document.createElement('img'); img.src = 'assets/avatar-' + av + '.jpg'; img.alt = av;
-      opt.appendChild(img);
-      opt.addEventListener('click', () => { ag.querySelectorAll('.avatar-option').forEach(o => o.classList.remove('selected')); opt.classList.add('selected'); localStorage.setItem('mj_avatar', av); });
-      ag.appendChild(opt);
-    });
-    as.appendChild(ag); wrap.appendChild(as);
-
-    if (mode !== 'multiplayer') {
-      const cs = document.createElement('div'); cs.className = 'setup-section';
-      cs.innerHTML = '<div class="setup-label">Tile Accent Color</div>';
-      const cg = document.createElement('div'); cg.className = 'color-grid';
-      colors.forEach(c => {
-        const sw = document.createElement('div');
-        sw.className = 'color-swatch' + (savedColor === (c.color || 'random') ? ' selected' : '');
-        if (c.color) sw.style.background = c.color; if (c.emoji) sw.textContent = c.emoji;
-        sw.addEventListener('click', () => { cg.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected')); sw.classList.add('selected'); localStorage.setItem('mj_color', c.color || 'random'); });
-        cg.appendChild(sw);
-      });
-      cs.appendChild(cg); wrap.appendChild(cs);
-
-      const ms = document.createElement('div'); ms.className = 'setup-section';
-      ms.innerHTML = '<div class="setup-label">Table Mat</div>';
-      const mg = document.createElement('div'); mg.className = 'preset-grid';
-      mats.forEach(m => {
-        const th = document.createElement('div');
-        th.className = 'preset-thumb' + (savedMat === (m.file || 'random') ? ' selected' : '');
-        if (m.file) th.style.backgroundImage = 'url(' + m.file + ')';
-        th.textContent = m.emoji || m.name;
-        th.addEventListener('click', () => { mg.querySelectorAll('.preset-thumb').forEach(t => t.classList.remove('selected')); th.classList.add('selected'); localStorage.setItem('mj_mat', m.file || 'random'); });
-        mg.appendChild(th);
-      });
-      ms.appendChild(mg); wrap.appendChild(ms);
-
-      const bs = document.createElement('div'); bs.className = 'setup-section';
-      bs.innerHTML = '<div class="setup-label">Background</div>';
-      const bg2 = document.createElement('div'); bg2.className = 'preset-grid';
-      bgs.forEach(b => {
-        const th = document.createElement('div');
-        th.className = 'preset-thumb' + (savedBg === (b.file || b.css || 'random') ? ' selected' : '');
-        if (b.file) th.style.backgroundImage = 'url(' + b.file + ')'; else if (b.css) th.style.background = b.css;
-        th.textContent = b.emoji || b.name; th.style.fontSize = '10px'; th.style.color = '#fff'; th.style.textShadow = '0 1px 2px black';
-        th.addEventListener('click', () => { bg2.querySelectorAll('.preset-thumb').forEach(t => t.classList.remove('selected')); th.classList.add('selected'); localStorage.setItem('mj_bg', b.file || b.css || 'random'); });
-        bg2.appendChild(th);
-      });
-      bs.appendChild(bg2); wrap.appendChild(bs);
-    }
-    container.appendChild(wrap);
-  }
-
-  // ========== FEATURE: applySetupSettings ==========
-  applySetupSettings() {
-    const savedColor = localStorage.getItem('mj_color') || 'random';
-    const savedMat = localStorage.getItem('mj_mat') || 'random';
-    const savedBg = localStorage.getItem('mj_bg') || 'random';
-    const savedName = localStorage.getItem('mj_name');
-    const allColors = ['#C0A878','#4a7a4a','#8a4a5a','#4a6a8a','#6a4a7a','#3a3a3a','#3a7a7a','#8a5a3a'];
-    const allMats = ['assets/table-mat.jpg','assets/mat-jade.jpg','assets/mat-crimson.jpg','assets/mat-night.jpg','assets/mat-bamboo.jpg'];
-    const allBgs = ['assets/bg-bamboo.jpg','assets/bg-galaxy.jpg','assets/bg-mountains.jpg','assets/bg-beach.jpg','assets/bg-sakura.jpg','assets/bg-temple.jpg'];
-    const pick = arr => arr[Math.floor(Math.random() * arr.length)];
-    const color = savedColor === 'random' ? pick(allColors) : savedColor;
-    document.documentElement.style.setProperty('--tile-accent', color);
-    this.renderer.tileAccentColor = parseInt(color.replace('#',''), 16);
-    this.renderer.tileTextures = {}; this.renderer._backTex = null;
-    const bg = savedBg === 'random' ? (Math.random() > 0.3 ? pick(allBgs) : '#B89A6A') : savedBg;
-    this.applyBackground(bg);
-    const mat = savedMat === 'random' ? pick(allMats) : savedMat;
-    this.applyMat(mat);
-    if (savedName) {
-      PLAYER_NAMES[1] = savedName;
-      var ns = document.querySelector('.player-label .name'); if (ns) ns.textContent = 'PLAYER 4: ' + savedName;
-      var sb = document.getElementById('p-south'); if (sb) { var sn = sb.querySelector('.name'); if (sn) sn.textContent = savedName; }
-    }
-    var savedAvatar = localStorage.getItem('mj_avatar') || 'chen';
-    var avatarFile = 'assets/avatar-' + savedAvatar + '.jpg';
-    var southAv = document.querySelector('#p-south .bubble-avatar');
-    if (southAv) { southAv.style.backgroundImage = 'url(' + avatarFile + ')'; southAv.style.backgroundSize = 'cover'; southAv.className = 'bubble-avatar'; }
-    var playerAv = document.querySelector('.player-label .avatar');
-    if (playerAv) { playerAv.style.backgroundImage = 'url(' + avatarFile + ')'; playerAv.style.backgroundSize = 'cover'; playerAv.className = 'avatar'; }
-    var kanjiMap = {chen:'陳',lin:'林',kenji:'健',keni:'雪',mei:'美',takeshi:'武',yuna:'由',hao:'浩',robot:'⟡',alien:'☆',shiba:'犬',panda:'熊',dragon:'龍',neko:'猫'};
-    PLAYER_EMOJIS[1] = kanjiMap[savedAvatar] || '陳';
-  }
-
-  applyBackground(bgVal) { console.log("[BG] applying:", bgVal);
-    var canvas = document.getElementById('game-canvas');
-    if (!bgVal || bgVal === '#B89A6A') {
-      // Restore default procedural sky
-      canvas.style.background = '';
-      this.renderer.createBackgroundSky();
-      this.renderer.renderer.setClearAlpha(1);
-      return;
-    }
-    // Clear Three.js scene background so canvas CSS shows through
-    this.renderer.scene.background = null;
-    this.renderer.renderer.setClearColor(0x000000, 0);
-    this.renderer.renderer.setClearAlpha(0);
-    if (bgVal.startsWith('#')) {
-      canvas.style.background = bgVal;
-    } else {
-      canvas.style.background = 'url(' + bgVal + ') center/cover no-repeat';
-    }
-  }
-
-  applyMat(matPath) {
-    const loader = new THREE.TextureLoader();
-    loader.load(matPath, (tex) => {
-      this.renderer.scene.traverse((child) => {
-        if (child.isMesh && child.material && child.material.map && child.position.y > 0.002 && child.position.y < 0.01 && child.geometry.type === 'PlaneGeometry') {
-          child.material.map = tex; child.material.needsUpdate = true; this.renderer._matPlane = child;
-        }
-      });
-    });
-  }
-
-  // ========== FEATURE: showFloatingDrawnTile ==========
-  showFloatingDrawnTile(tile) {
-    this._floatingDrawnTile = tile;
-    let floatDiv = document.getElementById('drawn-tile-float');
-    if (!floatDiv) { floatDiv = document.createElement('div'); floatDiv.id = 'drawn-tile-float'; document.getElementById('ui-overlay').appendChild(floatDiv); }
-    floatDiv.innerHTML = ''; floatDiv.style.display = 'flex';
-    const tileEl = document.createElement('div'); tileEl.className = 'float-tile';
-    const texture = this.renderer.createTileTexture(tile); const srcCanvas = texture.image;
-    tileEl.style.backgroundImage = 'url(' + srcCanvas.toDataURL() + ')'; tileEl.style.backgroundSize = 'cover'; tileEl.style.backgroundPosition = 'center';
-    floatDiv.appendChild(tileEl);
-    const btns = document.createElement('div'); btns.className = 'float-buttons';
-    const discardBtn = document.createElement('button'); discardBtn.className = 'float-btn discard-btn'; discardBtn.textContent = 'Discard';
-    discardBtn.addEventListener('click', () => { const p = this.gs.players[1]; p.discards.push(tile); this.gs.lastDiscard = tile; this.gs.lastDiscardPlayer = 1; this.gs.drawnTile = null; this.hideFloatingDrawnTile(); this.gs.sortHand(p.hand); this.renderAll(); this.checkForClaims(); });
-    btns.appendChild(discardBtn);
-    const keepBtn = document.createElement('button'); keepBtn.className = 'float-btn keep-btn'; keepBtn.textContent = 'Keep';
-    keepBtn.addEventListener('click', () => { this.gs.players[1].hand.push(tile); this.gs.drawnTile = tile; this._floatingDrawnTile = null; floatDiv.style.display = 'none'; floatDiv.innerHTML = ''; this.gs.sortHand(this.gs.players[1].hand); this.renderAll(); });
-    btns.appendChild(keepBtn); floatDiv.appendChild(btns);
-  }
-
-  hideFloatingDrawnTile() {
-    const f = document.getElementById('drawn-tile-float'); if (f) { f.style.display = 'none'; f.innerHTML = ''; }
-    this._floatingDrawnTile = null;
-  }
-
-  // ========== FEATURE: showConfetti ==========
-  showConfetti() {
-    const overlay = document.createElement('div'); overlay.className = 'confetti-overlay';
-    const emojis = ['🎊','🎉','🀄','✨','🌟','💫','🎆','🏆','🥇','🎇'];
-    for (let i = 0; i < 50; i++) {
-      const p = document.createElement('div'); p.className = 'confetti-piece';
-      p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-      p.style.left = Math.random() * 100 + '%'; p.style.animationDuration = (2 + Math.random() * 3) + 's';
-      p.style.animationDelay = Math.random() * 2 + 's'; p.style.fontSize = (16 + Math.random() * 20) + 'px';
-      overlay.appendChild(p);
-    }
-    document.body.appendChild(overlay); setTimeout(() => overlay.remove(), 6000);
-  }
-
-  // ========== FEATURE: scoreHand (HK scoring) ==========
-  scoreHand(winnerIdx) {
-    const player = this.gs.players[winnerIdx]; const hand = [...player.hand]; const melds = player.melds;
-    const flowers = player.flowers; const isTsumo = this.gs.winType === 'tsumo';
-    const faan = []; let totalFaan = 0;
-    if (isTsumo) { faan.push({ name: '自摸 Self-Draw', value: 1 }); totalFaan += 1; }
-    if (melds.filter(m => m.exposed).length === 0) { faan.push({ name: '門前清 Concealed Hand', value: 1 }); totalFaan += 1; }
-    if (melds.filter(m => m.type === 'chi').length === 0 && melds.length >= 3) { faan.push({ name: '對對糊 All Pungs', value: 3 }); totalFaan += 3; }
-    melds.filter(m => m.tiles[0] && m.tiles[0].dragon).forEach(dm => { faan.push({ name: dm.tiles[0].dragon + ' Dragon Pung', value: 1 }); totalFaan += 1; });
-    const seatWind = WINDS[winnerIdx];
-    if (melds.some(m => m.tiles[0] && m.tiles[0].wind === seatWind)) { faan.push({ name: '門風 Seat Wind (' + seatWind + ')', value: 1 }); totalFaan += 1; }
-    const roundWind = this.gs.roundWind || 'East';
-    if (melds.some(m => m.tiles[0] && m.tiles[0].wind === roundWind) && roundWind !== seatWind) { faan.push({ name: '圈風 Round Wind (' + roundWind + ')', value: 1 }); totalFaan += 1; }
-    if (flowers.length > 0) { faan.push({ name: '花牌 Flowers x' + flowers.length, value: flowers.length }); totalFaan += flowers.length; }
-    const allTiles = [...hand, ...melds.flatMap(m => m.tiles)];
-    const suits = new Set(allTiles.filter(t => t.suit && t.num).map(t => t.suit));
-    const hasHonors = allTiles.some(t => t.wind || t.dragon);
-    if (suits.size === 1 && !hasHonors) { faan.push({ name: '清一色 Pure One Suit', value: 7 }); totalFaan += 7; }
-    else if (suits.size === 1 && hasHonors) { faan.push({ name: '混一色 Mixed One Suit', value: 3 }); totalFaan += 3; }
-    if (totalFaan < 1) { faan.push({ name: '雞糊 Chicken Hand', value: 0 }); totalFaan = 1; }
-    return { faan, totalFaan, points: 8 * Math.pow(2, totalFaan) };
-  }
-
-  // ========== FEATURE: showRollDicePrompt ==========
-  showRollDicePrompt() {
-    return new Promise((resolve) => {
-      var overlay = document.createElement('div');
-      overlay.id = 'roll-prompt';
-      overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(40,32,24,0.3);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);';
-      overlay.innerHTML = '<div style="text-align:center;"><div style="font-size:48px;margin-bottom:16px;">🎲</div><button id="roll-dice-btn" style="background:#5a4a38;color:#f5ead8;border:2px solid rgba(255,255,255,0.3);border-radius:16px;padding:16px 48px;font-size:18px;font-weight:700;font-family:Helvetica Neue,sans-serif;cursor:pointer;letter-spacing:1px;box-shadow:0 8px 24px rgba(0,0,0,0.3);transition:all 0.2s;">Roll Dice</button></div>';
-      document.body.appendChild(overlay);
-      document.getElementById('roll-dice-btn').addEventListener('click', function() {
-        overlay.style.transition = 'opacity 0.3s';
-        overlay.style.opacity = '0';
-        setTimeout(function() { overlay.remove(); resolve(); }, 300);
-      });
-    });
-  }
-
-  // ========== FEATURE: rollDice ==========
-  rollDice() {
-    return new Promise((resolve) => {
-      this.showToast('🎲 Rolling dice...');
-      var discardBtn = document.getElementById('btn-discards'); if (discardBtn) discardBtn.style.display = 'none';
-      const scene = this.renderer.scene;
-      const camera = this.renderer.camera;
-      const origCamPos = camera.position.clone();
-
-      function makeFaceTex(dots) {
-        const c = document.createElement('canvas'); c.width = 128; c.height = 128;
-        const ctx = c.getContext('2d');
-        ctx.fillStyle = '#fffff8'; ctx.fillRect(0, 0, 128, 128);
-        // no border — clean edges
-        ctx.fillStyle = '#1a1410';
-        const r = 10;
-        const pos = {1:[[64,64]],2:[[38,38],[90,90]],3:[[38,38],[64,64],[90,90]],4:[[38,38],[90,38],[38,90],[90,90]],5:[[38,38],[90,38],[64,64],[38,90],[90,90]],6:[[38,38],[90,38],[38,64],[90,64],[38,90],[90,90]]};
-        for (const [x,y] of (pos[dots]||[])) { ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill(); }
-        return new THREE.CanvasTexture(c);
-      }
-
-      const geo = new THREE.BoxGeometry(0.42, 0.42, 0.42);
-      const results = [Math.ceil(Math.random()*6), Math.ceil(Math.random()*6), Math.ceil(Math.random()*6)];
-      // Face rotation targets: which rotation puts face N on top (+y)
-      const faceRot = {1:{x:0,z:0}, 2:{x:0,z:Math.PI/2}, 3:{x:-Math.PI/2,z:0}, 4:{x:Math.PI/2,z:0}, 5:{x:0,z:-Math.PI/2}, 6:{x:Math.PI,z:0}};
-      const targetRots = results.map(r => faceRot[r]||{x:0,z:0});
-      const dice = [];
-      const startX = [-1.5, 0, 1.5];
-
-      for (let i = 0; i < 3; i++) {
-        const mats = [2,5,1,6,3,4].map(n => new THREE.MeshStandardMaterial({map:makeFaceTex(n),roughness:0.5}));
-        const die = new THREE.Mesh(geo, mats);
-        die.position.set(startX[i]+(Math.random()-0.5)*0.4, 2.5+Math.random()*1.0, (Math.random()-0.5)*0.5);
-        die.castShadow = true;
-        scene.add(die);
-        dice.push({mesh:die, vy:-(Math.random()*0.02+0.01), vx:(Math.random()-0.5)*0.04, vz:(Math.random()-0.5)*0.04,
-          avx:(Math.random()-0.5)*0.5, avy:(Math.random()-0.5)*0.5, avz:(Math.random()-0.5)*0.5, bounces:0, settled:false});
-      }
-
-      const gravity=-0.012, floor=0.25, dampening=0.25, angDamp=0.92;
-      let frame=0; const maxFrames=200;
-
-      const animate = () => {
-        frame++;
-        for (const d of dice) {
-          if (d.settled) continue;
-          d.vy+=gravity; d.mesh.position.y+=d.vy; d.mesh.position.x+=d.vx; d.mesh.position.z+=d.vz;
-          d.mesh.rotation.x+=d.avx; d.mesh.rotation.y+=d.avy; d.mesh.rotation.z+=d.avz;
-          d.avx*=angDamp; d.avy*=angDamp; d.avz*=angDamp; d.vx*=0.98; d.vz*=0.98;
-
-          // Subtle steering toward target face (cubic ramp — imperceptible early, gentle late)
-          var di=dice.indexOf(d), tr=targetRots[di];
-          var curX=((d.mesh.rotation.x%(Math.PI*2))+Math.PI*2)%(Math.PI*2);
-          var curZ=((d.mesh.rotation.z%(Math.PI*2))+Math.PI*2)%(Math.PI*2);
-          var tarX=((tr.x%(Math.PI*2))+Math.PI*2)%(Math.PI*2);
-          var tarZ=((tr.z%(Math.PI*2))+Math.PI*2)%(Math.PI*2);
-          var dfx=tarX-curX; if(dfx>Math.PI)dfx-=Math.PI*2; if(dfx<-Math.PI)dfx+=Math.PI*2;
-          var dfz=tarZ-curZ; if(dfz>Math.PI)dfz-=Math.PI*2; if(dfz<-Math.PI)dfz+=Math.PI*2;
-          var p=frame/maxFrames, str=p*p*p*0.015;
-          d.avx+=dfx*str; d.avz+=dfz*str;
-
-          if (d.mesh.position.y<floor) {
-            d.mesh.position.y=floor;
-            if (Math.abs(d.vy)<0.008) {d.vy=0;d.settled=true;d.avx=0;d.avy=0;d.avz=0;} else {d.vy=Math.abs(d.vy)*dampening;d.bounces++;d.avx+=(Math.random()-0.5)*0.08;d.avz+=(Math.random()-0.5)*0.08;}
-            if (d.bounces>4) {d.vy=0;d.settled=true;}
-          }
-          d.mesh.position.x=Math.max(-2,Math.min(2,d.mesh.position.x));
-          d.mesh.position.z=Math.max(-2,Math.min(2,d.mesh.position.z));
-          // Push apart
-          for (const d2 of dice) { if(d2===d)continue; var dx=d.mesh.position.x-d2.mesh.position.x,dz=d.mesh.position.z-d2.mesh.position.z,dist=Math.sqrt(dx*dx+dz*dz);
-            if(dist<0.8&&dist>0.01){var push=(0.8-dist)*0.4;d.mesh.position.x+=(dx/dist)*push;d.mesh.position.z+=(dz/dist)*push;}}
-        }
-
-        if (!dice.every(d=>d.settled) && frame<maxFrames) { requestAnimationFrame(animate); return; }
-
-        // Settled — snap to exact (should be very close already)
-        for (var i=0;i<3;i++) {
-            dice[i].mesh.rotation.order = 'XYZ';
-            dice[i].mesh.rotation.set(targetRots[i].x, 0, targetRots[i].z);
-            // Apply y-rotation for organic look via quaternion (doesn't affect which face is up)
-            var yQuat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), (Math.random()-0.5)*1.0);
-            dice[i].mesh.quaternion.premultiply(yQuat);
-            dice[i].mesh.position.y = floor;
-          }
-
-        // Camera swoop after 400ms
-        setTimeout(() => {
-          var cx=dice.reduce((s,d)=>s+d.mesh.position.x,0)/3, cz=dice.reduce((s,d)=>s+d.mesh.position.z,0)/3;
-          var swoopTarget=new THREE.Vector3(cx,0,cz), swoopPos=new THREE.Vector3(cx,7,cz+0.5);
-          var swoopStart=performance.now();
-          var swoopAnim=()=>{
-            var t=Math.min((performance.now()-swoopStart)/800,1), ease=t*t*(3-2*t);
-            camera.position.lerpVectors(origCamPos,swoopPos,ease);
-            camera.lookAt(new THREE.Vector3().lerpVectors(new THREE.Vector3(0,0,0),swoopTarget,ease));
-            if(t<1){requestAnimationFrame(swoopAnim);return;}
-            var total=results[0]+results[1]+results[2];
-            this.showToast('🎲 '+results.join(' + ')+' = '+total);
-            var overlay=document.createElement('div'); overlay.id='dice-overlay';
-            overlay.style.cssText='position:fixed;top:70%;left:50%;transform:translate(-50%,-50%);z-index:200;text-align:center;animation:fadeInScale 0.4s ease;';
-            var dealer = ['East (Lin)','South (You)','West (Kenji)','North (Keni)'][total % 4];
-            var breakPos = total % 17 + 1;
-            overlay.innerHTML='<div style="font-size:56px;font-weight:900;color:#c0392b;text-shadow:0 2px 8px rgba(0,0,0,0.3);font-family:Helvetica Neue,sans-serif;">'+total+'</div>'
-              +'<div style="font-size:13px;color:#f5ead8;background:rgba(60,45,30,0.75);padding:8px 20px;border-radius:10px;margin-top:8px;line-height:1.6;max-width:280px;text-align:center;font-family:Helvetica Neue,sans-serif;">'
-              +'Break wall at tile <b>'+breakPos+'</b><br>Dealer: <b>'+dealer+'</b></div>'
-              +'<button id="lets-play-btn" style="margin-top:16px;background:#5a4a38;color:#f5ead8;border:2px solid rgba(255,255,255,0.3);border-radius:12px;padding:12px 36px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.3);font-family:Helvetica Neue,sans-serif;letter-spacing:0.5px;">Let\'s Play!</button>';
-            document.body.appendChild(overlay);
-            if(!document.getElementById('dice-anim-style')){var st=document.createElement('style');st.id='dice-anim-style';st.textContent='@keyframes fadeInScale{from{opacity:0;transform:translate(-50%,-50%) scale(0.5)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}';document.head.appendChild(st);}
-            document.getElementById('lets-play-btn').addEventListener('click', function() {
-              overlay.style.transition = 'opacity 0.3s'; overlay.style.opacity = '0';
-              // Restore camera
-              var rs = performance.now();
-              var ra = function() {
-                var t2 = Math.min((performance.now() - rs) / 500, 1), e2 = t2*t2*(3-2*t2);
-                camera.position.lerpVectors(swoopPos, origCamPos, e2);
-                camera.lookAt(new THREE.Vector3().lerpVectors(swoopTarget, new THREE.Vector3(0,0,0), e2));
-                if (t2 < 1) { requestAnimationFrame(ra); return; }
-                // Fade dice
-                for (var d of dice) { if (Array.isArray(d.mesh.material)) d.mesh.material.forEach(function(m){m.transparent=true;}); }
-                var fadeStart = performance.now();
-                var fadeAnim = function() {
-                  var ft = Math.min((performance.now() - fadeStart) / 600, 1);
-                  for (var d of dice) { if (Array.isArray(d.mesh.material)) d.mesh.material.forEach(function(m){m.opacity=1-ft;}); }
-                  if (ft < 1) { requestAnimationFrame(fadeAnim); return; }
-                  for (var d of dice) scene.remove(d.mesh);
-                  if (overlay.parentNode) overlay.remove();
-                  var db2 = document.getElementById('btn-discards'); if (db2) db2.style.display = '';
-                  resolve(total);
-                };
-                requestAnimationFrame(fadeAnim);
-              };
-              requestAnimationFrame(ra);
-            });
-          };
-          requestAnimationFrame(swoopAnim);
-        },400);
-      };
-      requestAnimationFrame(animate);
-    });
-  }
-
-  // ========== FEATURE: animatedDeal ==========
-  animatedDeal() {
-    return new Promise((resolve) => {
-      // Set up wall
-      const allTiles = this.gs.shuffle(this.gs.createTileSet());
-      this.gs.deadWall = allTiles.splice(-14);
-      this.gs.wall = allTiles;
-      for (const p of this.gs.players) this.gs.sortHand(p.hand);
-      this.renderAll();
-      this.gs.phase = 'dealing';
-      var tray = document.getElementById('hand-tray'); if (tray) tray.classList.add('dealing');
-      const batches = [];
-      for (let round = 0; round < 3; round++) { for (let pi = 0; pi < 4; pi++) batches.push({ pi, count: 4 }); }
-      for (let pi = 0; pi < 4; pi++) batches.push({ pi, count: 1 });
-      batches.push({ pi: this.gs.dealerSeat, count: 1 });
-      let batchIdx = 0;
-      const doBatch = () => {
-        if (batchIdx >= batches.length) {
-          this.showToast('Replacing flowers...');
-          setTimeout(() => { for (let pi = 0; pi < 4; pi++) this.gs.handleFlowers(pi); this.gs.drawnTile = this.gs.players[1].hand[this.gs.players[1].hand.length - 1]; this.renderAll(); var tray2 = document.getElementById("hand-tray"); if (tray2) tray2.classList.remove("dealing"); resolve(); }, 600);
-          return;
-        }
-        const batch = batches[batchIdx]; const name = PLAYER_NAMES[batch.pi] || WINDS[batch.pi];
-        for (let i = 0; i < batch.count; i++) { if (this.gs.wall.length > 0) this.gs.players[batch.pi].hand.push(this.gs.wall.shift()); }
-        if (batchIdx % 4 === 0) this.showToast('Dealing tiles...');
-        this.renderAll(); batchIdx++; setTimeout(doBatch, 120);
-      };
-      doBatch();
-    });
-  }
-
-  // ========== MULTIPLAYER ==========
-  showMPLobby() { document.getElementById('mp-overlay').style.display = 'block'; }
-  closeMPLobby() { document.getElementById('mp-overlay').style.display = 'none'; if (this.mpClient) { if (this.mpClient.ws) this.mpClient.ws.close(); this.mpClient = null; } this.mpMode = false; }
-
-  async mpConnect() {
-    if (this.mpClient && this.mpClient.ws && this.mpClient.ws.readyState === WebSocket.OPEN) return;
-    const loc = window.location; const protocol = loc.protocol === 'https:' ? 'wss:' : 'ws:';
-    const url = protocol + '//' + loc.hostname + ':' + (loc.port || (loc.protocol === 'https:' ? '443' : '80'));
-    this.mpClient = { ws: null, seatIdx: -1, isHost: false };
-    return new Promise((resolve, reject) => {
-      const ws = new WebSocket(url); this.mpClient.ws = ws;
-      ws.onopen = () => resolve(); ws.onerror = (e) => { this.mpClient = null; reject(e); };
-      ws.onclose = () => { if (this.mpMode) this.mpShowStatus('Disconnected from server'); };
-      ws.onmessage = (e) => { let msg; try { msg = JSON.parse(e.data); } catch { return; } this.mpHandleMessage(msg); };
-    });
-  }
-
-  mpSend(msg) { if (this.mpClient && this.mpClient.ws && this.mpClient.ws.readyState === WebSocket.OPEN) this.mpClient.ws.send(JSON.stringify(msg)); }
-
-  async mpCreateRoom() {
-    const name = localStorage.getItem('mj_name') || 'Host'; const avatar = localStorage.getItem('mj_avatar') || 'chen';
-    try { await this.mpConnect(); this.mpSend({ type: 'create', name, avatar }); this.hideModal(); this.showMPLobby(); } catch (e) { alert('Could not connect to server.'); }
-  }
-
-  async mpJoinRoom(code) {
-    const name = localStorage.getItem('mj_name') || 'Guest'; const avatar = localStorage.getItem('mj_avatar') || 'chen';
-    if (!code || code.length !== 4) { alert('Enter a 4-character room code'); return; }
-    try { await this.mpConnect(); this.mpSend({ type: 'join', room: code, name, avatar }); this.hideModal(); this.showMPLobby(); } catch (e) { alert('Could not connect to server.'); }
-  }
-
-  mpStartGame() { this.mpSend({ type: 'start' }); }
-  mpSendChat() { const input = document.getElementById('mp-chat-input'); const text = input.value.trim(); if (!text) return; this.mpSend({ type: 'chat', text }); input.value = ''; }
-  mpShowStatus(text) { const el = document.getElementById('mp-status'); if (el) el.textContent = text; }
-
-  mpHandleMessage(msg) {
-    switch (msg.type) {
-      case 'room':
-        this.mpClient.seatIdx = msg.you; this.mpClient.isHost = msg.isHost;
-        document.getElementById('mp-code-display').textContent = msg.room;
-        document.getElementById('mp-host-controls').style.display = msg.isHost ? 'block' : 'none';
-        document.getElementById('mp-player-list').innerHTML = msg.players.map((p, i) =>
-          '<div style="padding:6px 10px;margin:4px 0;border-radius:8px;background:' + (i === msg.you ? 'rgba(179,58,42,0.1)' : 'rgba(230,222,210,0.5)') + ';font-size:13px;">' + (i === 0 ? '👑 ' : '') + p.name + (i === msg.you ? ' (You)' : '') + (!p.connected ? ' ❌' : '') + '</div>'
-        ).join('');
-        this.mpShowStatus(msg.players.length + '/4 players.');
-        break;
-      case 'gameState':
-        this.mpMode = true; document.getElementById('mp-overlay').style.display = 'none'; this.hideModal();
-        const chatBtn = document.getElementById('ingame-chat-btn'); if (chatBtn) chatBtn.style.display = 'block';
-        if (!this._mpCacheCleared) { this.renderer.tileTextures = {}; this._mpCacheCleared = true; }
-        this._lastMpState = msg; this.mpApplyState(msg);
-        break;
-      case 'gameOver':
-        this.mpMode = false;
-        const wn = msg.winner >= 0 ? (msg.winner === this.mpClient.seatIdx ? 'You' : msg.winnerName) : null;
-        if (msg.winner >= 0) this.showModal(msg.winner === this.mpClient.seatIdx ? '🎊 You Win!' : (wn+' Wins!'), '', 'Back to Lobby');
-        else this.showModal('🤝 Draw', 'No tiles remaining.', 'Back to Lobby');
-        document.getElementById('modal-btn').onclick = () => { this.hideModal(); this.showMPLobby(); this.mpSend({ type: 'restart' }); };
-        break;
-      case 'chat': {
-        const log = document.getElementById('mp-chat-log'); if (log) { log.innerHTML += '<div><b>'+msg.from+':</b> '+msg.text+'</div>'; log.scrollTop = log.scrollHeight; }
-        const igLog = document.getElementById('ingame-chat-log'); if (igLog) { igLog.innerHTML += '<div><b>'+msg.from+':</b> '+msg.text+'</div>'; igLog.scrollTop = igLog.scrollHeight; }
-        const panel = document.getElementById('ingame-chat-panel');
-        if (panel && !panel.classList.contains('open')) { this._chatUnread = (this._chatUnread||0)+1; const b = document.getElementById('chat-badge'); if(b){b.textContent=this._chatUnread;b.style.display='flex';} }
-        if (this.mpMode) this.showToast(msg.from+': '+msg.text);
-        break;
-      }
-      case 'settings':
-        if (msg.tileAccent) { document.documentElement.style.setProperty('--tile-accent', msg.tileAccent); this.renderer.tileTextures = {}; this.renderer._backTex = null; }
-        if (msg.mat) this.applyMat(msg.mat); if (msg.background) this.applyBackground(msg.background);
-        break;
-      case 'error': alert(msg.message); break;
-      case 'playerLeft': this.showToast(msg.name + ' disconnected'); break;
-      case 'playerRejoined': this.showToast(msg.name + ' rejoined!'); break;
-    }
-  }
-
-  mpApplyState(state) {
-    const mySeat = this.mpClient.seatIdx;
-    const serverIdx = (rp) => (rp - 1 + mySeat + 4) % 4;
-    const rotateIdx = (si) => (si - mySeat + 1 + 4) % 4;
-    for (let rp = 0; rp < 4; rp++) {
-      const si = serverIdx(rp); const p = this.gs.players[rp];
-      p.melds = state.melds[si] || []; p.flowers = state.flowers[si] || []; p.discards = state.discards[si] || [];
-      p.score = state.scores[si] || 25000; p.name = state.playerNames[si] || ('Player '+si);
-      p.isAI = state.playerIsAI ? state.playerIsAI[si] : false;
-      if (si === mySeat) p.hand = state.hand || [];
-      else p.hand = new Array(state.handCounts ? state.handCounts[si]||0 : 0).fill({id:-1,suit:'back',type:'unknown'});
-    }
-    this.gs.currentPlayer = rotateIdx(state.currentPlayer); this.gs.phase = state.phase;
-    this.gs.lastDiscard = state.lastDiscard;
-    this.gs.lastDiscardPlayer = state.lastDiscardPlayer >= 0 ? rotateIdx(state.lastDiscardPlayer) : -1;
-    this.gs.selectedTileIndex = -1; this.gs.mpTilesLeft = state.tilesLeft;
-    if (state.drawnTileId != null && state.currentPlayer === mySeat) this.gs.drawnTile = (state.hand||[]).find(t => t.id === state.drawnTileId) || null;
-    else this.gs.drawnTile = null;
-    if (state.tilesLeft > 0 && (!this.gs.wall || this.gs.wall.length === 0)) this.gs.wall = new Array(state.tilesLeft).fill({id:-1,suit:'back'});
-    this.renderAll(); this.updateActionButtonsMP(state);
-  }
-
-  updateActionButtonsMP(state) {
-    const options = state.claimOptions || []; const isMyTurn = state.currentPlayer === this.mpClient.seatIdx;
-    document.getElementById('btn-chi').classList.toggle('visible', options.includes('chi'));
-    document.getElementById('btn-pong').classList.toggle('visible', options.includes('pong'));
-    document.getElementById('btn-kong').classList.toggle('visible', options.includes('kong'));
-    document.getElementById('btn-mahjong').classList.toggle('visible', options.includes('mahjong') || (isMyTurn && state.phase === 'discard' && state.canTsumo === true));
-    document.getElementById('btn-skip').classList.toggle('visible', options.length > 0);
-    document.getElementById('btn-discard').classList.toggle('visible', isMyTurn && state.phase === 'discard' && this.gs.selectedTileIndex >= 0);
-    if (state.tilesLeft !== undefined) this.gs.mpTilesLeft = state.tilesLeft;
-  }
-
 
   showModal(title, text, btnText, extraHTML = '') {
     document.getElementById('modal-title').textContent = title;
