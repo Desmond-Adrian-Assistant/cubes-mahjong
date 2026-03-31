@@ -4829,7 +4829,7 @@ class GameController {
       // Number/label below tile
       if (this._showTileLabels !== false) {
         var lbl = document.createElement('div');
-        lbl.style.cssText = 'position:absolute;top:-16px;left:0;right:0;text-align:center;font-size:12px;font-weight:700;color:#5a4a3a;font-family:Arial,sans-serif;pointer-events:none;';
+        lbl.style.cssText = 'position:absolute;bottom:-18px;left:0;right:0;text-align:center;font-size:11px;font-weight:700;color:#5a4a3a;font-family:Arial,sans-serif;pointer-events:none;';
         if (tile.num) lbl.textContent = tile.num;
         else if (tile.wind) lbl.textContent = tile.wind[0];
         else if (tile.dragon) lbl.textContent = tile.dragon[0];
