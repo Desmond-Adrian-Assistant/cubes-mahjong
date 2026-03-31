@@ -296,7 +296,7 @@ body::after {
   background: rgba(245,240,232,0.85);
   backdrop-filter: blur(16px);
   border-radius: 16px;
-  padding: 12px 20px 38px 20px;
+  padding: 12px 20px 16px 20px;
   padding-top: 32px;
   margin-top: -20px;
   display: flex;
@@ -310,7 +310,7 @@ body::after {
   border: 1px solid rgba(180,160,130,0.3);
   z-index: 25;
   
-  overflow-x: auto;
+  overflow: visible;
   overflow-y: hidden;
   -webkit-overflow-scrolling: auto;
   touch-action: none;
@@ -668,9 +668,9 @@ body::after {
 }
 .melds-area.bottom .meld-group { padding: 3px; border-radius: 6px; }
 .melds-area.bottom .meld-tile { width: 26px; height: 34px; border-radius: 4px; font-size: 13px; border-width: 1.5px; }
-.melds-area.top { top: 70px; display: none; right: 16px; max-width: 40%; flex-direction: row-reverse; }
-.melds-area.left { left: 70px; display: none; top: calc(45% + 60px); flex-direction: column; }
-.melds-area.right { right: 70px; display: none; top: calc(45% + 60px); flex-direction: column; }
+.melds-area.top { top: 70px; display: flex; right: 16px; max-width: 40%; flex-direction: row-reverse; }
+.melds-area.left { left: 70px; display: flex; top: calc(45% + 60px); flex-direction: column; }
+.melds-area.right { right: 70px; display: flex; top: calc(45% + 60px); flex-direction: column; }
 
 .meld-group {
   display: flex; gap: 2px; position: relative;
@@ -4833,7 +4833,7 @@ class GameController {
       // Number/label below tile
       if (this._showTileLabels !== false) {
         var lbl = document.createElement('div');
-        lbl.style.cssText = 'position:absolute;bottom:-16px;left:0;right:0;text-align:center;font-size:11px;font-weight:700;color:#5a4a3a;font-family:Arial,sans-serif;pointer-events:none;';
+        lbl.style.cssText = 'position:absolute;top:-14px;left:0;right:0;text-align:center;font-size:11px;font-weight:700;color:#5a4a3a;z-index:5;font-family:Arial,sans-serif;pointer-events:none;';
         if (tile.num) lbl.textContent = tile.num;
         else if (tile.wind) lbl.textContent = tile.wind[0];
         else if (tile.dragon) lbl.textContent = tile.dragon[0];
@@ -5735,10 +5735,10 @@ class GameController {
       this.renderer.animateCameraTo([0, zoomY, 0.1], [0, 0, 0], 500);
       bar.classList.add('show');
       // Hide hand UI
-      if (floatEl) floatEl.style.visibility = 'hidden';
-      ['p-north','p-south','p-east','p-west'].forEach(function(id){ var el=document.getElementById(id); if(el) el.style.visibility='hidden'; });
-      if (handArea) handArea.style.visibility = 'hidden';
-      if (actionBar) actionBar.style.visibility = 'hidden';
+      if (floatEl) { floatEl.style.transition = 'opacity 0.4s'; floatEl.style.opacity = '0'; }
+      ['p-north','p-south','p-east','p-west'].forEach(function(id){ var el=document.getElementById(id); if(el) { el.style.transition='opacity 0.4s'; el.style.opacity='0'; } });
+      if (handArea) { handArea.style.transition = 'opacity 0.4s'; handArea.style.opacity = '0'; }
+      if (actionBar) { actionBar.style.transition = 'opacity 0.4s'; actionBar.style.opacity = '0'; }
       // Mark default as active
       var dBtn = document.getElementById('dsb-default');
       var sBtn = document.getElementById('dsb-suit');
@@ -5750,10 +5750,10 @@ class GameController {
       this.renderer.animateCameraTo([0, 9, 13], [0, 0, 0], 500);
       bar.classList.remove('show');
       // Show hand UI
-      if (floatEl) floatEl.style.visibility = '';
-      ['p-north','p-south','p-east','p-west'].forEach(function(id){ var el=document.getElementById(id); if(el) el.style.visibility=''; });
-      if (handArea) handArea.style.visibility = '';
-      if (actionBar) actionBar.style.visibility = '';
+      if (floatEl) { floatEl.style.transition = 'opacity 0.4s'; floatEl.style.opacity = ''; }
+      ['p-north','p-south','p-east','p-west'].forEach(function(id){ var el=document.getElementById(id); if(el) { el.style.transition='opacity 0.4s'; el.style.opacity=''; } });
+      if (handArea) { handArea.style.transition = 'opacity 0.4s'; handArea.style.opacity = ''; }
+      if (actionBar) { actionBar.style.transition = 'opacity 0.4s'; actionBar.style.opacity = ''; }
       // Always restore tiles to default player positions
       var allDiscards = this.gs.players.map(function(p) { return p.discards; });
       this.renderer.animateDiscardsToPositions(allDiscards, 'player');
@@ -5982,7 +5982,7 @@ class GameController {
       colors.forEach(c => {
         const sw = document.createElement('div');
         sw.className = 'color-swatch' + (savedColor === (c.color || 'random') ? ' selected' : '');
-        if (c.color) sw.style.background = c.color; if (c.emoji) sw.textContent = c.emoji;
+        if (c.color) sw.style.background = c.color; else sw.style.background = 'conic-gradient(#C0A878,#4a7a4a,#4a6a8a,#6a4a7a,#8a5a3a,#C0A878)'; if (c.emoji) sw.textContent = c.emoji;
         sw.addEventListener('click', () => { cg.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected')); sw.classList.add('selected'); localStorage.setItem('mj_color', c.color || 'random'); });
         cg.appendChild(sw);
       });
@@ -5994,7 +5994,7 @@ class GameController {
       mats.forEach(m => {
         const th = document.createElement('div');
         th.className = 'preset-thumb' + (savedMat === (m.file || 'random') ? ' selected' : '');
-        if (m.file) th.style.backgroundImage = 'url(' + m.file + ')';
+        if (m.file) th.style.backgroundImage = 'url(' + m.file + ')'; else if (!m.file) th.style.background = 'conic-gradient(#d8c498,#5a7a4a,#8a4a5a,#2a2a3a,#d8c498)';
         th.textContent = m.emoji || m.name;
         th.addEventListener('click', () => { mg.querySelectorAll('.preset-thumb').forEach(t => t.classList.remove('selected')); th.classList.add('selected'); localStorage.setItem('mj_mat', m.file || 'random'); });
         mg.appendChild(th);
@@ -6255,14 +6255,13 @@ class GameController {
             camera.lookAt(new THREE.Vector3().lerpVectors(new THREE.Vector3(0,0,0),swoopTarget,ease));
             if(t<1){requestAnimationFrame(swoopAnim);return;}
             var total=results[0]+results[1]+results[2];
-            this.showToast('🎲 '+results.join(' + ')+' = '+total);
+            // toast removed — info shown in overlay
             var overlay=document.createElement('div'); overlay.id='dice-overlay';
-            overlay.style.cssText='position:fixed;top:55%;left:50%;transform:translate(-50%,-50%);z-index:200;text-align:center;animation:fadeInScale 0.4s ease;';
+            overlay.style.cssText='position:fixed;bottom:60px;left:50%;transform:translate(-50%,-50%);z-index:200;text-align:center;animation:fadeInScale 0.4s ease;';
             var dealer = ['East (Lin)','South (You)','West (Kenji)','North (Keni)'][total % 4];
             var breakPos = total % 17 + 1;
-            overlay.innerHTML='<div style="font-size:56px;font-weight:900;color:#c0392b;text-shadow:0 2px 8px rgba(0,0,0,0.3);font-family:Helvetica Neue,sans-serif;">'+total+'</div>'
-              +'<div style="font-size:13px;color:#f5ead8;background:rgba(60,45,30,0.75);padding:8px 20px;border-radius:10px;margin-top:8px;line-height:1.6;max-width:280px;text-align:center;font-family:Helvetica Neue,sans-serif;">'
-              +'Break wall at tile <b>'+breakPos+'</b><br>Dealer: <b>'+dealer+'</b></div>'
+            overlay.innerHTML=''
+              +'<div style="font-size:14px;color:#f5ead8;background:rgba(60,45,30,0.8);padding:12px 24px;border-radius:12px;line-height:1.8;max-width:300px;text-align:center;font-family:Helvetica Neue,sans-serif;">🎲 '+results.join(' + ')+' = <b>'+total+'</b><br>Break wall at tile <b>'+breakPos+'</b><br>Dealer: <b>'+dealer+'</b></div>'
               +'<button id="lets-play-btn" style="margin-top:16px;background:#c0392b;color:#f5ead8;border:2px solid rgba(255,255,255,0.3);border-radius:12px;padding:12px 36px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.3);font-family:Helvetica Neue,sans-serif;letter-spacing:0.5px;">Let\'s Play!</button>';
             document.body.appendChild(overlay);
             if(!document.getElementById('dice-anim-style')){var st=document.createElement('style');st.id='dice-anim-style';st.textContent='@keyframes fadeInScale{from{opacity:0;transform:translate(-50%,-50%) scale(0.5)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}';document.head.appendChild(st);}
