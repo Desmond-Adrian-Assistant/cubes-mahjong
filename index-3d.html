@@ -3947,8 +3947,8 @@ class Renderer {
     }
   }
 
-  // Render opponent tiles as face-down 3D tiles
-  renderOpponentTiles(playerIndex, tileCount) {
+  // Render opponent tiles as face-down 3D tiles + face-up melds
+  renderOpponentTiles(playerIndex, tileCount, melds, flowers) {
     // Face-down tile rows OUTSIDE the walls, near table edge
     const positions = {
       0: { x: 5.5, z: 0, along: 'z', rotY: -Math.PI / 2 },    // East — outside east wall
@@ -3961,13 +3961,23 @@ class Renderer {
 
     const spacing = 0.55;
     const count = Math.min(tileCount, 14);
+    const D = 0.25;
+    const yPos = 2 * D;
 
+    // Count total meld tiles to calculate total row width
+    var meldTileCount = 0;
+    if (melds && melds.length > 0) {
+      for (var m = 0; m < melds.length; m++) meldTileCount += melds[m].tiles.length;
+      meldTileCount += melds.length; // gap between each meld group (half-tile gap)
+    }
+    var flowerCount = (flowers && flowers.length > 0) ? flowers.length + 1 : 0; // +1 for gap
+    var totalCount = count + (meldTileCount > 0 ? meldTileCount : 0) + flowerCount;
+    var startOffset = -totalCount / 2 + 0.5;
+
+    // Render face-down hand tiles
     for (let i = 0; i < count; i++) {
-      // Same as wall tiles — exact same geometry and orientation
       const mesh = this.create3DTile({}, true);
-      const D = 0.25;
-      const yPos = 2 * D; // same as wall layer 0
-      const offset = (i - count / 2 + 0.5) * spacing;
+      const offset = (startOffset + i) * spacing;
 
       if (pos.along === 'x') {
         mesh.position.set(pos.x + offset, yPos, pos.z);
@@ -3975,11 +3985,60 @@ class Renderer {
         mesh.position.set(pos.x, yPos, pos.z + offset);
       }
       mesh.rotation.y = pos.rotY;
-      mesh.rotation.x = Math.PI; // face down — same as walls
+      mesh.rotation.x = Math.PI; // face down
 
-      mesh.scale.set(0.70, 0.90, 0.70); // same as wall tiles
+      mesh.scale.set(0.70, 0.90, 0.70);
       this.scene.add(mesh);
       this.tileMeshes.push(mesh);
+    }
+
+    // Render face-up meld tiles after hand tiles with a gap
+    if (melds && melds.length > 0) {
+      var meldIdx = count + 1; // start after hand tiles + 1 gap
+      for (var mi = 0; mi < melds.length; mi++) {
+        var meld = melds[mi];
+        for (var ti = 0; ti < meld.tiles.length; ti++) {
+          var isFaceDown = meld.concealed && (ti === 0 || ti === meld.tiles.length - 1);
+          var mesh = isFaceDown ? this.create3DTile({}, true) : this.create3DTile(meld.tiles[ti], false);
+          var offset = (startOffset + meldIdx) * spacing;
+
+          if (pos.along === 'x') {
+            mesh.position.set(pos.x + offset, yPos, pos.z);
+          } else {
+            mesh.position.set(pos.x, yPos, pos.z + offset);
+          }
+          mesh.rotation.y = pos.rotY;
+          if (isFaceDown) mesh.rotation.x = Math.PI; // face down for concealed kong edges
+
+          mesh.scale.set(0.70, 0.90, 0.70);
+          this.scene.add(mesh);
+          this.tileMeshes.push(mesh);
+          meldIdx++;
+        }
+        meldIdx++; // gap between meld groups
+      }
+    }
+
+    // Render flowers face-up after melds
+    if (flowers && flowers.length > 0) {
+      if (!melds || melds.length === 0) var meldIdx = count + 1;
+      for (var fi = 0; fi < flowers.length; fi++) {
+        var fMesh = this.create3DTile(flowers[fi], false);
+        var fOffset = (startOffset + meldIdx) * spacing;
+
+        if (pos.along === 'x') {
+          fMesh.position.set(pos.x + fOffset, yPos, pos.z);
+        } else {
+          fMesh.position.set(pos.x, yPos, pos.z + fOffset);
+        }
+        fMesh.rotation.y = pos.rotY;
+        // face up — no x rotation needed
+
+        fMesh.scale.set(0.70, 0.90, 0.70);
+        this.scene.add(fMesh);
+        this.tileMeshes.push(fMesh);
+        meldIdx++;
+      }
     }
   }
 
@@ -4796,7 +4855,7 @@ class GameController {
     // Render opponent face-down tiles
     for (let i = 0; i < 4; i++) {
       if (i === 1) continue; // skip human
-      this.renderer.renderOpponentTiles(i, this.gs.players[i].hand.length);
+      this.renderer.renderOpponentTiles(i, this.gs.players[i].hand.length, this.gs.players[i].melds, this.gs.players[i].flowers);
     }
   }
 
@@ -5032,6 +5091,9 @@ class GameController {
       const container = document.getElementById(`melds-${seat}`);
       if (!container) continue;
       container.innerHTML = '';
+
+      // Skip HTML melds for opponents — they're rendered as 3D tiles
+      if (pi !== 1) continue;
 
       const player = this.gs.players[pi];
       for (const meld of player.melds) {
@@ -5691,6 +5753,13 @@ class GameController {
     if (result === 'draw') {
       this.showModal('流局 — Draw', 'No tiles remaining.', 'New Game');
       document.getElementById('modal-btn').onclick = () => { this.hideModal(); this.showWelcome(); };
+      // Add "Play Again" button for draw too
+      var playAgainBtn2 = document.createElement('button');
+      playAgainBtn2.className = 'modal-btn';
+      playAgainBtn2.style.cssText = 'background:#3a6a3a;margin-top:8px;';
+      playAgainBtn2.textContent = '⟳ Play Again';
+      playAgainBtn2.onclick = () => { this.hideModal(); this.startGame(); };
+      document.getElementById('modal-content').appendChild(playAgainBtn2);
     } else {
       const name = PLAYER_NAMES[winner];
       const emoji = PLAYER_EMOJIS[winner];
@@ -5716,7 +5785,16 @@ class GameController {
       }
       content += '</div>';
       this.showModal(emoji + ' ' + name + ' Wins!', '', 'New Game', content);
-      if (!this.mpMode) document.getElementById('modal-btn').onclick = () => { this.hideModal(); this.showWelcome(); };
+      if (!this.mpMode) {
+        document.getElementById('modal-btn').onclick = () => { this.hideModal(); this.showWelcome(); };
+        // Add "Play Again" button (same settings, skip setup)
+        var playAgainBtn = document.createElement('button');
+        playAgainBtn.className = 'modal-btn';
+        playAgainBtn.style.cssText = 'background:#3a6a3a;margin-top:8px;';
+        playAgainBtn.textContent = '⟳ Play Again';
+        playAgainBtn.onclick = () => { this.hideModal(); this.startGame(); };
+        document.getElementById('modal-content').appendChild(playAgainBtn);
+      }
     }
   }
 
@@ -5906,6 +5984,13 @@ class GameController {
   // ========== UI HELPERS ==========
   openSettings() {
     document.getElementById('settings-overlay').classList.add('show');
+    // Restore selected state for current background
+    var savedBg = localStorage.getItem('mj_bg') || '#B89A6A';
+    var bgMap = {'#B89A6A':'wood','assets/bg-bamboo.jpg':'bamboo','assets/bg-galaxy.jpg':'galaxy','assets/bg-mountains.jpg':'mountains','assets/bg-beach.jpg':'beach','assets/bg-sakura.jpg':'sakura','assets/bg-temple.jpg':'temple'};
+    var curKey = bgMap[savedBg] || 'wood';
+    document.querySelectorAll('#settings-bg-grid .bg-thumb').forEach(t => {
+      t.classList.toggle('selected', t.dataset.bg === curKey);
+    });
   }
 
   closeSettings() {
@@ -6050,13 +6135,25 @@ class GameController {
     PLAYER_EMOJIS[1] = kanjiMap[savedAvatar] || '陳';
   }
 
-  applyBackground(bgVal) { console.log("[BG] applying:", bgVal);
+  applyBackground(bgVal) {
     var canvas = document.getElementById('game-canvas');
     if (!bgVal || bgVal === '#B89A6A') {
-      // Restore default procedural sky
-      canvas.style.background = '';
+      // Restore default procedural sky — clear all inline bg props
+      canvas.style.backgroundImage = '';
+      canvas.style.backgroundColor = '';
+      canvas.style.backgroundSize = '';
+      canvas.style.backgroundPosition = '';
+      canvas.style.backgroundRepeat = '';
+      // Reset body to default wood grain (clear overrides so stylesheet CSS applies)
+      document.body.style.backgroundImage = '';
+      document.body.style.backgroundColor = '';
+      document.body.style.backgroundSize = '';
+      document.body.style.backgroundPosition = '';
+      document.body.style.backgroundRepeat = '';
+      document.body.style.backgroundAttachment = '';
       this.renderer.createBackgroundSky();
       this.renderer.renderer.setClearAlpha(1);
+      this._currentBg = null;
       return;
     }
     // Clear Three.js scene background so canvas CSS shows through
@@ -6064,10 +6161,27 @@ class GameController {
     this.renderer.renderer.setClearColor(0x000000, 0);
     this.renderer.renderer.setClearAlpha(0);
     if (bgVal.startsWith('#')) {
-      canvas.style.background = bgVal; document.body.style.backgroundColor = bgVal;
+      canvas.style.backgroundImage = 'none';
+      canvas.style.backgroundColor = bgVal;
+      // Override body's inline wood grain styles
+      document.body.style.backgroundImage = 'none';
+      document.body.style.backgroundColor = bgVal;
+      document.body.style.backgroundSize = '';
+      document.body.style.backgroundPosition = '';
+      document.body.style.backgroundRepeat = '';
+      document.body.style.backgroundAttachment = '';
     } else {
-      canvas.style.background = 'url(' + bgVal + ') center/cover no-repeat'; document.body.style.background = 'url(' + bgVal + ') center/cover no-repeat fixed';
+      canvas.style.backgroundImage = 'url(' + bgVal + ')';
+      canvas.style.backgroundSize = 'cover';
+      canvas.style.backgroundPosition = 'center';
+      canvas.style.backgroundRepeat = 'no-repeat';
+      document.body.style.backgroundImage = 'url(' + bgVal + ')';
+      document.body.style.backgroundSize = 'cover';
+      document.body.style.backgroundPosition = 'center';
+      document.body.style.backgroundRepeat = 'no-repeat';
+      document.body.style.backgroundAttachment = 'fixed';
     }
+    this._currentBg = bgVal;
   }
 
   applyMat(matPath) {
@@ -6322,8 +6436,8 @@ class GameController {
         }
         const batch = batches[batchIdx]; const name = PLAYER_NAMES[batch.pi] || WINDS[batch.pi];
         for (let i = 0; i < batch.count; i++) { if (this.gs.wall.length > 0) this.gs.players[batch.pi].hand.push(this.gs.wall.shift()); }
-        if (batchIdx % 4 === 0) this.showToast('Dealing tiles...');
-        this.renderAll(); batchIdx++; setTimeout(doBatch, 120);
+        if (batchIdx % 4 === 0) this.showToast('Dealing... ' + this.gs.wall.length + ' tiles left');
+        this.render3DScene(); this.renderPlayerHand(); this.updateWallInfo(); batchIdx++; setTimeout(doBatch, 100);
       };
       doBatch();
     });
@@ -6440,10 +6554,18 @@ class GameController {
 
 
   showModal(title, text, btnText, extraHTML = '') {
+    // Hide all setup step divs so win/draw screen is clean
+    ['modal-step-mode','modal-step-solo','modal-step-mp-choice','modal-step-mp-create','modal-step-mp-join','modal-step-mp-guest'].forEach(function(id) {
+      var el = document.getElementById(id); if (el) el.style.display = 'none';
+    });
     document.getElementById('modal-title').textContent = title;
-    document.getElementById('modal-text').textContent = text;
+    var textEl = document.getElementById('modal-text');
+    textEl.textContent = text;
+    textEl.style.display = text ? 'block' : 'none';
     document.getElementById('modal-content').innerHTML = extraHTML;
-    document.getElementById('modal-btn').textContent = btnText;
+    var btn = document.getElementById('modal-btn');
+    btn.textContent = btnText;
+    btn.style.display = btnText ? '' : 'none';
     document.getElementById('modal').classList.add('show');
   }
 
