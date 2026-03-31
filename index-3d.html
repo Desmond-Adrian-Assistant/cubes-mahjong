@@ -5982,7 +5982,7 @@ class GameController {
       colors.forEach(c => {
         const sw = document.createElement('div');
         sw.className = 'color-swatch' + (savedColor === (c.color || 'random') ? ' selected' : '');
-        if (c.color) sw.style.background = c.color; else sw.style.background = 'conic-gradient(#C0A878,#4a7a4a,#4a6a8a,#6a4a7a,#8a5a3a,#C0A878)'; if (c.emoji) sw.textContent = c.emoji;
+        if (c.color) sw.style.background = c.color; else sw.style.background = 'conic-gradient(#C0A878,#4a7a4a,#4a6a8a,#6a4a7a,#8a5a3a,#C0A878)'; if (c.emoji) { sw.textContent = c.emoji; sw.style.fontSize = '28px'; }
         sw.addEventListener('click', () => { cg.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected')); sw.classList.add('selected'); localStorage.setItem('mj_color', c.color || 'random'); });
         cg.appendChild(sw);
       });
@@ -5995,7 +5995,7 @@ class GameController {
         const th = document.createElement('div');
         th.className = 'preset-thumb' + (savedMat === (m.file || 'random') ? ' selected' : '');
         if (m.file) th.style.backgroundImage = 'url(' + m.file + ')'; else if (!m.file) th.style.background = 'conic-gradient(#d8c498,#5a7a4a,#8a4a5a,#2a2a3a,#d8c498)';
-        th.textContent = m.emoji || m.name;
+        th.textContent = m.emoji || m.name; if (m.emoji) th.style.fontSize = '24px';
         th.addEventListener('click', () => { mg.querySelectorAll('.preset-thumb').forEach(t => t.classList.remove('selected')); th.classList.add('selected'); localStorage.setItem('mj_mat', m.file || 'random'); });
         mg.appendChild(th);
       });
@@ -6008,7 +6008,7 @@ class GameController {
         const th = document.createElement('div');
         th.className = 'preset-thumb' + (savedBg === (b.file || b.css || 'random') ? ' selected' : '');
         if (b.file) th.style.backgroundImage = 'url(' + b.file + ')'; else if (b.css) th.style.background = b.css;
-        th.textContent = b.emoji || b.name; th.style.fontSize = '10px'; th.style.color = '#fff'; th.style.textShadow = '0 1px 2px black';
+        th.textContent = b.emoji || b.name; th.style.fontSize = b.emoji ? '22px' : '10px'; th.style.color = '#fff'; th.style.textShadow = '0 1px 2px black';
         th.addEventListener('click', () => { bg2.querySelectorAll('.preset-thumb').forEach(t => t.classList.remove('selected')); th.classList.add('selected'); localStorage.setItem('mj_bg', b.file || b.css || 'random'); });
         bg2.appendChild(th);
       });
