@@ -657,7 +657,7 @@ body::after {
 }
 .melds-area.bottom {
   position: fixed;
-  bottom: 210px;
+  bottom: 250px;
   left: 8px;
   display: flex;
   flex-direction: row;
@@ -3881,10 +3881,10 @@ class Renderer {
     this.clearDiscards();
 
     var zones = [
-      { dir: 'east',  baseX: 2.7, baseZ: 0, cols: 6, along: 'z', rotY: -Math.PI/2, inward: -1 },
-      { dir: 'south', baseX: 0, baseZ: 2.7, cols: 6, along: 'x', rotY: 0, inward: -1 },
-      { dir: 'west',  baseX: -2.7, baseZ: 0, cols: 6, along: 'z', rotY: Math.PI/2, inward: 1 },
-      { dir: 'north', baseX: 0, baseZ: -2.7, cols: 6, along: 'x', rotY: Math.PI, inward: 1 },
+      { dir: 'east',  baseX: 2.7, baseZ: 0, cols: 8, along: 'z', rotY: -Math.PI/2, inward: -1 },
+      { dir: 'south', baseX: 0, baseZ: 2.7, cols: 8, along: 'x', rotY: 0, inward: -1 },
+      { dir: 'west',  baseX: -2.7, baseZ: 0, cols: 8, along: 'z', rotY: Math.PI/2, inward: 1 },
+      { dir: 'north', baseX: 0, baseZ: -2.7, cols: 8, along: 'x', rotY: Math.PI, inward: 1 },
     ];
     var tileSpacing = 0.52;
     var rowSpacing = 0.62;
@@ -4074,12 +4074,12 @@ class Renderer {
     } else if (mode === 'player') {
       // Zone-based layout matching renderDiscards
       var zones = [
-        { baseX: 2.7, baseZ: 0, cols: 6, along: 'z', rotY: -Math.PI/2, inward: -1 },
-        { baseX: 0, baseZ: 2.7, cols: 6, along: 'x', rotY: 0, inward: -1 },
-        { baseX: -2.7, baseZ: 0, cols: 6, along: 'z', rotY: Math.PI/2, inward: 1 },
-        { baseX: 0, baseZ: -2.7, cols: 6, along: 'x', rotY: Math.PI, inward: 1 },
+        { baseX: 2.7, baseZ: 0, cols: 8, along: 'z', rotY: -Math.PI/2, inward: -1 },
+        { baseX: 0, baseZ: 2.7, cols: 8, along: 'x', rotY: 0, inward: -1 },
+        { baseX: -2.7, baseZ: 0, cols: 8, along: 'z', rotY: Math.PI/2, inward: 1 },
+        { baseX: 0, baseZ: -2.7, cols: 8, along: 'x', rotY: Math.PI, inward: 1 },
       ];
-      var spacing2 = 0.52, rowSpacing = 0.62;
+      var spacing2 = 0.50, rowSpacing = 0.60;
       for (var p = 0; p < 4; p++) {
         var discards = allDiscards[p] || [];
         var zone = zones[p];
@@ -4087,7 +4087,7 @@ class Renderer {
           var col = ti % zone.cols;
           var row = Math.floor(ti / zone.cols);
           var offset = (col - (Math.min(discards.length, zone.cols) - 1) / 2) * spacing2;
-          var rowOff = row * rowSpacing;
+          var rowOff = Math.min(row * rowSpacing, 1.8);
           var x, z;
           if (zone.along === 'x') { x = zone.baseX + offset; z = zone.baseZ + rowOff * zone.inward; }
           else { x = zone.baseX + rowOff * zone.inward; z = zone.baseZ + offset; }
@@ -4127,15 +4127,20 @@ class Renderer {
         if (!suitCounts[rowKey]) suitCounts[rowKey] = [];
         suitCounts[rowKey].push(item);
       }
-      const rowZMap = { bamboo: -2, dots: -0.7, characters: 0.7, honors: 2 };
-      // Prepare positions array indexed by original meshIdx
+      const rowZMap = { bamboo: -2.5, dots: -0.8, characters: 0.8, honors: 2.5 };
       const posMap = new Array(flat.length);
+      var maxPerRow = 8;
+      var tileSpacing = 0.55;
+      var rowGap = 0.7;
       for (const [rowKey, items] of Object.entries(suitCounts)) {
-        const z = rowZMap[rowKey];
-        const spacing = 0.65;
-        for (let i = 0; i < items.length; i++) {
-          const x = (i - items.length / 2 + 0.5) * spacing;
-          posMap[items[i].meshIdx] = { meshIdx: items[i].meshIdx, x, z, rotY: 0 };
+        var baseZ = rowZMap[rowKey];
+        for (var i = 0; i < items.length; i++) {
+          var rowNum = Math.floor(i / maxPerRow);
+          var colNum = i % maxPerRow;
+          var rowLen = Math.min(maxPerRow, items.length - rowNum * maxPerRow);
+          var x = (colNum - rowLen / 2 + 0.5) * tileSpacing;
+          var z = baseZ + rowNum * rowGap * (baseZ < 0 ? 1 : -1); // grow inward
+          posMap[items[i].meshIdx] = { meshIdx: items[i].meshIdx, x: x, z: z, rotY: 0 };
         }
       }
       for (let i = 0; i < posMap.length; i++) {
@@ -4302,7 +4307,7 @@ class GameController {
       this.renderer.animateDiscardsToPositions(allDiscards, 'player');
       // Adjust zoom for player layout (needs wider view)
       var totalD = allDiscards.reduce(function(s,a){return s+a.length;},0);
-      var zY = Math.max(12, Math.min(18, 10 + totalD * 0.18));
+      var ar2 = window.innerWidth / window.innerHeight; var zY = Math.max(8, Math.min(18, (7 + totalD * 0.18) / Math.min(1, ar2)));
       this.renderer.animateCameraTo([0, zY, 0.1], [0, 0, 0], 400);
       this._discardZoomMode = 'default';
     });
@@ -4313,7 +4318,7 @@ class GameController {
       this.renderer.animateDiscardsToPositions(allDiscards, 'suit');
       // Adjust zoom for suit layout (more compact, can zoom closer)
       var totalD2 = allDiscards.reduce(function(s,a){return s+a.length;},0);
-      var zY2 = Math.max(10, Math.min(16, 8 + totalD2 * 0.15));
+      var ar3 = window.innerWidth / window.innerHeight; var zY2 = Math.max(7, Math.min(16, (6 + totalD2 * 0.15) / Math.min(1, ar3)));
       this.renderer.animateCameraTo([0, zY2, 0.1], [0, 0, 0], 400);
       this._discardZoomMode = 'suit';
     });
@@ -4831,7 +4836,7 @@ class GameController {
         else if (tile.flower) lbl.textContent = '🌸';
         else if (tile.season) lbl.textContent = '🍂';
         el.style.position = 'relative';
-        el.style.overflow = 'visible';
+        el.style.overflow = 'visible'; el.style.zIndex = '2';
         el.appendChild(lbl);
       }
       // tile click/drag handled by unified pointer system below
@@ -5722,7 +5727,7 @@ class GameController {
     if (this.renderer.discardViewActive) {
       // Dynamic zoom based on discard count — just zoom, DON'T move tiles
       var totalDiscards = this.gs.players.reduce(function(sum, p) { return sum + p.discards.length; }, 0);
-      var zoomY = Math.max(10, Math.min(18, 9 + totalDiscards * 0.2));
+      var ar = window.innerWidth / window.innerHeight; var zoomY = Math.max(8, Math.min(18, (7 + totalDiscards * 0.2) / Math.min(1, ar)));
       this.renderer.animateCameraTo([0, zoomY, 0.1], [0, 0, 0], 500);
       bar.classList.add('show');
       // Hide hand UI
@@ -6253,7 +6258,7 @@ class GameController {
             overlay.innerHTML='<div style="font-size:56px;font-weight:900;color:#c0392b;text-shadow:0 2px 8px rgba(0,0,0,0.3);font-family:Helvetica Neue,sans-serif;">'+total+'</div>'
               +'<div style="font-size:13px;color:#f5ead8;background:rgba(60,45,30,0.75);padding:8px 20px;border-radius:10px;margin-top:8px;line-height:1.6;max-width:280px;text-align:center;font-family:Helvetica Neue,sans-serif;">'
               +'Break wall at tile <b>'+breakPos+'</b><br>Dealer: <b>'+dealer+'</b></div>'
-              +'<button id="lets-play-btn" style="margin-top:16px;background:#5a4a38;color:#f5ead8;border:2px solid rgba(255,255,255,0.3);border-radius:12px;padding:12px 36px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.3);font-family:Helvetica Neue,sans-serif;letter-spacing:0.5px;">Let\'s Play!</button>';
+              +'<button id="lets-play-btn" style="margin-top:16px;background:#c0392b;color:#f5ead8;border:2px solid rgba(255,255,255,0.3);border-radius:12px;padding:12px 36px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.3);font-family:Helvetica Neue,sans-serif;letter-spacing:0.5px;">Let\'s Play!</button>';
             document.body.appendChild(overlay);
             if(!document.getElementById('dice-anim-style')){var st=document.createElement('style');st.id='dice-anim-style';st.textContent='@keyframes fadeInScale{from{opacity:0;transform:translate(-50%,-50%) scale(0.5)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}';document.head.appendChild(st);}
             document.getElementById('lets-play-btn').addEventListener('click', function() {
