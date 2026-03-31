@@ -290,13 +290,13 @@ body::after {
 
 .hand-tray {
   position: fixed;
-  bottom: 62px;
+  bottom: 50px;
   left: 4%;
   right: 4%;
   background: rgba(245,240,232,0.85);
   backdrop-filter: blur(16px);
   border-radius: 16px;
-  padding: 12px 20px;
+  padding: 12px 20px 38px 20px;
   padding-top: 32px;
   margin-top: -20px;
   display: flex;
@@ -304,8 +304,8 @@ body::after {
   align-items: flex-end;
   gap: 4px;
   /* Fade edges to imply scrollability */
-  -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 2%, black 98%, transparent 100%);
-  mask-image: linear-gradient(90deg, transparent 0%, black 2%, black 98%, transparent 100%);
+  
+  
   box-shadow: 0 -2px 20px rgba(80,60,30,0.1), inset 0 1px 0 rgba(255,255,255,0.5);
   border: 1px solid rgba(180,160,130,0.3);
   z-index: 25;
@@ -4330,6 +4330,10 @@ class GameController {
       labelsToggle.addEventListener('change', () => {
         this._showTileLabels = labelsToggle.checked;
         this.renderPlayerHand();
+    // Position melds above hand tray dynamically
+    var trayEl = document.getElementById("hand-tray");
+    var meldsEl = document.getElementById("melds-south");
+    if (trayEl && meldsEl) { var trayTop = trayEl.getBoundingClientRect().top; meldsEl.style.bottom = (window.innerHeight - trayTop + 8) + "px"; }
       });
     }
     // Settings: mat thumbnails
@@ -4829,7 +4833,7 @@ class GameController {
       // Number/label below tile
       if (this._showTileLabels !== false) {
         var lbl = document.createElement('div');
-        lbl.style.cssText = 'position:absolute;bottom:-18px;left:0;right:0;text-align:center;font-size:11px;font-weight:700;color:#5a4a3a;font-family:Arial,sans-serif;pointer-events:none;';
+        lbl.style.cssText = 'position:absolute;bottom:-16px;left:0;right:0;text-align:center;font-size:11px;font-weight:700;color:#5a4a3a;font-family:Arial,sans-serif;pointer-events:none;';
         if (tile.num) lbl.textContent = tile.num;
         else if (tile.wind) lbl.textContent = tile.wind[0];
         else if (tile.dragon) lbl.textContent = tile.dragon[0];
@@ -6060,9 +6064,9 @@ class GameController {
     this.renderer.renderer.setClearColor(0x000000, 0);
     this.renderer.renderer.setClearAlpha(0);
     if (bgVal.startsWith('#')) {
-      canvas.style.background = bgVal;
+      canvas.style.background = bgVal; document.body.style.backgroundColor = bgVal;
     } else {
-      canvas.style.background = 'url(' + bgVal + ') center/cover no-repeat';
+      canvas.style.background = 'url(' + bgVal + ') center/cover no-repeat'; document.body.style.background = 'url(' + bgVal + ') center/cover no-repeat fixed';
     }
   }
 
@@ -6181,12 +6185,13 @@ class GameController {
       const faceRot = {1:{x:0,z:0}, 2:{x:0,z:Math.PI/2}, 3:{x:-Math.PI/2,z:0}, 4:{x:Math.PI/2,z:0}, 5:{x:0,z:-Math.PI/2}, 6:{x:Math.PI,z:0}};
       const targetRots = results.map(r => faceRot[r]||{x:0,z:0});
       const dice = [];
-      const startX = [-1.5, 0, 1.5];
+      // Triangle formation: 2 in back, 1 in front
+      const startPositions = [[-0.8, 0, -0.5], [0.8, 0, -0.5], [0, 0, 0.6]];
 
       for (let i = 0; i < 3; i++) {
         const mats = [2,5,1,6,3,4].map(n => new THREE.MeshStandardMaterial({map:makeFaceTex(n),roughness:0.5}));
         const die = new THREE.Mesh(geo, mats);
-        die.position.set(startX[i]+(Math.random()-0.5)*0.4, 2.5+Math.random()*1.0, (Math.random()-0.5)*0.5);
+        die.position.set(startPositions[i][0]+(Math.random()-0.5)*0.3, 2.5+Math.random()*1.0, startPositions[i][2]+(Math.random()-0.5)*0.3);
         die.castShadow = true;
         scene.add(die);
         dice.push({mesh:die, vy:-(Math.random()*0.02+0.01), vx:(Math.random()-0.5)*0.04, vz:(Math.random()-0.5)*0.04,
@@ -6252,7 +6257,7 @@ class GameController {
             var total=results[0]+results[1]+results[2];
             this.showToast('🎲 '+results.join(' + ')+' = '+total);
             var overlay=document.createElement('div'); overlay.id='dice-overlay';
-            overlay.style.cssText='position:fixed;top:70%;left:50%;transform:translate(-50%,-50%);z-index:200;text-align:center;animation:fadeInScale 0.4s ease;';
+            overlay.style.cssText='position:fixed;top:55%;left:50%;transform:translate(-50%,-50%);z-index:200;text-align:center;animation:fadeInScale 0.4s ease;';
             var dealer = ['East (Lin)','South (You)','West (Kenji)','North (Keni)'][total % 4];
             var breakPos = total % 17 + 1;
             overlay.innerHTML='<div style="font-size:56px;font-weight:900;color:#c0392b;text-shadow:0 2px 8px rgba(0,0,0,0.3);font-family:Helvetica Neue,sans-serif;">'+total+'</div>'
