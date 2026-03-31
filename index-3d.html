@@ -430,7 +430,7 @@ body::after {
 /* ========== ACTION BUTTONS ========== */
 .action-bar {
   position: fixed;
-  bottom: 250px;
+  bottom: 270px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -1697,7 +1697,7 @@ class Renderer {
 
     // Camera setup - close isometric view for table to fill viewport
     // Lower camera angle to see tile SIDES (two-tone effect)
-    this.camera.position.set(0, 9, 13);
+    var camZ = window.innerWidth < 768 ? 16 : 13; this.camera.position.set(0, 9, camZ);
     this.camera.lookAt(0, 0, 0);
 
     this.tileTextures = {};
