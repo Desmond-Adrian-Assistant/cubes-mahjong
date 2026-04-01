@@ -1047,7 +1047,6 @@ body::after {
 <div id="discard-sort-bar" class="discard-sort-bar">
   <button id="dsb-default" class="active">Default</button>
   <button id="dsb-suit">By Suit</button>
-  <button id="dsb-all">All Revealed</button>
   <button id="dsb-back">Back</button>
 </div>
 
@@ -4363,30 +4362,12 @@ class GameController {
     document.getElementById('dsb-default').addEventListener('click', () => {
       document.getElementById('dsb-default').classList.add('active');
       document.getElementById('dsb-suit').classList.remove('active');
-      document.getElementById('dsb-all').classList.remove('active');
-      this.clearRevealedMelds(true);
-      // Animate tiles back to per-player zone positions
-      var allDiscards = this.gs.players.map(function(p) { return p.discards; });
-      this.renderer.animateDiscardsToPositions(allDiscards, 'player');
-      // Adjust zoom for player layout (needs wider view)
-      var totalD = allDiscards.reduce(function(s,a){return s+a.length;},0);
-      var ar2 = window.innerWidth / window.innerHeight; var zY = Math.max(8, Math.min(18, (7 + totalD * 0.18) / Math.min(1, ar2)));
-      this.renderer.animateCameraTo([0, zY, 0.1], [0, 0, 0], 400);
-      this._discardZoomMode = 'default';
+      this.showDefaultZoomView();
     });
     document.getElementById('dsb-suit').addEventListener('click', () => {
       document.getElementById('dsb-suit').classList.add('active');
       document.getElementById('dsb-default').classList.remove('active');
-      document.getElementById('dsb-all').classList.remove('active');
-      // By Suit also shows melds alongside discards
-      this.showAllRevealedView();
-      this._discardZoomMode = 'suit';
-    });
-    document.getElementById('dsb-all').addEventListener('click', () => {
-      document.getElementById('dsb-all').classList.add('active');
-      document.getElementById('dsb-default').classList.remove('active');
-      document.getElementById('dsb-suit').classList.remove('active');
-      this.showAllRevealedView();
+      this.showSuitZoomView();
     });
     document.getElementById('dsb-back').addEventListener('click', () => this.toggleDiscardView());
     document.getElementById('settings-close').addEventListener('click', () => this.closeSettings());
@@ -5877,11 +5858,11 @@ class GameController {
       // Mark default as active
       var dBtn = document.getElementById('dsb-default');
       var sBtn = document.getElementById('dsb-suit');
-      var aBtn = document.getElementById('dsb-all');
       if (dBtn) dBtn.classList.add('active');
       if (sBtn) sBtn.classList.remove('active');
-      if (aBtn) aBtn.classList.remove('active');
       this._discardZoomMode = 'default';
+      // Spawn meld tiles near their player zones
+      this.spawnMeldTilesForZoom();
     } else {
       // Zoom back out to normal
       this.renderer.animateCameraTo([0, 9, 13], [0, 0, 0], 500);
@@ -5891,7 +5872,7 @@ class GameController {
       ['p-north','p-south','p-east','p-west'].forEach(function(id){ var el=document.getElementById(id); if(el) { el.style.transition='opacity 0.4s'; el.style.opacity=''; } });
       if (handArea) { handArea.style.transition = 'opacity 0.4s'; handArea.style.opacity = ''; }
       if (actionBar) { actionBar.style.transition = 'opacity 0.4s'; actionBar.style.opacity = ''; }
-      // Always restore tiles to default player positions
+      // Animate everything back
       var allDiscards = this.gs.players.map(function(p) { return p.discards; });
       this.renderer.animateDiscardsToPositions(allDiscards, 'player');
       this.clearRevealedMelds(true);
@@ -5901,72 +5882,154 @@ class GameController {
 
 
   // ========== ALL REVEALED VIEW ==========
-  showAllRevealedView() {
-    // Clear any existing revealed meld meshes
+  // ========== ZOOM VIEW: Spawn meld 3D tiles for zoom ==========
+  spawnMeldTilesForZoom() {
     this.clearRevealedMelds();
-
-    // Collect all revealed tiles: discards + all melds + flowers from all players
-    var meldTiles = [];
+    this._revealedMeldMeshes = [];
+    // Player zones matching discard renderDiscards positions
+    var playerPositions = {
+      0: { x: 5.0, z: 0, along: 'z' },    // East
+      1: { x: 0, z: 4.8, along: 'x' },     // South
+      2: { x: -5.0, z: 0, along: 'z' },    // West
+      3: { x: 0, z: -4.8, along: 'x' }     // North
+    };
+    var meldTight = 0.36;
+    var groupGap = 0.18;
     for (var pi = 0; pi < 4; pi++) {
       var p = this.gs.players[pi];
+      var pos = playerPositions[pi];
+      var offset = 0;
+      // Melds
       for (var mi = 0; mi < p.melds.length; mi++) {
         var meld = p.melds[mi];
         for (var ti = 0; ti < meld.tiles.length; ti++) {
-          // Skip concealed kong outer tiles
-          if (meld.concealed && (ti === 0 || ti === meld.tiles.length - 1)) continue;
-          meldTiles.push({ tile: meld.tiles[ti], player: pi, type: meld.type });
+          var isFD = meld.concealed && (ti === 0 || ti === meld.tiles.length - 1);
+          var mesh = isFD ? this.renderer.create3DTile({}, true) : this.renderer.create3DTile(meld.tiles[ti], false);
+          var mx, mz;
+          if (pos.along === 'x') { mx = pos.x + offset; mz = pos.z; }
+          else { mx = pos.x; mz = pos.z + offset; }
+          mesh.position.set(mx, 0.01, mz);
+          if (isFD) mesh.rotation.x = Math.PI;
+          mesh.scale.set(0.70, 0.70, 0.70);
+          this.renderer.scene.add(mesh);
+          this._revealedMeldMeshes.push(mesh);
+          mesh._homePos = mesh.position.clone();
+          mesh._playerIdx = pi;
+          offset += meldTight;
+        }
+        offset += groupGap;
+      }
+      // Flowers
+      if (p.flowers.length > 0 && p.melds.length > 0) offset += groupGap;
+      for (var fi = 0; fi < p.flowers.length; fi++) {
+        var fMesh = this.renderer.create3DTile(p.flowers[fi], false);
+        var fx, fz;
+        if (pos.along === 'x') { fx = pos.x + offset; fz = pos.z; }
+        else { fx = pos.x; fz = pos.z + offset; }
+        fMesh.position.set(fx, 0.01, fz);
+        fMesh.scale.set(0.70, 0.70, 0.70);
+        this.renderer.scene.add(fMesh);
+        this._revealedMeldMeshes.push(fMesh);
+        fMesh._homePos = fMesh.position.clone();
+        fMesh._playerIdx = pi;
+        offset += meldTight;
+      }
+    }
+  }
+
+  // ========== ZOOM VIEW: Default = discards by player + melds near player ==========
+  showDefaultZoomView() {
+    // Animate discards back to player zones
+    var allDiscards = this.gs.players.map(function(p) { return p.discards; });
+    this.renderer.animateDiscardsToPositions(allDiscards, 'player');
+    // Animate meld tiles back to their home positions (near player)
+    if (this._revealedMeldMeshes) {
+      var now = performance.now();
+      for (var i = 0; i < this._revealedMeldMeshes.length; i++) {
+        var m = this._revealedMeldMeshes[i];
+        var home = m._homePos || m.position.clone();
+        this.renderer.discardTileAnims.push({
+          mesh: m, from: m.position.clone(), to: home,
+          fromRotY: m.rotation.y, toRotY: 0, start: now, duration: 300
+        });
+      }
+    }
+    var totalD = allDiscards.reduce(function(s,a){return s+a.length;},0);
+    var ar = window.innerWidth / window.innerHeight;
+    var zY = Math.max(8, Math.min(18, (7 + totalD * 0.18) / Math.min(1, ar)));
+    this.renderer.animateCameraTo([0, zY, 0.1], [0, 0, 0], 400);
+    this._discardZoomMode = 'default';
+  }
+
+  // ========== ZOOM VIEW: By Suit = everything sorted by suit ==========
+  showSuitZoomView() {
+    var suitOrder = { bamboo: 0, dots: 1, characters: 2, winds: 3, dragons: 4, flowers: 5 };
+    // Collect all tiles: discards (have meshes in discardMeshes) + revealed melds
+    var allItems = [];
+    var discardIdx = 0;
+    for (var pi = 0; pi < 4; pi++) {
+      var discards = this.gs.players[pi].discards || [];
+      for (var di = 0; di < discards.length; di++) {
+        allItems.push({ tile: discards[di], meshIdx: discardIdx, isMeld: false });
+        discardIdx++;
+      }
+    }
+    if (this._revealedMeldMeshes) {
+      for (var mi = 0; mi < this._revealedMeldMeshes.length; mi++) {
+        allItems.push({ mesh: this._revealedMeldMeshes[mi], isMeld: true });
+      }
+    }
+    // Find tile data for meld meshes (match by looking at the texture/tile stored)
+    // We stored tile data in the mesh via create3DTile... let's use the mesh's _tileData
+    // Actually, we need the tile for sorting. Let's collect tiles with player data.
+    var meldItems = [];
+    for (var pi2 = 0; pi2 < 4; pi2++) {
+      var p = this.gs.players[pi2];
+      for (var mmi = 0; mmi < p.melds.length; mmi++) {
+        var meld = p.melds[mmi];
+        for (var tti = 0; tti < meld.tiles.length; tti++) {
+          if (meld.concealed && (tti === 0 || tti === meld.tiles.length - 1)) continue;
+          meldItems.push(meld.tiles[tti]);
         }
       }
-      for (var fi = 0; fi < p.flowers.length; fi++) {
-        meldTiles.push({ tile: p.flowers[fi], player: pi, type: 'flower' });
+      for (var ffi = 0; ffi < p.flowers.length; ffi++) {
+        meldItems.push(p.flowers[ffi]);
       }
     }
 
-    // Create 3D meshes for meld tiles and place them
-    this._revealedMeldMeshes = [];
-    var suitOrder = { bamboo: 0, dots: 1, characters: 2, winds: 3, dragons: 4, flowers: 5 };
-
-    // Combine discards + melds, sort by suit
-    var allRevealed = [];
-    for (var pi2 = 0; pi2 < 4; pi2++) {
-      var discards = this.gs.players[pi2].discards || [];
-      for (var di = 0; di < discards.length; di++) {
-        allRevealed.push({ tile: discards[di], isDiscard: true, discardMeshIdx: allRevealed.filter(function(r){return r.isDiscard;}).length });
+    // Build a combined sortable list
+    var sortable = [];
+    discardIdx = 0;
+    for (var pi3 = 0; pi3 < 4; pi3++) {
+      var dd = this.gs.players[pi3].discards || [];
+      for (var ddi = 0; ddi < dd.length; ddi++) {
+        sortable.push({ tile: dd[ddi], type: 'discard', meshIdx: discardIdx++ });
       }
     }
-    // Recount discard indices properly
-    var discardIdx = 0;
-    for (var ri = 0; ri < allRevealed.length; ri++) {
-      if (allRevealed[ri].isDiscard) { allRevealed[ri].discardMeshIdx = discardIdx++; }
-    }
-    for (var mi2 = 0; mi2 < meldTiles.length; mi2++) {
-      allRevealed.push({ tile: meldTiles[mi2].tile, isDiscard: false, type: meldTiles[mi2].type });
+    for (var rmi = 0; rmi < this._revealedMeldMeshes.length && rmi < meldItems.length; rmi++) {
+      sortable.push({ tile: meldItems[rmi], type: 'meld', meshRef: this._revealedMeldMeshes[rmi] });
     }
 
-    allRevealed.sort(function(a, b) {
+    sortable.sort(function(a, b) {
       var sa = suitOrder[a.tile.suit] || 5, sb = suitOrder[b.tile.suit] || 5;
       if (sa !== sb) return sa - sb;
       return (a.tile.num || 0) - (b.tile.num || 0);
     });
 
-    // Layout: rows by suit
+    // Layout by suit rows
     var rowZMap = { bamboo: -3.0, dots: -1.2, characters: 0.6, winds: 2.0, dragons: 3.2, flowers: 4.0 };
     var maxPerRow = 10;
     var tileSpacing = 0.52;
-    var rowGap = 0.65;
-
-    // Group by suit
+    var rowGapV = 0.65;
     var suitGroups = {};
-    for (var ai = 0; ai < allRevealed.length; ai++) {
-      var suit = allRevealed[ai].tile.suit || 'flowers';
+    for (var si = 0; si < sortable.length; si++) {
+      var suit = sortable[si].tile.suit || 'flowers';
       if (!suitGroups[suit]) suitGroups[suit] = [];
-      suitGroups[suit].push(allRevealed[ai]);
+      suitGroups[suit].push(sortable[si]);
     }
 
-    // Animate existing discard meshes + create new meld meshes
     var now = performance.now();
     this.renderer.discardTileAnims = [];
-
     for (var suit2 in suitGroups) {
       var items = suitGroups[suit2];
       var baseZ = rowZMap[suit2] || 4.0;
@@ -5975,62 +6038,30 @@ class GameController {
         var colNum = ii % maxPerRow;
         var rowLen = Math.min(maxPerRow, items.length - rowNum * maxPerRow);
         var tx = (colNum - rowLen / 2 + 0.5) * tileSpacing;
-        var tz = baseZ + rowNum * rowGap;
-
-        if (items[ii].isDiscard) {
-          // Animate existing discard mesh
-          var mesh = this.renderer.discardMeshes[items[ii].discardMeshIdx];
-          if (mesh) {
-            this.renderer.discardTileAnims.push({
-              mesh: mesh,
-              from: mesh.position.clone(),
-              to: new THREE.Vector3(tx, 0.05, tz),
-              fromRotY: mesh.rotation.y,
-              toRotY: 0,
-              start: now,
-              duration: 300
-            });
-          }
+        var tz = baseZ + rowNum * rowGapV;
+        var targetMesh;
+        if (items[ii].type === 'discard') {
+          targetMesh = this.renderer.discardMeshes[items[ii].meshIdx];
         } else {
-          // Create 3D tile at its table position, then animate to sorted position
-          var meldMesh = this.renderer.create3DTile(items[ii].tile, false);
-          // Start from table edge (approximate player positions)
-          var startX = 0, startZ = 0;
-          var playerIdx = -1;
-          for (var pi3 = 0; pi3 < meldTiles.length; pi3++) {
-            if (meldTiles[pi3].tile === items[ii].tile) { playerIdx = meldTiles[pi3].player; break; }
-          }
-          if (playerIdx === 0) { startX = 5.5; startZ = 0; } // East
-          else if (playerIdx === 1) { startX = 0; startZ = 5.3; } // South
-          else if (playerIdx === 2) { startX = -5.5; startZ = 0; } // West
-          else if (playerIdx === 3) { startX = 0; startZ = -5.3; } // North
-          meldMesh.position.set(startX, 0.01, startZ);
-          meldMesh.rotation.y = 0;
-          meldMesh.scale.set(0.70, 0.70, 0.70);
-          this.renderer.scene.add(meldMesh);
-          this._revealedMeldMeshes.push(meldMesh);
-          // Animate from table position to sorted position
+          targetMesh = items[ii].meshRef;
+        }
+        if (targetMesh) {
           this.renderer.discardTileAnims.push({
-            mesh: meldMesh,
-            from: new THREE.Vector3(startX, 0.01, startZ),
+            mesh: targetMesh,
+            from: targetMesh.position.clone(),
             to: new THREE.Vector3(tx, 0.05, tz),
-            fromRotY: 0,
-            toRotY: 0,
-            start: now,
-            duration: 400
+            fromRotY: targetMesh.rotation.y, toRotY: 0,
+            start: now, duration: 350
           });
-          // Store home position for reverse animation
-          meldMesh._homePos = new THREE.Vector3(startX, 0.01, startZ);
         }
       }
     }
 
-    // Zoom to fit all revealed tiles
-    var totalRevealed = allRevealed.length;
+    var totalItems = sortable.length;
     var ar = window.innerWidth / window.innerHeight;
-    var zY = Math.max(9, Math.min(20, (8 + totalRevealed * 0.12) / Math.min(1, ar)));
+    var zY = Math.max(9, Math.min(20, (8 + totalItems * 0.12) / Math.min(1, ar)));
     this.renderer.animateCameraTo([0, zY, 0.5], [0, 0.5, 0], 400);
-    this._discardZoomMode = 'all';
+    this._discardZoomMode = 'suit';
   }
 
   clearRevealedMelds(animate) {
