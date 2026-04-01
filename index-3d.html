@@ -3962,7 +3962,8 @@ class Renderer {
     const spacing = 0.55;
     const count = Math.min(tileCount, 14);
     const D = 0.25;
-    const yPos = 2 * D;
+    const yPosHand = 2 * D; // hand tiles at wall height
+    const yPosMeld = 0.01; // meld tiles on table surface
 
     // Count total meld tiles to calculate total row width
     var meldTileCount = 0;
@@ -3980,9 +3981,9 @@ class Renderer {
       const offset = (startOffset + i) * spacing;
 
       if (pos.along === 'x') {
-        mesh.position.set(pos.x + offset, yPos, pos.z);
+        mesh.position.set(pos.x + offset, yPosHand, pos.z);
       } else {
-        mesh.position.set(pos.x, yPos, pos.z + offset);
+        mesh.position.set(pos.x, yPosHand, pos.z + offset);
       }
       mesh.rotation.y = pos.rotY;
       mesh.rotation.x = Math.PI; // face down
@@ -4003,9 +4004,9 @@ class Renderer {
           var offset = (startOffset + meldIdx) * spacing;
 
           if (pos.along === 'x') {
-            mesh.position.set(pos.x + offset, yPos, pos.z);
+            mesh.position.set(pos.x + offset, yPosMeld, pos.z);
           } else {
-            mesh.position.set(pos.x, yPos, pos.z + offset);
+            mesh.position.set(pos.x, yPosMeld, pos.z + offset);
           }
           mesh.rotation.y = pos.rotY;
           if (isFaceDown) mesh.rotation.x = Math.PI; // face down for concealed kong edges
@@ -4027,9 +4028,9 @@ class Renderer {
         var fOffset = (startOffset + meldIdx) * spacing;
 
         if (pos.along === 'x') {
-          fMesh.position.set(pos.x + fOffset, yPos, pos.z);
+          fMesh.position.set(pos.x + fOffset, yPosMeld, pos.z);
         } else {
-          fMesh.position.set(pos.x, yPos, pos.z + fOffset);
+          fMesh.position.set(pos.x, yPosMeld, pos.z + fOffset);
         }
         fMesh.rotation.y = pos.rotY;
         // face up — no x rotation needed
