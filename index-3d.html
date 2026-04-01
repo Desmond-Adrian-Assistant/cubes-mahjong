@@ -4364,7 +4364,7 @@ class GameController {
       document.getElementById('dsb-default').classList.add('active');
       document.getElementById('dsb-suit').classList.remove('active');
       document.getElementById('dsb-all').classList.remove('active');
-      this.clearRevealedMelds();
+      this.clearRevealedMelds(true);
       // Animate tiles back to per-player zone positions
       var allDiscards = this.gs.players.map(function(p) { return p.discards; });
       this.renderer.animateDiscardsToPositions(allDiscards, 'player');
@@ -5894,7 +5894,7 @@ class GameController {
       // Always restore tiles to default player positions
       var allDiscards = this.gs.players.map(function(p) { return p.discards; });
       this.renderer.animateDiscardsToPositions(allDiscards, 'player');
-      this.clearRevealedMelds();
+      this.clearRevealedMelds(true);
       this._discardZoomMode = null;
     }
   }
@@ -5992,14 +5992,35 @@ class GameController {
             });
           }
         } else {
-          // Create new 3D tile for meld/flower
+          // Create 3D tile at its table position, then animate to sorted position
           var meldMesh = this.renderer.create3DTile(items[ii].tile, false);
-          meldMesh.position.set(tx, 0.01, tz);
+          // Start from table edge (approximate player positions)
+          var startX = 0, startZ = 0;
+          var playerIdx = -1;
+          for (var pi3 = 0; pi3 < meldTiles.length; pi3++) {
+            if (meldTiles[pi3].tile === items[ii].tile) { playerIdx = meldTiles[pi3].player; break; }
+          }
+          if (playerIdx === 0) { startX = 5.5; startZ = 0; } // East
+          else if (playerIdx === 1) { startX = 0; startZ = 5.3; } // South
+          else if (playerIdx === 2) { startX = -5.5; startZ = 0; } // West
+          else if (playerIdx === 3) { startX = 0; startZ = -5.3; } // North
+          meldMesh.position.set(startX, 0.01, startZ);
           meldMesh.rotation.y = 0;
           meldMesh.scale.set(0.70, 0.70, 0.70);
-          // Slight gold tint for melds to distinguish from discards
           this.renderer.scene.add(meldMesh);
           this._revealedMeldMeshes.push(meldMesh);
+          // Animate from table position to sorted position
+          this.renderer.discardTileAnims.push({
+            mesh: meldMesh,
+            from: new THREE.Vector3(startX, 0.01, startZ),
+            to: new THREE.Vector3(tx, 0.05, tz),
+            fromRotY: 0,
+            toRotY: 0,
+            start: now,
+            duration: 400
+          });
+          // Store home position for reverse animation
+          meldMesh._homePos = new THREE.Vector3(startX, 0.01, startZ);
         }
       }
     }
@@ -6012,8 +6033,35 @@ class GameController {
     this._discardZoomMode = 'all';
   }
 
-  clearRevealedMelds() {
-    if (this._revealedMeldMeshes) {
+  clearRevealedMelds(animate) {
+    if (!this._revealedMeldMeshes || this._revealedMeldMeshes.length === 0) return;
+    if (animate) {
+      // Animate tiles back to their home positions, then remove
+      var now = performance.now();
+      var meshes = this._revealedMeldMeshes.slice();
+      var renderer = this.renderer;
+      for (var i = 0; i < meshes.length; i++) {
+        var m = meshes[i];
+        var home = m._homePos || m.position.clone();
+        renderer.discardTileAnims.push({
+          mesh: m,
+          from: m.position.clone(),
+          to: home,
+          fromRotY: m.rotation.y,
+          toRotY: 0,
+          start: now,
+          duration: 300
+        });
+      }
+      // Remove after animation completes
+      setTimeout(function() {
+        for (var j = 0; j < meshes.length; j++) {
+          renderer.scene.remove(meshes[j]);
+          if (meshes[j].geometry) meshes[j].geometry.dispose();
+        }
+      }, 350);
+      this._revealedMeldMeshes = [];
+    } else {
       for (var i = 0; i < this._revealedMeldMeshes.length; i++) {
         this.renderer.scene.remove(this._revealedMeldMeshes[i]);
         if (this._revealedMeldMeshes[i].geometry) this._revealedMeldMeshes[i].geometry.dispose();
