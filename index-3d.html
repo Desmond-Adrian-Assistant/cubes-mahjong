@@ -4378,13 +4378,8 @@ class GameController {
       document.getElementById('dsb-suit').classList.add('active');
       document.getElementById('dsb-default').classList.remove('active');
       document.getElementById('dsb-all').classList.remove('active');
-      this.clearRevealedMelds();
-      var allDiscards = this.gs.players.map(function(p) { return p.discards; });
-      this.renderer.animateDiscardsToPositions(allDiscards, 'suit');
-      // Adjust zoom for suit layout (more compact, can zoom closer)
-      var totalD2 = allDiscards.reduce(function(s,a){return s+a.length;},0);
-      var ar3 = window.innerWidth / window.innerHeight; var zY2 = Math.max(7, Math.min(16, (6 + totalD2 * 0.15) / Math.min(1, ar3)));
-      this.renderer.animateCameraTo([0, zY2, 0.1], [0, 0, 0], 400);
+      // By Suit also shows melds alongside discards
+      this.showAllRevealedView();
       this._discardZoomMode = 'suit';
     });
     document.getElementById('dsb-all').addEventListener('click', () => {
@@ -4869,9 +4864,57 @@ class GameController {
       if (i === 1) continue; // skip human
       this.renderer.renderOpponentTiles(i, this.gs.players[i].hand.length, this.gs.players[i].melds, this.gs.players[i].flowers);
     }
+    // Render human player melds as 3D tiles on table (south side)
+    this.renderHumanMelds3D();
   }
 
-  renderPlayerHand() {
+  renderHumanMelds3D() {
+    // Clear previous human meld meshes
+    if (this._humanMeldMeshes) {
+      for (var i = 0; i < this._humanMeldMeshes.length; i++) {
+        this.renderer.scene.remove(this._humanMeldMeshes[i]);
+        if (this._humanMeldMeshes[i].geometry) this._humanMeldMeshes[i].geometry.dispose();
+      }
+    }
+    this._humanMeldMeshes = [];
+
+    var player = this.gs.players[1];
+    if ((!player.melds || player.melds.length === 0) && (!player.flowers || player.flowers.length === 0)) return;
+
+    // Position near south wall, right side
+    var baseX = 3.5;
+    var baseZ = 5.3;
+    var spacing = 0.50;
+    var idx = 0;
+
+    // Melds
+    for (var mi = 0; mi < player.melds.length; mi++) {
+      var meld = player.melds[mi];
+      for (var ti = 0; ti < meld.tiles.length; ti++) {
+        var isFaceDown = meld.concealed && (ti === 0 || ti === meld.tiles.length - 1);
+        var mesh = isFaceDown ? this.renderer.create3DTile({}, true) : this.renderer.create3DTile(meld.tiles[ti], false);
+        mesh.position.set(baseX - idx * spacing, 0.01, baseZ);
+        if (isFaceDown) mesh.rotation.x = Math.PI;
+        mesh.scale.set(0.65, 0.65, 0.65);
+        this.renderer.scene.add(mesh);
+        this._humanMeldMeshes.push(mesh);
+        idx++;
+      }
+      idx += 0.5; // gap between meld groups
+    }
+
+    // Flowers
+    for (var fi = 0; fi < player.flowers.length; fi++) {
+      var fMesh = this.renderer.create3DTile(player.flowers[fi], false);
+      fMesh.position.set(baseX - idx * spacing, 0.01, baseZ);
+      fMesh.scale.set(0.65, 0.65, 0.65);
+      this.renderer.scene.add(fMesh);
+      this._humanMeldMeshes.push(fMesh);
+      idx++;
+    }
+  }
+
+    renderPlayerHand() {
     const tray = document.getElementById('hand-tray');
     tray.innerHTML = '';
     // Add invisible spacer so first tile isn't clipped by border-radius
