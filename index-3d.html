@@ -1047,6 +1047,7 @@ body::after {
 <div id="discard-sort-bar" class="discard-sort-bar">
   <button id="dsb-default" class="active">Default</button>
   <button id="dsb-suit">By Suit</button>
+  <button id="dsb-all">All Revealed</button>
   <button id="dsb-back">Back</button>
 </div>
 
@@ -4362,6 +4363,8 @@ class GameController {
     document.getElementById('dsb-default').addEventListener('click', () => {
       document.getElementById('dsb-default').classList.add('active');
       document.getElementById('dsb-suit').classList.remove('active');
+      document.getElementById('dsb-all').classList.remove('active');
+      this.clearRevealedMelds();
       // Animate tiles back to per-player zone positions
       var allDiscards = this.gs.players.map(function(p) { return p.discards; });
       this.renderer.animateDiscardsToPositions(allDiscards, 'player');
@@ -4374,6 +4377,8 @@ class GameController {
     document.getElementById('dsb-suit').addEventListener('click', () => {
       document.getElementById('dsb-suit').classList.add('active');
       document.getElementById('dsb-default').classList.remove('active');
+      document.getElementById('dsb-all').classList.remove('active');
+      this.clearRevealedMelds();
       var allDiscards = this.gs.players.map(function(p) { return p.discards; });
       this.renderer.animateDiscardsToPositions(allDiscards, 'suit');
       // Adjust zoom for suit layout (more compact, can zoom closer)
@@ -4381,6 +4386,12 @@ class GameController {
       var ar3 = window.innerWidth / window.innerHeight; var zY2 = Math.max(7, Math.min(16, (6 + totalD2 * 0.15) / Math.min(1, ar3)));
       this.renderer.animateCameraTo([0, zY2, 0.1], [0, 0, 0], 400);
       this._discardZoomMode = 'suit';
+    });
+    document.getElementById('dsb-all').addEventListener('click', () => {
+      document.getElementById('dsb-all').classList.add('active');
+      document.getElementById('dsb-default').classList.remove('active');
+      document.getElementById('dsb-suit').classList.remove('active');
+      this.showAllRevealedView();
     });
     document.getElementById('dsb-back').addEventListener('click', () => this.toggleDiscardView());
     document.getElementById('settings-close').addEventListener('click', () => this.closeSettings());
@@ -5821,8 +5832,10 @@ class GameController {
       // Mark default as active
       var dBtn = document.getElementById('dsb-default');
       var sBtn = document.getElementById('dsb-suit');
+      var aBtn = document.getElementById('dsb-all');
       if (dBtn) dBtn.classList.add('active');
       if (sBtn) sBtn.classList.remove('active');
+      if (aBtn) aBtn.classList.remove('active');
       this._discardZoomMode = 'default';
     } else {
       // Zoom back out to normal
@@ -5836,7 +5849,131 @@ class GameController {
       // Always restore tiles to default player positions
       var allDiscards = this.gs.players.map(function(p) { return p.discards; });
       this.renderer.animateDiscardsToPositions(allDiscards, 'player');
+      this.clearRevealedMelds();
       this._discardZoomMode = null;
+    }
+  }
+
+
+  // ========== ALL REVEALED VIEW ==========
+  showAllRevealedView() {
+    // Clear any existing revealed meld meshes
+    this.clearRevealedMelds();
+
+    // Collect all revealed tiles: discards + all melds + flowers from all players
+    var meldTiles = [];
+    for (var pi = 0; pi < 4; pi++) {
+      var p = this.gs.players[pi];
+      for (var mi = 0; mi < p.melds.length; mi++) {
+        var meld = p.melds[mi];
+        for (var ti = 0; ti < meld.tiles.length; ti++) {
+          // Skip concealed kong outer tiles
+          if (meld.concealed && (ti === 0 || ti === meld.tiles.length - 1)) continue;
+          meldTiles.push({ tile: meld.tiles[ti], player: pi, type: meld.type });
+        }
+      }
+      for (var fi = 0; fi < p.flowers.length; fi++) {
+        meldTiles.push({ tile: p.flowers[fi], player: pi, type: 'flower' });
+      }
+    }
+
+    // Create 3D meshes for meld tiles and place them
+    this._revealedMeldMeshes = [];
+    var suitOrder = { bamboo: 0, dots: 1, characters: 2, winds: 3, dragons: 4, flowers: 5 };
+
+    // Combine discards + melds, sort by suit
+    var allRevealed = [];
+    for (var pi2 = 0; pi2 < 4; pi2++) {
+      var discards = this.gs.players[pi2].discards || [];
+      for (var di = 0; di < discards.length; di++) {
+        allRevealed.push({ tile: discards[di], isDiscard: true, discardMeshIdx: allRevealed.filter(function(r){return r.isDiscard;}).length });
+      }
+    }
+    // Recount discard indices properly
+    var discardIdx = 0;
+    for (var ri = 0; ri < allRevealed.length; ri++) {
+      if (allRevealed[ri].isDiscard) { allRevealed[ri].discardMeshIdx = discardIdx++; }
+    }
+    for (var mi2 = 0; mi2 < meldTiles.length; mi2++) {
+      allRevealed.push({ tile: meldTiles[mi2].tile, isDiscard: false, type: meldTiles[mi2].type });
+    }
+
+    allRevealed.sort(function(a, b) {
+      var sa = suitOrder[a.tile.suit] || 5, sb = suitOrder[b.tile.suit] || 5;
+      if (sa !== sb) return sa - sb;
+      return (a.tile.num || 0) - (b.tile.num || 0);
+    });
+
+    // Layout: rows by suit
+    var rowZMap = { bamboo: -3.0, dots: -1.2, characters: 0.6, winds: 2.0, dragons: 3.2, flowers: 4.0 };
+    var maxPerRow = 10;
+    var tileSpacing = 0.52;
+    var rowGap = 0.65;
+
+    // Group by suit
+    var suitGroups = {};
+    for (var ai = 0; ai < allRevealed.length; ai++) {
+      var suit = allRevealed[ai].tile.suit || 'flowers';
+      if (!suitGroups[suit]) suitGroups[suit] = [];
+      suitGroups[suit].push(allRevealed[ai]);
+    }
+
+    // Animate existing discard meshes + create new meld meshes
+    var now = performance.now();
+    this.renderer.discardTileAnims = [];
+
+    for (var suit2 in suitGroups) {
+      var items = suitGroups[suit2];
+      var baseZ = rowZMap[suit2] || 4.0;
+      for (var ii = 0; ii < items.length; ii++) {
+        var rowNum = Math.floor(ii / maxPerRow);
+        var colNum = ii % maxPerRow;
+        var rowLen = Math.min(maxPerRow, items.length - rowNum * maxPerRow);
+        var tx = (colNum - rowLen / 2 + 0.5) * tileSpacing;
+        var tz = baseZ + rowNum * rowGap;
+
+        if (items[ii].isDiscard) {
+          // Animate existing discard mesh
+          var mesh = this.renderer.discardMeshes[items[ii].discardMeshIdx];
+          if (mesh) {
+            this.renderer.discardTileAnims.push({
+              mesh: mesh,
+              from: mesh.position.clone(),
+              to: new THREE.Vector3(tx, 0.05, tz),
+              fromRotY: mesh.rotation.y,
+              toRotY: 0,
+              start: now,
+              duration: 300
+            });
+          }
+        } else {
+          // Create new 3D tile for meld/flower
+          var meldMesh = this.renderer.create3DTile(items[ii].tile, false);
+          meldMesh.position.set(tx, 0.01, tz);
+          meldMesh.rotation.y = 0;
+          meldMesh.scale.set(0.70, 0.70, 0.70);
+          // Slight gold tint for melds to distinguish from discards
+          this.renderer.scene.add(meldMesh);
+          this._revealedMeldMeshes.push(meldMesh);
+        }
+      }
+    }
+
+    // Zoom to fit all revealed tiles
+    var totalRevealed = allRevealed.length;
+    var ar = window.innerWidth / window.innerHeight;
+    var zY = Math.max(9, Math.min(20, (8 + totalRevealed * 0.12) / Math.min(1, ar)));
+    this.renderer.animateCameraTo([0, zY, 0.5], [0, 0.5, 0], 400);
+    this._discardZoomMode = 'all';
+  }
+
+  clearRevealedMelds() {
+    if (this._revealedMeldMeshes) {
+      for (var i = 0; i < this._revealedMeldMeshes.length; i++) {
+        this.renderer.scene.remove(this._revealedMeldMeshes[i]);
+        if (this._revealedMeldMeshes[i].geometry) this._revealedMeldMeshes[i].geometry.dispose();
+      }
+      this._revealedMeldMeshes = [];
     }
   }
 
