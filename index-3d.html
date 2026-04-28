@@ -770,6 +770,15 @@ body::after {
 }
 #voice-toggle.connected { background: #3a8f5a; color: white; }
 #voice-toggle.connecting { opacity: 0.65; }
+.player-bubble.voice-speaking .bubble-avatar {
+  box-shadow: 0 0 0 4px rgba(58,143,90,0.65), 0 0 0 9px rgba(58,143,90,0.24), 0 0 26px rgba(58,143,90,0.55);
+  border-color: #3a8f5a;
+  animation: voicePulse 0.9s ease-in-out infinite;
+}
+.player-bubble.voice-speaking .bubble-info::after {
+  content: ' speaking'; color: #3a8f5a; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px;
+}
+@keyframes voicePulse { 0%,100% { filter: brightness(1); } 50% { filter: brightness(1.18); } }
 #ingame-chat-btn .badge {
   position: absolute; top: -4px; right: -4px;
   background: #c0392b; color: white; font-size: 9px;
@@ -7134,6 +7143,8 @@ class GameController {
   closeMPLobby() {
     document.getElementById('mp-overlay').style.display = 'none';
     if (this._voiceRoom) { try { this._voiceRoom.disconnect(); } catch (_) {} this._voiceRoom = null; this._voiceTrack = null; }
+    if (this._voiceAudioEls) { for (const el of this._voiceAudioEls.values()) el.remove(); this._voiceAudioEls.clear(); }
+    this.clearVoiceSpeaking();
     const vb = document.getElementById('voice-toggle'); if (vb) { vb.classList.remove('connected','connecting'); vb.textContent = '🎙️'; vb.style.display = 'none'; }
     if (this.mpClient) { if (this.mpClient.ws) this.mpClient.ws.close(); this.mpClient = null; }
     this.mpMode = false;
@@ -7219,6 +7230,7 @@ class GameController {
       try { this._voiceRoom.disconnect(); } catch (_) {}
       this._voiceRoom = null; this._voiceTrack = null;
       btn.classList.remove('connected', 'connecting'); btn.textContent = '🎙️'; btn.title = 'Voice chat';
+      this.clearVoiceSpeaking();
       this.showToast('Voice disconnected');
       return;
     }
@@ -7233,8 +7245,27 @@ class GameController {
       const data = await res.json();
       if (!res.ok || data.error) throw new Error(data.error || 'Could not get voice token');
       const room = new LK.Room({ adaptiveStream: true, dynacast: true });
-      room.on(LK.RoomEvent.ParticipantConnected, p => this.showToast(p.identity + ' joined voice'));
-      room.on(LK.RoomEvent.ParticipantDisconnected, p => this.showToast(p.identity + ' left voice'));
+      this._voiceAudioEls = this._voiceAudioEls || new Map();
+      const attachAudio = (track, participant) => {
+        try {
+          if (track.kind && String(track.kind).toLowerCase() !== 'audio') return;
+          const el = track.attach();
+          el.autoplay = true; el.playsInline = true; el.dataset.voiceIdentity = participant.identity || '';
+          document.body.appendChild(el);
+          this._voiceAudioEls.set(track.sid || participant.identity, el);
+        } catch (_) {}
+      };
+      const detachAudio = (track, participant) => {
+        const key = track.sid || participant.identity;
+        const el = this._voiceAudioEls && this._voiceAudioEls.get(key);
+        if (el) { el.remove(); this._voiceAudioEls.delete(key); }
+        try { track.detach().forEach(e => e.remove()); } catch (_) {}
+      };
+      room.on(LK.RoomEvent.ParticipantConnected, p => this.showToast((p.name || p.identity) + ' joined voice'));
+      room.on(LK.RoomEvent.ParticipantDisconnected, p => { this.showToast((p.name || p.identity) + ' left voice'); this.markVoiceSpeaking(p.identity, false); });
+      room.on(LK.RoomEvent.TrackSubscribed, attachAudio);
+      room.on(LK.RoomEvent.TrackUnsubscribed, detachAudio);
+      room.on(LK.RoomEvent.ActiveSpeakersChanged, speakers => this.updateVoiceSpeakers(speakers));
       await room.connect(data.url, data.token);
       const track = await LK.createLocalAudioTrack({ echoCancellation: true, noiseSuppression: true, autoGainControl: true });
       await room.localParticipant.publishTrack(track);
@@ -7245,6 +7276,33 @@ class GameController {
       btn.classList.remove('connecting', 'connected'); btn.textContent = '🎙️';
       alert('Voice unavailable: ' + (err.message || err));
     }
+  }
+
+  voiceSeatFromIdentity(identity) {
+    const m = String(identity || '').match(/:seat:(\d+)/);
+    return m ? Number(m[1]) : -1;
+  }
+
+  localSeatFromServerSeat(serverSeat) {
+    if (!this.mpClient || serverSeat < 0) return -1;
+    return (serverSeat - this.mpClient.seatIdx + 1 + 4) % 4;
+  }
+
+  markVoiceSpeaking(identity, speaking) {
+    const serverSeat = this.voiceSeatFromIdentity(identity);
+    const localSeat = this.localSeatFromServerSeat(serverSeat);
+    const seatIds = { 0: 'east', 1: 'south', 2: 'west', 3: 'north' };
+    const el = document.getElementById('p-' + seatIds[localSeat]);
+    if (el) el.classList.toggle('voice-speaking', !!speaking);
+  }
+
+  clearVoiceSpeaking() {
+    document.querySelectorAll('.player-bubble.voice-speaking').forEach(el => el.classList.remove('voice-speaking'));
+  }
+
+  updateVoiceSpeakers(speakers) {
+    this.clearVoiceSpeaking();
+    for (const p of speakers || []) this.markVoiceSpeaking(p.identity, true);
   }
 
   mpHandleMessage(msg) {
