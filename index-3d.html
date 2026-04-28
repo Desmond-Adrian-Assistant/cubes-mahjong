@@ -763,11 +763,13 @@ body::after {
 }
 
 /* ========== IN-GAME CHAT ========== */
-#ingame-chat-btn {
+#ingame-chat-btn, #voice-toggle {
   background: rgba(245,240,232,0.95); border: 1px solid rgba(180,160,130,0.3);
   border-radius: 8px; padding: 4px 8px; font-size: 16px; cursor: pointer;
   position: relative; display: none;
 }
+#voice-toggle.connected { background: #3a8f5a; color: white; }
+#voice-toggle.connecting { opacity: 0.65; }
 #ingame-chat-btn .badge {
   position: absolute; top: -4px; right: -4px;
   background: #c0392b; color: white; font-size: 9px;
@@ -1082,6 +1084,7 @@ body::after {
   <span id="chat-badge" style="display:none;position:absolute;top:-2px;right:-2px;background:#c0392b;color:white;font-size:9px;font-weight:700;min-width:16px;height:16px;border-radius:8px;align-items:center;justify-content:center;">0</span>
 </button>
       <button id="ingame-chat-btn">💬<span class="badge" id="chat-badge">0</span></button>
+      <button id="voice-toggle" title="Voice chat">🎙️</button>
       <button class="toolbar-btn" id="tb-top-settings" title="Settings">
         <span class="tb-icon"><svg viewBox="0 0 20 20" fill="none" stroke="#5a4a3a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="3"/><path d="M10 2.5v2M10 15.5v2M17.5 10h-2M4.5 10h-2M15.3 4.7l-1.4 1.4M6.1 13.9l-1.4 1.4M15.3 15.3l-1.4-1.4M6.1 6.1L4.7 4.7"/></svg></span>
         <span class="tb-label">Settings</span>
@@ -4508,6 +4511,7 @@ class GameController {
       if (panel.classList.contains('open')) { this._chatUnread = 0; const b = document.getElementById('chat-badge'); if(b){b.style.display='none';b.textContent='0';} }
     });
     document.getElementById('ingame-chat-close')?.addEventListener('click', () => document.getElementById('ingame-chat-panel')?.classList.remove('open'));
+    document.getElementById('voice-toggle')?.addEventListener('click', () => this.toggleVoiceChat());
     document.getElementById('ingame-chat-send')?.addEventListener('click', () => { const i=document.getElementById('ingame-chat-input'); const t=i?.value?.trim(); if(!t)return; this.mpSend({type:'chat',text:t}); i.value=''; });
     document.getElementById('ingame-chat-input')?.addEventListener('keydown', (e) => { if(e.key==='Enter') document.getElementById('ingame-chat-send')?.click(); });
     document.getElementById('btn-skip').addEventListener('click', () => this.skipClaim());
@@ -7123,7 +7127,13 @@ class GameController {
     this.mpSend({ type: 'restart' });
   }
 
-  closeMPLobby() { document.getElementById('mp-overlay').style.display = 'none'; if (this.mpClient) { if (this.mpClient.ws) this.mpClient.ws.close(); this.mpClient = null; } this.mpMode = false; }
+  closeMPLobby() {
+    document.getElementById('mp-overlay').style.display = 'none';
+    if (this._voiceRoom) { try { this._voiceRoom.disconnect(); } catch (_) {} this._voiceRoom = null; this._voiceTrack = null; }
+    const vb = document.getElementById('voice-toggle'); if (vb) { vb.classList.remove('connected','connecting'); vb.textContent = '🎙️'; vb.style.display = 'none'; }
+    if (this.mpClient) { if (this.mpClient.ws) this.mpClient.ws.close(); this.mpClient = null; }
+    this.mpMode = false;
+  }
 
   mpUsesEdgeBackend() {
     const loc = window.location;
@@ -7192,6 +7202,47 @@ class GameController {
   mpSendChat() { const input = document.getElementById('mp-chat-input'); const text = input.value.trim(); if (!text) return; this.mpSend({ type: 'chat', text }); input.value = ''; }
   mpShowStatus(text) { const el = document.getElementById('mp-status'); if (el) el.textContent = text; }
 
+  async ensureLiveKit() {
+    if (this._livekitModule) return this._livekitModule;
+    this._livekitModule = await import('https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.esm.mjs');
+    return this._livekitModule;
+  }
+
+  async toggleVoiceChat() {
+    const btn = document.getElementById('voice-toggle');
+    if (!btn) return;
+    if (this._voiceRoom) {
+      try { this._voiceRoom.disconnect(); } catch (_) {}
+      this._voiceRoom = null; this._voiceTrack = null;
+      btn.classList.remove('connected', 'connecting'); btn.textContent = '🎙️'; btn.title = 'Voice chat';
+      this.showToast('Voice disconnected');
+      return;
+    }
+    if (!this.mpClient || !this.mpClient.room) { alert('Join a multiplayer room first.'); return; }
+    btn.classList.add('connecting'); btn.textContent = '…';
+    try {
+      const LK = await this.ensureLiveKit();
+      const res = await fetch('/api/livekit-token', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ room: this.mpClient.room, identity: this.mpClient.room + ':seat:' + this.mpClient.seatIdx, name: localStorage.getItem('mj_name') || 'Player' })
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) throw new Error(data.error || 'Could not get voice token');
+      const room = new LK.Room({ adaptiveStream: true, dynacast: true });
+      room.on(LK.RoomEvent.ParticipantConnected, p => this.showToast(p.identity + ' joined voice'));
+      room.on(LK.RoomEvent.ParticipantDisconnected, p => this.showToast(p.identity + ' left voice'));
+      await room.connect(data.url, data.token);
+      const track = await LK.createLocalAudioTrack({ echoCancellation: true, noiseSuppression: true, autoGainControl: true });
+      await room.localParticipant.publishTrack(track);
+      this._voiceRoom = room; this._voiceTrack = track;
+      btn.classList.remove('connecting'); btn.classList.add('connected'); btn.textContent = '🔊'; btn.title = 'Leave voice chat';
+      this.showToast('Voice connected');
+    } catch (err) {
+      btn.classList.remove('connecting', 'connected'); btn.textContent = '🎙️';
+      alert('Voice unavailable: ' + (err.message || err));
+    }
+  }
+
   mpHandleMessage(msg) {
     switch (msg.type) {
       case 'room':
@@ -7204,10 +7255,12 @@ class GameController {
           '<div style="padding:6px 10px;margin:4px 0;border-radius:8px;background:' + (i === msg.you ? 'rgba(179,58,42,0.1)' : 'rgba(230,222,210,0.5)') + ';font-size:13px;">' + (i === 0 ? '👑 ' : '') + p.name + (i === msg.you ? ' (You)' : '') + (!p.connected ? ' ❌' : '') + '</div>'
         ).join('');
         this.mpShowStatus(msg.players.length + '/4 players.');
+        { const voiceBtn = document.getElementById('voice-toggle'); if (voiceBtn) voiceBtn.style.display = 'inline-block'; }
         break;
       case 'gameState':
         this.mpMode = true; document.getElementById('mp-overlay').style.display = 'none'; this.hideModal();
         const chatBtn = document.getElementById('ingame-chat-btn'); if (chatBtn) chatBtn.style.display = 'block';
+        const voiceBtn = document.getElementById('voice-toggle'); if (voiceBtn) voiceBtn.style.display = 'inline-block';
         if (!this._mpCacheCleared) { this.renderer.tileTextures = {}; this._mpCacheCleared = true; }
         this._lastMpState = msg; this.mpApplyState(msg);
         break;
