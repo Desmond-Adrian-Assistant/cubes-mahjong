@@ -7125,10 +7125,23 @@ class GameController {
 
   closeMPLobby() { document.getElementById('mp-overlay').style.display = 'none'; if (this.mpClient) { if (this.mpClient.ws) this.mpClient.ws.close(); this.mpClient = null; } this.mpMode = false; }
 
-  async mpConnect() {
+  mpUsesEdgeBackend() {
+    const loc = window.location;
+    if (window.MJ_EDGE_BACKEND === true) return true;
+    if (loc.port === '8787') return true; // wrangler dev
+    return /(?:workers\.dev|pages\.dev)$/i.test(loc.hostname);
+  }
+
+  mpWsBase(path = '') {
+    const loc = window.location;
+    const protocol = loc.protocol === 'https:' ? 'wss:' : 'ws:';
+    const host = loc.host || (loc.hostname + (loc.port ? ':' + loc.port : ''));
+    return protocol + '//' + host + path;
+  }
+
+  async mpConnect(path = '') {
     if (this.mpClient && this.mpClient.ws && this.mpClient.ws.readyState === WebSocket.OPEN) return;
-    const loc = window.location; const protocol = loc.protocol === 'https:' ? 'wss:' : 'ws:';
-    const url = protocol + '//' + loc.hostname + ':' + (loc.port || (loc.protocol === 'https:' ? '443' : '80'));
+    const url = this.mpWsBase(path);
     this.mpClient = { ws: null, seatIdx: -1, isHost: false };
     return new Promise((resolve, reject) => {
       const ws = new WebSocket(url); this.mpClient.ws = ws;
@@ -7144,18 +7157,35 @@ class GameController {
     const room = localStorage.getItem('mj_mp_room'); const seat = parseInt(localStorage.getItem('mj_mp_seat') || '-1', 10); const reconnectToken = localStorage.getItem('mj_mp_token');
     if (!room || !reconnectToken || seat < 0) return false;
     const name = localStorage.getItem('mj_name') || 'Player';
-    try { await this.mpConnect(); this.mpSend({ type: 'join', room, name, seat, reconnectToken }); return true; } catch (_) { return false; }
+    try {
+      if (this.mpUsesEdgeBackend()) await this.mpConnect('/ws/' + encodeURIComponent(room) + '?name=' + encodeURIComponent(name) + '&seat=' + encodeURIComponent(String(seat)) + '&reconnectToken=' + encodeURIComponent(reconnectToken));
+      else { await this.mpConnect(); this.mpSend({ type: 'join', room, name, seat, reconnectToken }); }
+      return true;
+    } catch (_) { return false; }
   }
 
   async mpCreateRoom() {
     const name = localStorage.getItem('mj_name') || 'Host'; const avatar = localStorage.getItem('mj_avatar') || 'chen';
-    try { await this.mpConnect(); this.mpSend({ type: 'create', name, avatar }); this.hideModal(); this.showMPLobby(); } catch (e) { alert('Could not connect to server.'); }
+    try {
+      if (this.mpUsesEdgeBackend()) {
+        const res = await fetch('/api/rooms', { method: 'POST' });
+        const data = await res.json();
+        await this.mpConnect('/ws/' + encodeURIComponent(data.room) + '?name=' + encodeURIComponent(name) + '&avatar=' + encodeURIComponent(avatar));
+      } else {
+        await this.mpConnect(); this.mpSend({ type: 'create', name, avatar });
+      }
+      this.hideModal(); this.showMPLobby();
+    } catch (e) { alert('Could not connect to server.'); }
   }
 
   async mpJoinRoom(code) {
     const name = localStorage.getItem('mj_name') || 'Guest'; const avatar = localStorage.getItem('mj_avatar') || 'chen';
     if (!code || code.length !== 4) { alert('Enter a 4-character room code'); return; }
-    try { await this.mpConnect(); this.mpSend({ type: 'join', room: code, name, avatar }); this.hideModal(); this.showMPLobby(); } catch (e) { alert('Could not connect to server.'); }
+    try {
+      if (this.mpUsesEdgeBackend()) await this.mpConnect('/ws/' + encodeURIComponent(code.toUpperCase()) + '?name=' + encodeURIComponent(name) + '&avatar=' + encodeURIComponent(avatar));
+      else { await this.mpConnect(); this.mpSend({ type: 'join', room: code, name, avatar }); }
+      this.hideModal(); this.showMPLobby();
+    } catch (e) { alert('Could not connect to server.'); }
   }
 
   mpStartGame() { this.mpSend({ type: 'start' }); }

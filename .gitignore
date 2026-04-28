@@ -3,3 +3,4 @@ server.js.bak
 screenshots/
 assets/generated/
 .DS_Store
+cloudflare/public/

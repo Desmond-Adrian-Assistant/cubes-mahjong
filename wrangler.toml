@@ -1,0 +1,21 @@
+name = "cubes-mahjong"
+main = "cloudflare/worker.js"
+compatibility_date = "2026-04-27"
+
+[assets]
+directory = "cloudflare/public"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+
+[[durable_objects.bindings]]
+name = "MAHJONG_ROOM"
+class_name = "MahjongRoom"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["MahjongRoom"]
+
+# Configure these before enabling voice:
+# wrangler secret put LIVEKIT_API_KEY
+# wrangler secret put LIVEKIT_API_SECRET
+# wrangler secret put LIVEKIT_URL
