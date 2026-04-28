@@ -4337,28 +4337,27 @@ class Renderer {
         { baseX: -2.7, baseZ: 0, cols: 8, along: 'z', rotY: -Math.PI/2, inward: 1 },
         { baseX: 0, baseZ: -2.7, cols: 8, along: 'x', rotY: Math.PI, inward: 1 },
       ];
-      var spacing2 = 0.50, rowSpacing = 0.60;
+      var spacing2 = 0.52, rowSpacing = 0.62;
       for (var p = 0; p < 4; p++) {
         var discards = allDiscards[p] || [];
         var zone = zones[p];
         for (var ti = 0; ti < discards.length; ti++) {
           var col = ti % zone.cols;
           var row = Math.floor(ti / zone.cols);
-          var offset = (col - (Math.min(discards.length, zone.cols) - 1) / 2) * spacing2;
-          var rowOff = Math.min(row * rowSpacing, 1.8);
-          var x, z;
-          if (zone.along === 'x') { x = zone.baseX + offset; z = zone.baseZ + rowOff * zone.inward; }
-          else { x = zone.baseX + rowOff * zone.inward; z = zone.baseZ + offset; }
-          var seed = (ti * 9301 + p * 49297) % 233280;
+          var colOffset = (col - (zone.cols - 1) / 2) * spacing2;
+          var rowOffset = row * rowSpacing * zone.inward;
+          var seed = ((ti * 9301 + p * 49297) % 233280);
           var rng1 = seed / 233280;
-          var seed2 = (seed * 49297 + 11) % 233280;
+          var seed2 = ((seed * 9301 + 49297) % 233280);
           var rng2 = seed2 / 233280;
-          var seed3 = (seed2 * 49297 + 11) % 233280;
-          var rng3 = seed3 / 233280;
+          var wobble = (rng1 - 0.5) * 0.15;
+          var x, z;
+          if (zone.along === 'x') { x = zone.baseX + colOffset + (rng1 - 0.5) * 0.04; z = zone.baseZ + rowOffset + (rng2 - 0.5) * 0.04; }
+          else { x = zone.baseX + rowOffset + (rng1 - 0.5) * 0.04; z = zone.baseZ + colOffset + (rng2 - 0.5) * 0.04; }
           positions.push({ meshIdx: positions.length,
-            x: x + (rng1 - 0.5) * 0.08,
-            z: z + (rng2 - 0.5) * 0.08,
-            rotY: zone.rotY + (rng3 - 0.5) * 0.15
+            x: x,
+            z: z,
+            rotY: zone.rotY + wobble
           });
         }
       }
@@ -6212,11 +6211,16 @@ class GameController {
 
   // ========== ZOOM VIEW: Default = discards by player + melds near player ==========
   showDefaultZoomView() {
-    // Rebuild discards from authoritative state so Default returns exactly to
-    // original player discard zones after By Suit sorting, not stale centered positions.
+    // Animate discards back to player zones. The player target positions match
+    // renderDiscards(); after animation, hard-snap once to remove any drift.
     var allDiscards = this.gs.players.map(function(p) { return p.discards; });
-    this.renderer.renderDiscards(allDiscards);
-    if (this.gs.lastDiscard) this.renderer.highlightLastDiscard(this.gs.lastDiscard.id);
+    this.renderer.animateDiscardsToPositions(allDiscards, 'player');
+    setTimeout(() => {
+      if (this._discardZoomMode === 'default') {
+        this.renderer.renderDiscards(allDiscards);
+        if (this.gs.lastDiscard) this.renderer.highlightLastDiscard(this.gs.lastDiscard.id);
+      }
+    }, 380);
     // Default view uses normal/base melds inline with player hands.
     this.clearRevealedMelds(false);
     this.setBaseMeldVisibility(true);
