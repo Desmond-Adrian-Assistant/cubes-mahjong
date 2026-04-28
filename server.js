@@ -2,8 +2,10 @@ const { WebSocketServer } = require('ws');
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
-const PORT = 8877;
+const PORT = 8878;
+const ENABLE_TEST_HOOKS = process.env.MJ_ENABLE_TEST_HOOKS === '1';
 
 // ============================================================
 // TILE DEFINITIONS
@@ -198,11 +200,19 @@ class GameState {
     this.claimResponses = {}; // playerIdx -> response
     this.claimTimer = null;
     this.winType = null;
+    this.liveWallInitial = 0;
+    this.wallCapacities = [34, 32, 32, 32]; // east, south, west, north presentation buckets
+    this.wallBreakOffset = 0; // physical live-wall draw cursor, 0..liveWallInitial-1
   }
 
   dealTiles() {
     this.wall = shuffle(createTileSet());
     this.deadWall = this.wall.splice(0, 14);
+    // Physical live wall starts immediately after the dead wall is reserved.
+    // Dealing and later gameplay draws all consume from this same clockwise cursor.
+    this.liveWallInitial = this.wall.length;
+    this.wallCapacities = this.distributeWallCapacities(this.liveWallInitial);
+    this.wallBreakOffset = Math.floor(Math.random() * Math.max(1, this.liveWallInitial));
     for (let round = 0; round < 3; round++) {
       for (let p = 0; p < 4; p++) {
         for (let i = 0; i < 4; i++) this.players[p].hand.push(this.wall.shift());
@@ -214,6 +224,45 @@ class GameState {
     // Handle flowers
     for (let p = 0; p < 4; p++) this.handleFlowers(p);
     for (let p = 0; p < 4; p++) sortHand(this.players[p].hand);
+    // liveWallInitial/wallCapacities/wallBreakOffset were set before dealing;
+    // by now this.wall.length reflects the post-deal live wall remaining.
+  }
+
+  distributeWallCapacities(total) {
+    const base = Math.floor(total / 4);
+    const rem = total % 4;
+    return [0, 1, 2, 3].map(i => base + (i < rem ? 1 : 0));
+  }
+
+  getWallSideForPhysicalIndex(idx) {
+    let acc = 0;
+    for (let side = 0; side < this.wallCapacities.length; side++) {
+      acc += this.wallCapacities[side];
+      if (idx < acc) return side;
+    }
+    return this.wallCapacities.length - 1;
+  }
+
+  getWallSlots() {
+    // Per-side physical slots, true = live tile still present. Draws remove
+    // slots starting at wallBreakOffset and wrapping around the wall.
+    const slots = this.wallCapacities.map(cap => new Array(cap).fill(true));
+    const total = this.liveWallInitial || this.wallCapacities.reduce((a, b) => a + b, 0);
+    const drawn = Math.max(0, total - this.wall.length);
+    const sideStarts = [];
+    let acc = 0;
+    for (const cap of this.wallCapacities) { sideStarts.push(acc); acc += cap; }
+    for (let i = 0; i < drawn; i++) {
+      const physicalIdx = (this.wallBreakOffset - i + total) % total;
+      const side = this.getWallSideForPhysicalIndex(physicalIdx);
+      const localIdx = physicalIdx - sideStarts[side];
+      if (slots[side] && localIdx >= 0 && localIdx < slots[side].length) slots[side][localIdx] = false;
+    }
+    return slots;
+  }
+
+  getWallCounts() {
+    return this.getWallSlots().map(side => side.filter(Boolean).length);
   }
 
   handleFlowers(playerIdx) {
@@ -257,7 +306,12 @@ class GameState {
       phase: this.phase,
       lastDiscard: this.lastDiscard,
       lastDiscardPlayer: this.lastDiscardPlayer,
-      tilesLeft: this.wall.length + this.deadWall.length,
+      tilesLeft: this.wall.length,
+      deadWallLeft: this.deadWall.length,
+      wallCounts: this.getWallCounts(),
+      wallSlots: this.getWallSlots(),
+      wallBreakOffset: this.wallBreakOffset,
+      wallCapacities: this.wallCapacities,
       drawnTileId: this.drawnTile ? this.drawnTile.id : null,
       playerNames: this.players.map(p => p.name),
       playerIsAI: this.players.map(p => p.isAI),
@@ -289,22 +343,23 @@ function generateRoomCode() {
 }
 
 class Room {
-  constructor(code, hostWs, hostName) {
+  constructor(code, hostWs, hostName, hostAvatar = 'chen') {
     this.code = code;
     this.roomSettings = {}; // tile accent, mat, background from host
     this.state = 'waiting'; // waiting | playing | ended
     this.gs = new GameState();
-    this.clients = []; // { ws, name, seatIdx, connected }
-    this.addClient(hostWs, hostName);
+    this.clients = []; // { ws, name, avatar, seatIdx, connected, reconnectToken }
+    this.addClient(hostWs, hostName, hostAvatar);
   }
 
-  addClient(ws, name) {
+  addClient(ws, name, avatar = 'chen') {
     const seatIdx = this.clients.length;
-    const client = { ws, name, seatIdx, connected: true };
+    const client = { ws, name, avatar, seatIdx, connected: true, reconnectToken: crypto.randomBytes(18).toString('base64url') };
     this.clients.push(client);
     ws._room = this;
     ws._seatIdx = seatIdx;
     ws._name = name;
+    ws._avatar = avatar;
     return seatIdx;
   }
 
@@ -329,9 +384,10 @@ class Room {
       this.sendTo(c.seatIdx, {
         type: 'room',
         room: this.code,
-        players: this.clients.map(cl => ({ name: cl.name, seat: cl.seatIdx, connected: cl.connected })),
+        players: this.clients.map(cl => ({ name: cl.name, avatar: cl.avatar, seat: cl.seatIdx, connected: cl.connected })),
         you: c.seatIdx,
         isHost: c.seatIdx === 0,
+        reconnectToken: c.reconnectToken,
       });
     }
   }
@@ -370,6 +426,9 @@ class Room {
   }
 
   startGame() {
+    // Always start from a clean GameState. This prevents a post-game lobby
+    // start from reusing ended hands/melds/wall state from the previous round.
+    this.gs.reset();
     this.state = 'playing';
     // Assign human players, fill rest with AI
     for (let i = 0; i < 4; i++) {
@@ -404,13 +463,16 @@ class Room {
 
   // ========== GAME ACTIONS ==========
 
-  handleDiscard(seatIdx, tileIndex) {
+  handleDiscard(seatIdx, tileIndex, tileId) {
     if (this.gs.currentPlayer !== seatIdx) return;
     if (this.gs.phase !== 'discard') return;
     const player = this.gs.players[seatIdx];
-    if (tileIndex < 0 || tileIndex >= player.hand.length) return;
+    let idx = -1;
+    if (tileId !== undefined && tileId !== null) idx = player.hand.findIndex(t => t.id === tileId);
+    if (idx < 0 && Number.isInteger(tileIndex)) idx = tileIndex;
+    if (idx < 0 || idx >= player.hand.length) return;
 
-    const tile = player.hand.splice(tileIndex, 1)[0];
+    const tile = player.hand.splice(idx, 1)[0];
     player.discards.push(tile);
     this.gs.lastDiscard = tile;
     this.gs.lastDiscardPlayer = seatIdx;
@@ -582,7 +644,8 @@ class Room {
   nextTurn() {
     this.gs.currentPlayer = (this.gs.currentPlayer + 1) % 4;
     this.gs.phase = 'discard';
-    this.gs.lastDiscard = null;
+    // Keep lastDiscard visible for table highlight/discard ring until the next discard replaces it.
+    // Claim legality is guarded by phase === 'claiming', so this remains presentation-only.
 
     if (this.gs.wall.length === 0) {
       this.endGame(-1); // draw
@@ -654,6 +717,28 @@ class Room {
     if (player.isAI) setTimeout(() => this.aiTurn(), 800);
   }
 
+  debugForceWin(seatIdx) {
+    if (!ENABLE_TEST_HOOKS || this.state !== 'playing') return false;
+    const player = this.gs.players[seatIdx];
+    if (!player) return false;
+    const byKey = new Map(createTileSet().map(t => [getTileKey(t) + '-' + t.id, t]));
+    const take = (suit, num, count) => createTileSet().filter(t => t.suit === suit && t.num === num).slice(0, count).map(t => ({ ...t, id: 9000 + Math.floor(Math.random() * 1000000) + t.id }));
+    player.hand = [
+      ...take('bamboo', 1, 3),
+      ...take('bamboo', 2, 3),
+      ...take('bamboo', 3, 3),
+      ...take('dots', 5, 3),
+      ...take('dragons', undefined, 0),
+    ];
+    player.hand.push({ id: 99001, suit: 'winds', wind: 'East', type: 'honor' }, { id: 99002, suit: 'winds', wind: 'East', type: 'honor' });
+    sortHand(player.hand);
+    this.gs.currentPlayer = seatIdx;
+    this.gs.phase = 'discard';
+    this.gs.drawnTile = player.hand[player.hand.length - 1];
+    this.sendGameStateToAll();
+    return true;
+  }
+
   handleMahjong(seatIdx) {
     const player = this.gs.players[seatIdx];
     if (this.gs.phase === 'claiming' && this.gs.lastDiscard) {
@@ -713,14 +798,16 @@ class Room {
     }
   }
 
-  handleReconnect(ws, name, seatIdx) {
+  handleReconnect(ws, name, seatIdx, reconnectToken) {
     const client = this.clients[seatIdx];
-    if (client && client.name === name) {
+    if (client && client.reconnectToken && client.reconnectToken === reconnectToken) {
       client.ws = ws;
       client.connected = true;
+      if (name) client.name = name;
       ws._room = this;
       ws._seatIdx = seatIdx;
-      ws._name = name;
+      ws._name = client.name;
+      ws._avatar = client.avatar;
       this.gs.players[seatIdx].isAI = false;
       this.broadcast({ type: 'playerRejoined', name, seat: seatIdx });
       this.sendRoomInfo();
@@ -736,11 +823,50 @@ class Room {
 // ============================================================
 const MIME_TYPES = {
   '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css',
-  '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg',
+  '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp',
   '.svg': 'image/svg+xml', '.woff2': 'font/woff2',
 };
 
-const server = http.createServer((req, res) => {
+function readJsonBody(req, limitBytes = 16 * 1024) {
+  return new Promise((resolve, reject) => {
+    let body = '';
+    req.on('data', chunk => {
+      body += chunk;
+      if (body.length > limitBytes) { reject(new Error('Body too large')); req.destroy(); }
+    });
+    req.on('end', () => {
+      try { resolve(body ? JSON.parse(body) : {}); }
+      catch (e) { reject(e); }
+    });
+  });
+}
+
+const server = http.createServer(async (req, res) => {
+  if (req.method === 'POST' && req.url === '/api/generate-image') {
+    try {
+      const body = await readJsonBody(req);
+      const kind = ['background', 'mat', 'avatar'].includes(body.kind) ? body.kind : 'background';
+      const prompt = String(body.prompt || '').slice(0, 600);
+      const size = kind === 'background' ? { width: 1280, height: 720 } : { width: 768, height: 768 };
+      const fluxRes = await fetch('http://127.0.0.1:8091/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, ...size })
+      });
+      if (!fluxRes.ok) throw new Error(`Flux returned ${fluxRes.status}`);
+      const buf = Buffer.from(await fluxRes.arrayBuffer());
+      const dir = path.join(__dirname, 'assets', 'generated');
+      fs.mkdirSync(dir, { recursive: true });
+      const file = `${kind}-${Date.now()}.png`;
+      fs.writeFileSync(path.join(dir, file), buf);
+      res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.end(JSON.stringify({ url: `assets/generated/${file}` }));
+    } catch (err) {
+      res.writeHead(503, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.end(JSON.stringify({ error: err.message || 'image generation unavailable' }));
+    }
+    return;
+  }
   let filePath = path.join(__dirname, req.url === '/' ? '/index-3d.html' : req.url);
   const ext = path.extname(filePath);
   const contentType = MIME_TYPES[ext] || 'application/octet-stream';
@@ -764,7 +890,7 @@ wss.on('connection', (ws) => {
       case 'create': {
         const code = generateRoomCode();
         ws._avatar = msg.avatar || 'chen';
-        const room = new Room(code, ws, msg.name || 'Host');
+        const room = new Room(code, ws, msg.name || 'Host', msg.avatar || 'chen');
         rooms.set(code, room);
         room.sendRoomInfo();
         console.log(`Room ${code} created by ${msg.name}`);
@@ -776,12 +902,12 @@ wss.on('connection', (ws) => {
         if (!room) { ws.send(JSON.stringify({ type: 'error', message: 'Room not found' })); break; }
         if (room.state !== 'waiting') {
           // Try reconnect
-          if (msg.seat !== undefined && room.handleReconnect(ws, msg.name, msg.seat)) break;
+          if (msg.seat !== undefined && room.handleReconnect(ws, msg.name, msg.seat, msg.reconnectToken)) break;
           ws.send(JSON.stringify({ type: 'error', message: 'Game already in progress' }));
           break;
         }
         if (room.clients.length >= 4) { ws.send(JSON.stringify({ type: 'error', message: 'Room is full' })); break; }
-        room.addClient(ws, msg.name || 'Player');
+        room.addClient(ws, msg.name || 'Player', msg.avatar || 'chen');
         room.sendRoomInfo();
         console.log(`${msg.name} joined room ${msg.room}`);
         break;
@@ -814,7 +940,7 @@ wss.on('connection', (ws) => {
           ws.send(JSON.stringify({ type: 'error', message: 'Only the host can start the game' }));
           break; 
         }
-        if (room.state !== 'waiting') break;
+        if (room.state === 'playing') break;
         room.startGame();
         console.log(`Room ${room.code} game started with ${room.clients.length} players`);
         break;
@@ -823,7 +949,7 @@ wss.on('connection', (ws) => {
       case 'discard': {
         const room = ws._room;
         if (!room) break;
-        room.handleDiscard(ws._seatIdx, msg.tileIndex);
+        room.handleDiscard(ws._seatIdx, msg.tileIndex, msg.tileId);
         break;
       }
 
@@ -845,6 +971,14 @@ wss.on('connection', (ws) => {
         const room = ws._room;
         if (!room) break;
         room.handleMahjong(ws._seatIdx);
+        break;
+      }
+
+      case 'debugForceWin': {
+        const room = ws._room;
+        if (!room || !ENABLE_TEST_HOOKS) break;
+        if (ws._seatIdx !== 0) break;
+        room.debugForceWin(Number.isInteger(msg.seat) ? msg.seat : 0);
         break;
       }
 

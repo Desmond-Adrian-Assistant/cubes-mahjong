@@ -42,6 +42,10 @@ export function dealTiles() {
 }
 
 export function drawTileToHand(playerIndex) {
+  if (playerIndex < 0 || playerIndex >= game.players.length) {
+    console.warn(`Invalid player index: ${playerIndex}`);
+    return null;
+  }
   if (game.wall.length === 0) return null;
   const tile = game.wall.shift();
   game.players[playerIndex].hand.push(tile);
@@ -49,6 +53,10 @@ export function drawTileToHand(playerIndex) {
 }
 
 export function drawReplacementTile(playerIndex) {
+  if (playerIndex < 0 || playerIndex >= game.players.length) {
+    console.warn(`Invalid player index: ${playerIndex}`);
+    return null;
+  }
   let tile;
   if (game.deadWall.length > 0) {
     tile = game.deadWall.shift();
@@ -62,6 +70,10 @@ export function drawReplacementTile(playerIndex) {
 }
 
 export function handleFlowers(playerIndex) {
+  if (playerIndex < 0 || playerIndex >= game.players.length) {
+    console.warn(`Invalid player index: ${playerIndex}`);
+    return false;
+  }
   const player = game.players[playerIndex];
   let hadFlowers = false;
 
@@ -89,6 +101,10 @@ export function handleFlowers(playerIndex) {
 // ============================================================
 
 export function canMahjong(playerIndex, tile = null) {
+  if (playerIndex < 0 || playerIndex >= game.players.length) {
+    console.warn(`Invalid player index: ${playerIndex}`);
+    return false;
+  }
   const player = game.players[playerIndex];
   const hand = [...player.hand];
   if (tile) hand.push(tile);
@@ -108,8 +124,6 @@ export function checkWinningHand(hand, setsNeeded = 4) {
 
   for (let i = 0; i < sorted.length - 1; i++) {
     if (tilesMatch(sorted[i], sorted[i + 1])) {
-      if (i > 0 && tilesMatch(sorted[i], sorted[i - 1])) continue;
-
       const remaining = [...sorted];
       remaining.splice(i, 2);
       if (canFormSets(remaining, setsNeeded)) return true;
@@ -152,6 +166,14 @@ export function canFormSets(tiles, numSets) {
 // ============================================================
 
 export function getChiCombinations(playerIndex, tile) {
+  if (playerIndex < 0 || playerIndex >= game.players.length) {
+    console.warn(`Invalid player index: ${playerIndex}`);
+    return [];
+  }
+  if (!tile || typeof tile !== 'object') {
+    console.warn('Invalid tile parameter');
+    return [];
+  }
   if (tile.type !== 'suited') return [];
 
   const leftPlayer = (playerIndex + 3) % 4;
@@ -193,20 +215,48 @@ export function getChiCombinations(playerIndex, tile) {
 }
 
 export function canChi(playerIndex, tile) {
+  if (playerIndex < 0 || playerIndex >= game.players.length) {
+    console.warn(`Invalid player index: ${playerIndex}`);
+    return false;
+  }
+  if (!tile || typeof tile !== 'object') {
+    console.warn('Null tile');
+    return false;
+  }
   return getChiCombinations(playerIndex, tile).length > 0;
 }
 
 export function canPong(playerIndex, tile) {
+  if (playerIndex < 0 || playerIndex >= game.players.length) {
+    console.warn(`Invalid player index: ${playerIndex}`);
+    return false;
+  }
+  if (!tile || typeof tile !== 'object') {
+    console.warn('Null tile');
+    return false;
+  }
   if (game.lastDiscardPlayer === playerIndex) return false;
   return countMatching(game.players[playerIndex].hand, tile) >= 2;
 }
 
 export function canKong(playerIndex, tile) {
+  if (playerIndex < 0 || playerIndex >= game.players.length) {
+    console.warn(`Invalid player index: ${playerIndex}`);
+    return false;
+  }
+  if (!tile || typeof tile !== 'object') {
+    console.warn('Null tile');
+    return false;
+  }
   if (game.lastDiscardPlayer === playerIndex) return false;
   return countMatching(game.players[playerIndex].hand, tile) >= 3;
 }
 
 export function getConcealedKongs(playerIndex) {
+  if (playerIndex < 0 || playerIndex >= game.players.length) {
+    console.warn(`Invalid player index: ${playerIndex}`);
+    return [];
+  }
   const hand = game.players[playerIndex].hand;
   const counts = {};
   const kongs = [];
@@ -223,6 +273,10 @@ export function getConcealedKongs(playerIndex) {
 }
 
 export function getAddKongs(playerIndex) {
+  if (playerIndex < 0 || playerIndex >= game.players.length) {
+    console.warn(`Invalid player index: ${playerIndex}`);
+    return [];
+  }
   const player = game.players[playerIndex];
   const addKongs = [];
 
@@ -244,6 +298,18 @@ export function getAddKongs(playerIndex) {
 // ============================================================
 
 export function declareConcealedKong(playerIndex, tile) {
+  if (playerIndex < 0 || playerIndex >= game.players.length) {
+    console.warn(`Invalid player index: ${playerIndex}`);
+    return;
+  }
+  if (!tile || typeof tile !== 'object') {
+    console.warn('Null tile');
+    return;
+  }
+  if (game.currentPlayer !== playerIndex) {
+    console.warn(`Not player ${playerIndex} turn`);
+    return;
+  }
   const player = game.players[playerIndex];
 
   const kongTiles = [];
@@ -279,6 +345,18 @@ export function declareConcealedKong(playerIndex, tile) {
 }
 
 export function declareAddKong(playerIndex, addKong) {
+  if (playerIndex < 0 || playerIndex >= game.players.length) {
+    console.warn(`Invalid player index: ${playerIndex}`);
+    return;
+  }
+  if (!addKong || typeof addKong !== 'object') {
+    console.warn('Invalid addKong parameter');
+    return;
+  }
+  if (game.currentPlayer !== playerIndex) {
+    console.warn(`Not player ${playerIndex} turn`);
+    return;
+  }
   const player = game.players[playerIndex];
   const { meld, tile } = addKong;
 
@@ -304,6 +382,18 @@ export function declareAddKong(playerIndex, addKong) {
 }
 
 export function checkForKongRob(playerIndex, meld, tile) {
+  if (playerIndex < 0 || playerIndex >= game.players.length) {
+    console.warn(`Invalid player index: ${playerIndex}`);
+    return;
+  }
+  if (!meld || typeof meld !== 'object') {
+    console.warn('Invalid meld parameter');
+    return;
+  }
+  if (!tile || typeof tile !== 'object') {
+    console.warn('Null tile');
+    return;
+  }
   game.possibleClaims = [];
 
   for (let i = 0; i < 4; i++) {
@@ -348,6 +438,18 @@ export function checkForKongRob(playerIndex, meld, tile) {
 }
 
 export function completeAddKong(playerIndex, meld, tile) {
+  if (playerIndex < 0 || playerIndex >= game.players.length) {
+    console.warn(`Invalid player index: ${playerIndex}`);
+    return;
+  }
+  if (!meld || typeof meld !== 'object') {
+    console.warn('Invalid meld parameter');
+    return;
+  }
+  if (!tile || typeof tile !== 'object') {
+    console.warn('Null tile');
+    return;
+  }
   const player = game.players[playerIndex];
 
   const tileIdx = player.hand.findIndex(t => t.id === tile.id);
@@ -384,6 +486,10 @@ export function completeAddKong(playerIndex, meld, tile) {
 // ============================================================
 
 export function startGame() {
+  if (!game) {
+    console.warn('Game not initialized');
+    return;
+  }
   hideModal();
   game.phase = 'waiting';
   game.currentPlayer = game.dealerSeat;
@@ -404,6 +510,14 @@ export function startGame() {
 }
 
 export function drawPhase(playerIndex) {
+  if (playerIndex < 0 || playerIndex >= game.players.length) {
+    console.warn(`Invalid player index: ${playerIndex}`);
+    return;
+  }
+  if (game.currentPlayer !== playerIndex) {
+    console.warn(`Not player ${playerIndex} turn`);
+    return;
+  }
   if (game.wall.length === 0) {
     endGame('draw');
     return;
@@ -426,7 +540,23 @@ export function drawPhase(playerIndex) {
 }
 
 export function discardTile(playerIndex, tileIndex, animate = true) {
+  if (playerIndex < 0 || playerIndex >= game.players.length) {
+    console.warn(`Invalid player index: ${playerIndex}`);
+    return;
+  }
+  if (game.currentPlayer !== playerIndex) {
+    console.warn(`Not player ${playerIndex} turn`);
+    return;
+  }
+  if (game.phase !== 'discard') {
+    console.warn('Wrong phase');
+    return;
+  }
   const player = game.players[playerIndex];
+  if (tileIndex < 0 || tileIndex >= player.hand.length) {
+    console.warn('Invalid tile index');
+    return;
+  }
   const tile = player.hand.splice(tileIndex, 1)[0];
 
   player.discards.push(tile);
@@ -484,6 +614,10 @@ export function checkForClaims() {
 }
 
 export function startClaimTimer(onTimeout) {
+  if (typeof onTimeout !== 'function') {
+    console.warn('Invalid onTimeout parameter');
+    return;
+  }
   clearClaimTimer();
   game.claimTimeRemaining = 10;
 
@@ -509,6 +643,10 @@ export function clearClaimTimer() {
 }
 
 export function nextTurn() {
+  if (game.phase === 'ended') {
+    console.warn('Game already ended');
+    return;
+  }
   game.currentPlayer = (game.currentPlayer + 1) % 4;
   game.phase = 'draw';
   game.claimWindow = false;
@@ -538,6 +676,10 @@ export function nextTurn() {
 // ============================================================
 
 export function selectTile(index) {
+  if (game.phase === 'ended') {
+    console.warn('Game already ended');
+    return;
+  }
   if (game.currentPlayer !== 1 || game.phase !== 'discard') return;
 
   if (game.selectedTileIndex === index) {
@@ -550,11 +692,31 @@ export function selectTile(index) {
 }
 
 export function discardSelected() {
+  if (game.phase === 'ended') {
+    console.warn('Game already ended');
+    return;
+  }
+  if (game.currentPlayer !== 1) {
+    console.warn('Not player 1 turn');
+    return;
+  }
+  if (game.phase !== 'discard') {
+    console.warn('Wrong phase');
+    return;
+  }
   if (game.selectedTileIndex < 0) return;
   discardTile(1, game.selectedTileIndex);
 }
 
 export function showChiOptions() {
+  if (game.phase === 'ended') {
+    console.warn('Game already ended');
+    return;
+  }
+  if (!game.claimWindow) {
+    console.warn('Not in claim window');
+    return;
+  }
   const tile = game.lastDiscard;
   const combinations = getChiCombinations(1, tile);
 
@@ -572,6 +734,14 @@ export function showChiOptions() {
 }
 
 export function executeChi(combination) {
+  if (!combination || typeof combination !== 'object') {
+    console.warn('Invalid combination parameter');
+    return;
+  }
+  if (!combination.tiles || !Array.isArray(combination.tiles)) {
+    console.warn('Invalid combination tiles');
+    return;
+  }
   clearClaimTimer();
   hideClaimPanel();
 
@@ -605,6 +775,18 @@ export function executeChi(combination) {
 }
 
 export function claimPong() {
+  if (game.phase === 'ended') {
+    console.warn('Game already ended');
+    return;
+  }
+  if (!game.claimWindow) {
+    console.warn('Not in claim window');
+    return;
+  }
+  if (!game.lastDiscard) {
+    console.warn('No last discard');
+    return;
+  }
   clearClaimTimer();
   hideClaimPanel();
 
@@ -635,6 +817,14 @@ export function claimPong() {
 }
 
 export function showKongOptions() {
+  if (game.phase === 'ended') {
+    console.warn('Game already ended');
+    return;
+  }
+  if (game.currentPlayer !== 1) {
+    console.warn('Not player 1 turn');
+    return;
+  }
   clearClaimTimer();
 
   const options = [];
@@ -682,6 +872,14 @@ export function showKongOptions() {
 }
 
 export function executeKong(tile) {
+  if (!tile || typeof tile !== 'object') {
+    console.warn('Null tile');
+    return;
+  }
+  if (game.currentPlayer !== 1) {
+    console.warn('Not player 1 turn');
+    return;
+  }
   hideClaimPanel();
 
   const player = game.players[1];
@@ -720,6 +918,14 @@ export function executeKong(tile) {
 }
 
 export function claimMahjong() {
+  if (game.phase === 'ended') {
+    console.warn('Game already ended');
+    return;
+  }
+  if (!game.claimWindow && !game.kongInProgress) {
+    console.warn('Cannot claim mahjong now');
+    return;
+  }
   clearClaimTimer();
   hideClaimPanel();
 
@@ -743,6 +949,10 @@ export function claimMahjong() {
 }
 
 export function skipClaim() {
+  if (game.phase === 'ended') {
+    console.warn('Game already ended');
+    return;
+  }
   clearClaimTimer();
   hideClaimPanel();
   game.claimWindow = false;
@@ -756,6 +966,10 @@ export function skipClaim() {
 // ============================================================
 
 export function calculateScore(winnerIndex) {
+  if (winnerIndex < 0 || winnerIndex >= game.players.length) {
+    console.warn(`Invalid winner index: ${winnerIndex}`);
+    return { basePoints: 0, value: 0, totalWin: 0 };
+  }
   let basePoints = 8;
   const winner = game.players[winnerIndex];
 
@@ -772,6 +986,14 @@ export function calculateScore(winnerIndex) {
 }
 
 export function endGame(reason, winner = -1) {
+  if (!reason || typeof reason !== 'string') {
+    console.warn('Invalid reason parameter');
+    return;
+  }
+  if (winner < -1 || winner >= game.players.length) {
+    console.warn(`Invalid winner index: ${winner}`);
+    return;
+  }
   game.phase = 'ended';
   clearClaimTimer();
   hideClaimPanel();
@@ -854,6 +1076,10 @@ export function endGame(reason, winner = -1) {
 }
 
 export function showMenu() {
+  if (!game) {
+    console.warn('Game not initialized');
+    return;
+  }
   showModal('⚙️ Menu', '<p>Start a new game?</p>', 'New Game', () => {
     hideModal();
     resetGame();

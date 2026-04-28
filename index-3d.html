@@ -310,8 +310,8 @@ body::after {
   border: 1px solid rgba(180,160,130,0.3);
   z-index: 25;
   
-  overflow: visible;
-  overflow-y: hidden;
+  overflow-x: auto;
+  overflow-y: visible;
   -webkit-overflow-scrolling: auto;
   touch-action: none;
   scroll-snap-type: x proximity;
@@ -335,7 +335,7 @@ body::after {
 }
 .tile-body {
   width: 100%; height: 100%;
-  border-radius: 14px;
+  border-radius: clamp(5px, 14%, 14px);
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   position: relative; overflow: hidden;
   background: #ffffff;
@@ -352,7 +352,7 @@ body::after {
   padding: 4px;
   font-size: 52px;
   line-height: 1;
-  border-radius: 12px;
+  border-radius: clamp(4px, 12%, 12px);
 }
 .tile .face .char-top {
   font-size: 38px;
@@ -964,6 +964,16 @@ body::after {
   transition: all 0.2s;
 }
 .mat-upload-btn:hover { background: linear-gradient(135deg, #a07a1a, #8b6914); }
+.theme-studio { display:flex; flex-direction:column; gap:8px; }
+.theme-studio textarea { width:100%; min-height:58px; resize:vertical; border:1px solid rgba(120,90,55,0.22); border-radius:10px; padding:9px 10px; font:12px/1.35 Georgia,serif; color:#4a3a28; background:rgba(255,250,240,0.72); box-sizing:border-box; }
+.theme-actions { display:grid; grid-template-columns:repeat(2,1fr); gap:6px; }
+.theme-actions button, .ambient-toggle { border:0; border-radius:10px; padding:9px 8px; background:linear-gradient(135deg,#6c5a3a,#4f3f28); color:#fff7e8; font-size:11px; font-weight:800; letter-spacing:.3px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.14); }
+.theme-actions button:disabled { opacity:.55; cursor:wait; }
+.generated-strip { display:flex; gap:6px; overflow-x:auto; padding-bottom:2px; }
+.generated-thumb { width:46px; height:46px; flex:0 0 auto; border-radius:10px; border:2px solid rgba(90,70,45,.25); background-size:cover; background-position:center; cursor:pointer; box-shadow:inset 0 0 0 1px rgba(255,255,255,.3); }
+.ambience-layer { position:fixed; inset:0; pointer-events:none; z-index:1; overflow:hidden; mix-blend-mode:screen; }
+.ambience-petal { position:absolute; top:-30px; opacity:.38; filter:blur(.1px); animation:petalDrift linear forwards; }
+@keyframes petalDrift { 0% { transform:translate3d(0,-5vh,0) rotate(0deg); opacity:0; } 8% { opacity:.38; } 100% { transform:translate3d(var(--dx),110vh,0) rotate(var(--rot)); opacity:0; } }
 .color-picker-row {
   display: flex; align-items: center; gap: 12px;
 }
@@ -1001,10 +1011,19 @@ body::after {
 @media (max-width: 600px) {
   .tile { width: 62px; height: 82px; }
   .tile .face { font-size: 40px; }
-  .hand-tray { bottom: 60px; padding: 6px 10px; }
+  .hand-tray { bottom: calc(64px + env(safe-area-inset-bottom, 0px)); padding: 24px 10px 8px 10px; overflow-x: auto; overflow-y: visible; }
   .player-label { bottom: 116px; }
-  .action-bar { bottom: 12px; }
-  .melds-area.bottom { bottom: 120px; }
+  .action-bar { bottom: calc(148px + env(safe-area-inset-bottom, 0px)); }
+  .claim-panel { bottom: calc(150px + env(safe-area-inset-bottom, 0px)); }
+  .melds-area.bottom { bottom: calc(168px + env(safe-area-inset-bottom, 0px)); }
+  #p-south { bottom: calc(205px + env(safe-area-inset-bottom, 0px)); right: 8px; transform: scale(0.82); transform-origin: bottom right; }
+  #p-south.active { bottom: calc(245px + env(safe-area-inset-bottom, 0px)); }
+  body.hand-big .hand-tray { bottom: calc(72px + env(safe-area-inset-bottom, 0px)); padding-top: 28px; }
+  body.hand-big .action-bar { bottom: calc(210px + env(safe-area-inset-bottom, 0px)); }
+  body.hand-big .claim-panel { bottom: calc(212px + env(safe-area-inset-bottom, 0px)); }
+  body.hand-big .melds-area.bottom { bottom: calc(238px + env(safe-area-inset-bottom, 0px)); }
+  body.hand-big #p-south { bottom: calc(318px + env(safe-area-inset-bottom, 0px)); transform: scale(0.72); }
+  body.hand-big #p-south.active { bottom: calc(348px + env(safe-area-inset-bottom, 0px)); }
 }
 .scene-vignette {
   position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -1313,6 +1332,20 @@ body::after {
     <div class="bg-thumb" data-bg="beach" style="background-image:url(assets/bg-beach.jpg)">Beach</div>
     <div class="bg-thumb" data-bg="sakura" style="background-image:url(assets/bg-sakura.jpg)">Sakura</div>
     <div class="bg-thumb" data-bg="temple" style="background-image:url(assets/bg-temple.jpg)">Temple</div>
+  </div>
+</div>
+<div class="settings-section">
+  <div class="settings-section-title">AI Theme Studio</div>
+  <div class="theme-studio">
+    <textarea id="theme-prompt" maxlength="220" placeholder="e.g. moonlit jade tea house, paper lanterns, sakura petals, cozy Cantonese mahjong night"></textarea>
+    <div class="theme-actions">
+      <button id="gen-bg-btn">Generate BG</button>
+      <button id="gen-mat-btn">Generate Mat</button>
+      <button id="gen-avatar-btn">Generate Avatar</button>
+      <button id="gen-full-theme-btn">Full Theme ✨</button>
+    </div>
+    <button class="ambient-toggle" id="ambient-toggle">Ambience: Petals + Mist</button>
+    <div class="generated-strip" id="generated-strip"></div>
   </div>
 </div>
 <div class="settings-section">
@@ -1732,6 +1765,8 @@ class Renderer {
     this.discardSortMode = 'player'; // 'player' | 'suit' | 'organic'
     this.cameraAnim = null; // { from, to, fromTarget, toTarget, start, duration }
     this.discardTileAnims = []; // per-tile position animations
+    this.cameraTarget = new THREE.Vector3(0, 0, 0);
+    this.discardPan = { active: false, x: 0, y: 0 };
 
     this.setupScene();
     this.createBodyBackground();
@@ -1739,43 +1774,76 @@ class Renderer {
 
     window.addEventListener('resize', () => this.onResize());
 
-    // Pinch-zoom support (2 finger)
+    // Touch / mouse camera controls
     let lastPinchDist = 0;
     const canvas = document.getElementById('game-canvas');
+    canvas.addEventListener('pointerdown', (e) => {
+      if (!this.discardViewActive || e.pointerType === 'touch') return;
+      this.discardPan.active = true;
+      this.discardPan.x = e.clientX;
+      this.discardPan.y = e.clientY;
+      canvas.setPointerCapture(e.pointerId);
+    });
+    canvas.addEventListener('pointermove', (e) => {
+      if (!this.discardPan.active || !this.discardViewActive || e.pointerType === 'touch') return;
+      this.panDiscardCamera(e.clientX - this.discardPan.x, e.clientY - this.discardPan.y);
+      this.discardPan.x = e.clientX;
+      this.discardPan.y = e.clientY;
+    });
+    canvas.addEventListener('pointerup', () => { this.discardPan.active = false; });
+    canvas.addEventListener('pointercancel', () => { this.discardPan.active = false; });
+
     canvas.addEventListener('touchstart', (e) => {
-      if (e.touches.length === 2) {
+      if (e.touches.length === 1 && this.discardViewActive) {
+        this.discardPan.x = e.touches[0].clientX;
+        this.discardPan.y = e.touches[0].clientY;
+      } else if (e.touches.length === 2) {
         const dx = e.touches[0].clientX - e.touches[1].clientX;
         const dy = e.touches[0].clientY - e.touches[1].clientY;
         lastPinchDist = Math.sqrt(dx * dx + dy * dy);
       }
     }, { passive: true });
     canvas.addEventListener('touchmove', (e) => {
-      if (this.discardViewActive) return;
+      if (this.discardViewActive) e.preventDefault();
+      if (this.discardViewActive && e.touches.length === 1) {
+        const t = e.touches[0];
+        this.panDiscardCamera(t.clientX - this.discardPan.x, t.clientY - this.discardPan.y);
+        this.discardPan.x = t.clientX;
+        this.discardPan.y = t.clientY;
+        return;
+      }
       if (e.touches.length === 2) {
         const dx = e.touches[0].clientX - e.touches[1].clientX;
         const dy = e.touches[0].clientY - e.touches[1].clientY;
         const dist = Math.sqrt(dx * dx + dy * dy);
         if (lastPinchDist > 0) {
           const scale = dist / lastPinchDist;
-          // Zoom by moving camera along its look direction
-          const dir = new THREE.Vector3();
-          this.camera.getWorldDirection(dir);
-          const zoomSpeed = (scale - 1) * 3;
-          this.camera.position.addScaledVector(dir, zoomSpeed);
-          // Clamp camera distance
-          const camDist = this.camera.position.length();
-          if (camDist < 5) this.camera.position.setLength(5);
-          if (camDist > 20) this.camera.position.setLength(20);
+          if (this.discardViewActive) {
+            this.zoomDiscardCamera((1 - scale) * 8);
+          } else {
+            // Zoom by moving camera along its look direction
+            const dir = new THREE.Vector3();
+            this.camera.getWorldDirection(dir);
+            const zoomSpeed = (scale - 1) * 3;
+            this.camera.position.addScaledVector(dir, zoomSpeed);
+            // Clamp camera distance
+            const camDist = this.camera.position.length();
+            if (camDist < 5) this.camera.position.setLength(5);
+            if (camDist > 20) this.camera.position.setLength(20);
+          }
         }
         lastPinchDist = dist;
       }
-    }, { passive: true });
+    }, { passive: false });
     canvas.addEventListener('touchend', () => { lastPinchDist = 0; }, { passive: true });
 
     // Mouse wheel zoom (desktop)
     canvas.addEventListener('wheel', (e) => {
-      if (this.discardViewActive) { e.preventDefault(); return; }
       e.preventDefault();
+      if (this.discardViewActive) {
+        this.zoomDiscardCamera(e.deltaY * 0.01);
+        return;
+      }
       const dir = new THREE.Vector3();
       this.camera.getWorldDirection(dir);
       const zoomSpeed = e.deltaY * 0.005;
@@ -3718,6 +3786,62 @@ class Renderer {
     return this._backTex;
   }
 
+  createMeldLabelMesh(type, scale = 1) {
+    const labelText = type === 'chi' ? 'CHOW' : type === 'pong' ? 'PONG' : type === 'kong' ? 'KONG' : type === 'flowers' ? 'FLOWERS' : String(type || '').toUpperCase();
+    const colors = {
+      chi: ['#2f6f5e', '#dff5ec'],
+      pong: ['#8b6914', '#fff1b8'],
+      kong: ['#6b4f9b', '#eee5ff'],
+      flowers: ['#9b4f73', '#ffe4f0']
+    };
+    const c = colors[type] || ['#5a4a3a', '#f4ead8'];
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 96;
+    const ctx = canvas.getContext('2d');
+    const pill = (x, y, w, h, r) => {
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(x, y, w, h, r);
+      else {
+        ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+        ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+        ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y);
+      }
+    };
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Soft shadow
+    ctx.fillStyle = 'rgba(30, 20, 10, 0.22)';
+    pill(18, 18, 220, 58, 24);
+    ctx.fill();
+
+    // Warm pill label
+    const grad = ctx.createLinearGradient(28, 14, 228, 76);
+    grad.addColorStop(0, '#fffaf0');
+    grad.addColorStop(1, c[1]);
+    ctx.fillStyle = grad;
+    pill(12, 10, 220, 58, 24);
+    ctx.fill();
+    ctx.strokeStyle = c[0];
+    ctx.lineWidth = 5;
+    ctx.stroke();
+
+    ctx.font = 'bold 28px Georgia, serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = c[0];
+    ctx.fillText(labelText, 122, 39);
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.anisotropy = 4;
+    const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, side: THREE.DoubleSide });
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(0.92 * scale, 0.34 * scale), mat);
+    mesh.rotation.x = -Math.PI / 2;
+    mesh.userData = { isMeldLabel: true, labelType: type };
+    return mesh;
+  }
+
   create3DTile(tile, faceDown = false) {
     const W = 0.50, H = 0.65, D = 0.25;
     const group = new THREE.Group();
@@ -3821,7 +3945,7 @@ class Renderer {
     this.wallMeshes = [];
   }
 
-  createWalls(wallTiles) {
+  createWalls(wallTiles, wallCounts = null, wallSlots = null) {
     this.clearWalls();
     const W = 0.50, H = 0.65, D = 0.25;
     const tilesPerSide = 17;
@@ -3832,29 +3956,51 @@ class Renderer {
     // Each wall starts/ends leaving room for the perpendicular wall tile depth (H)
     const wallDist = 3.6;
     const sides = [
-      { dir: 'north', baseX: 0, baseZ: -wallDist, along: 'x', rot: 0, offsetStart: -wallDist + H/2, offsetEnd: wallDist - H/2 },
-      { dir: 'east',  baseX: wallDist, baseZ: 0,  along: 'z', rot: Math.PI / 2, offsetStart: -wallDist + H/2, offsetEnd: wallDist - H/2 },
-      { dir: 'south', baseX: 0, baseZ: wallDist,  along: 'x', rot: Math.PI, offsetStart: -wallDist + H/2, offsetEnd: wallDist - H/2 },
-      { dir: 'west',  baseX: -wallDist, baseZ: 0, along: 'z', rot: -Math.PI / 2, offsetStart: -wallDist + H/2, offsetEnd: wallDist - H/2 },
+      // Slot order follows a clockwise path around the table:
+      // north: west→east, east: north→south, south: east→west, west: south→north.
+      { dir: 'north', baseX: 0, baseZ: -wallDist, along: 'x', rot: 0, offsetStart: -wallDist + H/2, offsetEnd: wallDist - H/2, reverseSlots: false },
+      { dir: 'east',  baseX: wallDist, baseZ: 0,  along: 'z', rot: Math.PI / 2, offsetStart: -wallDist + H/2, offsetEnd: wallDist - H/2, reverseSlots: false },
+      { dir: 'south', baseX: 0, baseZ: wallDist,  along: 'x', rot: Math.PI, offsetStart: -wallDist + H/2, offsetEnd: wallDist - H/2, reverseSlots: true },
+      { dir: 'west',  baseX: -wallDist, baseZ: 0, along: 'z', rot: -Math.PI / 2, offsetStart: -wallDist + H/2, offsetEnd: wallDist - H/2, reverseSlots: true },
     ];
 
     // Wall shadows removed — were causing ugly grey bars
 
-    for (const side of sides) {
-      for (let layer = 0; layer < layers; layer++) {
-        for (let i = 0; i < tilesPerSide; i++) {
+    for (var sideIdx = 0; sideIdx < sides.length; sideIdx++) {
+      const side = sides[sideIdx];
+      const visibleOnSide = wallCounts ? (wallCounts[sideIdx] || 0) : null;
+      const sideSlots = wallSlots && wallSlots[sideIdx] ? wallSlots[sideIdx] : null;
+      let renderedOnSide = 0;
+      let slotIdx = 0;
+      // Wall slot order is draw order within each stack: top then bottom.
+      // That way a single-tile draw from a two-high stack leaves the lower tile
+      // sitting on the table instead of leaving a visually floating top tile.
+      // When wallSlots are provided, preserve physical gaps from the break/cursor.
+      for (let i = 0; i < tilesPerSide; i++) {
+        for (let layer = 0; layer < layers; layer++) {
+          if (sideSlots && slotIdx >= sideSlots.length) break;
+          if (!sideSlots && visibleOnSide !== null && renderedOnSide >= visibleOnSide) break;
+          const slotVisible = sideSlots ? sideSlots[slotIdx] : true;
+          const physicalSlot = sideSlots ? slotIdx : renderedOnSide;
+          slotIdx++;
+          if (!slotVisible) continue;
           if (tileIdx >= wallTiles.length) break;
           const mesh = this.create3DTile(wallTiles[tileIdx], true);
           tileIdx++;
+          renderedOnSide++;
 
-          // Distribute tiles evenly within the shortened wall range (avoids corner overlap)
+          // Distribute slots evenly within the wall range (avoids corner overlap)
           const wallLen = side.offsetEnd - side.offsetStart;
           const tileSpacing = wallLen / tilesPerSide;
-          const offset = side.offsetStart + (i + 0.5) * tileSpacing;
+          const pairIdx = Math.floor(physicalSlot / layers);
+          const visualPairIdx = side.reverseSlots ? (tilesPerSide - 1 - pairIdx) : pairIdx;
+          const offset = side.offsetStart + (visualPairIdx + 0.5) * tileSpacing;
           // ExtrudeGeometry: body at y=D after -π/2 rotation. After π flip, tile at [-2D, -D]
-          // To sit on table (y=0): yPos = 2*D. Layer 1 stacks: yPos = 2*D + D
-          // Add 0.10 gap between layers so they're clearly separate
-          const yPos = 2 * D + layer * (D + 0.005);
+          // To sit on table (y=0): yPos = 2*D. Layer 1 stacks: yPos = 2*D + D.
+          // Slot order is top-first for draw realism, but the render loop visits
+          // lower layer first; convert physical slot parity to visual layer.
+          const visualLayer = sideSlots ? ((physicalSlot % layers) === 0 ? 1 : 0) : layer;
+          const yPos = 2 * D + visualLayer * (D + 0.005);
 
           if (side.along === 'x') {
             mesh.position.set(side.baseX + offset, yPos, side.baseZ);
@@ -3883,7 +4029,7 @@ class Renderer {
     var zones = [
       { dir: 'east',  baseX: 2.7, baseZ: 0, cols: 8, along: 'z', rotY: -Math.PI/2, inward: -1 },
       { dir: 'south', baseX: 0, baseZ: 2.7, cols: 8, along: 'x', rotY: 0, inward: -1 },
-      { dir: 'west',  baseX: -2.7, baseZ: 0, cols: 8, along: 'z', rotY: Math.PI/2, inward: 1 },
+      { dir: 'west',  baseX: -2.7, baseZ: 0, cols: 8, along: 'z', rotY: -Math.PI/2, inward: 1 },
       { dir: 'north', baseX: 0, baseZ: -2.7, cols: 8, along: 'x', rotY: Math.PI, inward: 1 },
     ];
     var tileSpacing = 0.52;
@@ -3951,9 +4097,9 @@ class Renderer {
   renderOpponentTiles(playerIndex, tileCount, melds, flowers) {
     // Face-down tile rows OUTSIDE the walls, near table edge
     const positions = {
-      0: { x: 5.5, z: 0, along: 'z', rotY: -Math.PI / 2 },    // East — outside east wall
-      2: { x: -5.5, z: 0, along: 'z', rotY: Math.PI / 2 },     // West — outside west wall
-      3: { x: 0, z: -5.3, along: 'x', rotY: Math.PI },          // North — outside north wall
+      0: { x: 4.55, z: 0, along: 'z', rotY: -Math.PI / 2 },    // East — tucked just outside east wall
+      2: { x: -4.55, z: 0, along: 'z', rotY: -Math.PI / 2 },    // West — tucked just outside west wall
+      3: { x: 0, z: -4.45, along: 'x', rotY: Math.PI },          // North — tucked just outside north wall
     };
 
     const pos = positions[playerIndex];
@@ -4001,6 +4147,7 @@ class Renderer {
     if (melds && melds.length > 0) {
       for (var mi = 0; mi < melds.length; mi++) {
         var meld = melds[mi];
+        var groupStart = meldPos;
         for (var ti = 0; ti < meld.tiles.length; ti++) {
           var isFaceDown = meld.concealed && (ti === 0 || ti === meld.tiles.length - 1);
           var mesh = isFaceDown ? this.create3DTile({}, true) : this.create3DTile(meld.tiles[ti], false);
@@ -4014,10 +4161,23 @@ class Renderer {
           if (isFaceDown) mesh.rotation.x = Math.PI;
 
           mesh.scale.set(0.70, 0.90, 0.70);
+          mesh.userData = Object.assign({}, mesh.userData, { isBaseMeld: true });
           this.scene.add(mesh);
           this.tileMeshes.push(mesh);
           meldPos += meldTight;
         }
+
+        var label = this.createMeldLabelMesh(meld.type, 0.82);
+        var groupMid = groupStart + ((meld.tiles.length - 1) * meldTight) / 2;
+        if (pos.along === 'x') {
+          label.position.set(pos.x + groupMid, yPosMeld + 0.015, pos.z + 0.48);
+        } else {
+          label.position.set(pos.x + 0.48, yPosMeld + 0.015, pos.z + groupMid);
+          label.rotation.z = Math.PI / 2;
+        }
+        label.userData = Object.assign({}, label.userData, { isBaseMeld: true });
+        this.scene.add(label);
+        this.tileMeshes.push(label);
         meldPos += meldGap; // gap between meld groups
       }
     }
@@ -4036,6 +4196,7 @@ class Renderer {
         fMesh.rotation.y = pos.rotY;
 
         fMesh.scale.set(0.70, 0.90, 0.70);
+        fMesh.userData = Object.assign({}, fMesh.userData, { isBaseMeld: true });
         this.scene.add(fMesh);
         this.tileMeshes.push(fMesh);
         meldPos += meldTight;
@@ -4059,8 +4220,8 @@ class Renderer {
       let t = Math.min((now - a.start) / a.duration, 1);
       t = t * t * (3 - 2 * t); // smoothstep
       this.camera.position.lerpVectors(a.from, a.to, t);
-      const target = new THREE.Vector3().lerpVectors(a.fromTarget, a.toTarget, t);
-      this.camera.lookAt(target);
+      this.cameraTarget.lerpVectors(a.fromTarget, a.toTarget, t);
+      this.camera.lookAt(this.cameraTarget);
       if (t >= 1) this.cameraAnim = null;
     }
 
@@ -4079,15 +4240,49 @@ class Renderer {
 
   // Animate camera to discard top-down view or back
   animateCameraTo(targetPos, targetLookAt, duration = 500) {
-    const lookAt = new THREE.Vector3(0, 0, 0); // current lookAt approximation
     this.cameraAnim = {
       from: this.camera.position.clone(),
       to: new THREE.Vector3(...targetPos),
-      fromTarget: lookAt,
+      fromTarget: this.cameraTarget.clone(),
       toTarget: new THREE.Vector3(...targetLookAt),
       start: performance.now(),
       duration
     };
+  }
+
+  panDiscardCamera(dx, dy) {
+    if (!this.discardViewActive) return;
+    this.cameraAnim = null;
+    const distance = Math.max(1, this.camera.position.distanceTo(this.cameraTarget));
+    const viewHeight = 2 * distance * Math.tan(THREE.MathUtils.degToRad(this.camera.fov * 0.5));
+    const worldPerPx = viewHeight / Math.max(1, window.innerHeight);
+    const forward = new THREE.Vector3();
+    this.camera.getWorldDirection(forward);
+    const right = new THREE.Vector3().crossVectors(forward, this.camera.up).normalize();
+    const upPlane = new THREE.Vector3(0, 1, 0).applyQuaternion(this.camera.quaternion);
+    upPlane.y = 0;
+    if (upPlane.lengthSq() < 0.0001) upPlane.set(0, 0, -1);
+    upPlane.normalize();
+    const desiredDelta = right.multiplyScalar(-dx * worldPerPx).add(upPlane.multiplyScalar(dy * worldPerPx));
+    desiredDelta.y = 0;
+    const nextTarget = this.cameraTarget.clone().add(desiredDelta);
+    nextTarget.x = THREE.MathUtils.clamp(nextTarget.x, -5, 5);
+    nextTarget.z = THREE.MathUtils.clamp(nextTarget.z, -5, 5);
+    const actualDelta = nextTarget.clone().sub(this.cameraTarget);
+    this.camera.position.add(actualDelta);
+    this.cameraTarget.copy(nextTarget);
+    this.camera.lookAt(this.cameraTarget);
+  }
+
+  zoomDiscardCamera(delta) {
+    if (!this.discardViewActive) return;
+    this.cameraAnim = null;
+    const offset = new THREE.Vector3().subVectors(this.camera.position, this.cameraTarget);
+    const current = offset.length();
+    const next = THREE.MathUtils.clamp(current + delta, 4, 22);
+    offset.setLength(next);
+    this.camera.position.copy(this.cameraTarget).add(offset);
+    this.camera.lookAt(this.cameraTarget);
   }
 
   // Compute sorted discard positions for a given mode
@@ -4136,7 +4331,7 @@ class Renderer {
       var zones = [
         { baseX: 2.7, baseZ: 0, cols: 8, along: 'z', rotY: -Math.PI/2, inward: -1 },
         { baseX: 0, baseZ: 2.7, cols: 8, along: 'x', rotY: 0, inward: -1 },
-        { baseX: -2.7, baseZ: 0, cols: 8, along: 'z', rotY: Math.PI/2, inward: 1 },
+        { baseX: -2.7, baseZ: 0, cols: 8, along: 'z', rotY: -Math.PI/2, inward: 1 },
         { baseX: 0, baseZ: -2.7, cols: 8, along: 'x', rotY: Math.PI, inward: 1 },
       ];
       var spacing2 = 0.50, rowSpacing = 0.60;
@@ -4286,17 +4481,13 @@ class GameController {
     });
     document.getElementById('modal-back-join')?.addEventListener('click', () => showStep('modal-step-mp-choice'));
     document.getElementById('modal-join-go')?.addEventListener('click', () => {
-      var name = localStorage.getItem('mj_name') || 'Guest';
-      var avatar = localStorage.getItem('mj_avatar') || 'chen';
-      this.hideModal();
-      this._mpJoinWithCode(this._pendingJoinCode, name, avatar);
+      this.applySetupSettings();
+      this.mpJoinRoom(this._pendingJoinCode);
     });
     document.getElementById('modal-back-guest')?.addEventListener('click', () => showStep('modal-step-mp-join'));
     document.getElementById('modal-create-room')?.addEventListener('click', () => {
-      var name = localStorage.getItem('mj_name') || 'Host';
-      var avatar = localStorage.getItem('mj_avatar') || 'chen';
-      this.hideModal();
-      this._mpCreateWithSettings(name, avatar);
+      this.applySetupSettings();
+      this.mpCreateRoom();
     });
 
     document.getElementById('modal-back-join')?.addEventListener('click', () => showStep('modal-step-mp-choice'));
@@ -4335,6 +4526,7 @@ class GameController {
       const tray = document.getElementById('hand-tray');
       const tiles = tray.querySelectorAll('.tile');
       const btn = document.getElementById('hand-fit-btn');
+      document.body.classList.toggle('hand-big', !this._fitMode);
       if (this._fitMode) {
         // Shrink tiles to fit screen
         const count = tiles.length || 13;
@@ -4405,6 +4597,7 @@ class GameController {
         this.applyBackground(bgFile);
       });
     });
+    this.setupThemeStudio();
     // Mat upload
     document.getElementById('mat-upload-btn').addEventListener('click', () => {
       document.getElementById('mat-file-input').click();
@@ -4830,7 +5023,7 @@ class GameController {
 
     // Render wall tiles (stacked around the playing area)
     if (this.mpMode && this.gs.mpTilesLeft > 0) {
-      this.renderer.createWalls(new Array(this.gs.mpTilesLeft).fill({id:-1,suit:'back'}));
+      this.renderer.createWalls(new Array(this.gs.mpTilesLeft).fill({id:-1,suit:'back'}), this.gs.mpWallCounts || null, this.gs.mpWallSlots || null);
     } else {
       this.renderer.createWalls(this.gs.wall);
     }
@@ -4847,6 +5040,20 @@ class GameController {
     }
     // Render human player melds as 3D tiles on table (south side)
     this.renderHumanMelds3D();
+    if (this.renderer.discardViewActive) this.setBaseMeldVisibility(false);
+  }
+
+  setBaseMeldVisibility(visible) {
+    if (this.renderer && this.renderer.tileMeshes) {
+      for (const mesh of this.renderer.tileMeshes) {
+        if (mesh.userData && mesh.userData.isBaseMeld) mesh.visible = visible;
+      }
+    }
+    if (this._humanMeldMeshes) {
+      for (const mesh of this._humanMeldMeshes) {
+        if (mesh.userData && mesh.userData.isBaseMeld) mesh.visible = visible;
+      }
+    }
   }
 
   renderHumanMelds3D() {
@@ -4863,8 +5070,8 @@ class GameController {
     if ((!player.melds || player.melds.length === 0) && (!player.flowers || player.flowers.length === 0)) return;
 
     // Position near south wall, right side
-    var baseX = 3.5;
-    var baseZ = 5.3;
+    var baseX = 3.25;
+    var baseZ = 4.45;
     var tileSpacing = 0.34; // tight: tiles nearly touching within a meld
     var groupGap = 0.18; // extra gap between meld groups
     var xPos = baseX;
@@ -4872,28 +5079,45 @@ class GameController {
     // Melds
     for (var mi = 0; mi < player.melds.length; mi++) {
       var meld = player.melds[mi];
+      var groupStart = xPos;
       for (var ti = 0; ti < meld.tiles.length; ti++) {
         var isFaceDown = meld.concealed && (ti === 0 || ti === meld.tiles.length - 1);
         var mesh = isFaceDown ? this.renderer.create3DTile({}, true) : this.renderer.create3DTile(meld.tiles[ti], false);
         mesh.position.set(xPos, 0.01, baseZ);
         if (isFaceDown) mesh.rotation.x = Math.PI;
         mesh.scale.set(0.65, 0.65, 0.65);
+        mesh.userData = Object.assign({}, mesh.userData, { isBaseMeld: true });
         this.renderer.scene.add(mesh);
         this._humanMeldMeshes.push(mesh);
         xPos -= tileSpacing;
       }
+      var label = this.renderer.createMeldLabelMesh(meld.type, 0.78);
+      var groupMid = groupStart - ((meld.tiles.length - 1) * tileSpacing) / 2;
+      label.position.set(groupMid, 0.025, baseZ - 0.46);
+      label.userData = Object.assign({}, label.userData, { isBaseMeld: true });
+      this.renderer.scene.add(label);
+      this._humanMeldMeshes.push(label);
       xPos -= groupGap; // extra gap between meld groups
     }
 
     // Flowers
     if (player.flowers.length > 0) xPos -= groupGap;
+    var flowerStart = xPos;
     for (var fi = 0; fi < player.flowers.length; fi++) {
       var fMesh = this.renderer.create3DTile(player.flowers[fi], false);
       fMesh.position.set(xPos, 0.01, baseZ);
       fMesh.scale.set(0.65, 0.65, 0.65);
+      fMesh.userData = Object.assign({}, fMesh.userData, { isBaseMeld: true });
       this.renderer.scene.add(fMesh);
       this._humanMeldMeshes.push(fMesh);
       xPos -= tileSpacing;
+    }
+    if (player.flowers.length > 0) {
+      var fLabel = this.renderer.createMeldLabelMesh('flowers', 0.72);
+      fLabel.position.set(flowerStart - ((player.flowers.length - 1) * tileSpacing) / 2, 0.025, baseZ - 0.46);
+      fLabel.userData = Object.assign({}, fLabel.userData, { isBaseMeld: true });
+      this.renderer.scene.add(fLabel);
+      this._humanMeldMeshes.push(fLabel);
     }
   }
 
@@ -4930,7 +5154,8 @@ class GameController {
       // Number/label below tile
       if (this._showTileLabels !== false) {
         var lbl = document.createElement('div');
-        lbl.style.cssText = 'position:absolute;top:-14px;left:0;right:0;text-align:center;font-size:11px;font-weight:700;color:#5a4a3a;z-index:5;font-family:Arial,sans-serif;pointer-events:none;';
+        lbl.className = 'tile-number-label';
+        lbl.style.cssText = 'position:absolute;top:-18px;left:0;right:0;text-align:center;font-size:11px;font-weight:700;color:#5a4a3a;z-index:8;font-family:Arial,sans-serif;pointer-events:none;line-height:1;text-shadow:0 1px 2px rgba(255,255,255,0.9);';
         if (tile.num) lbl.textContent = tile.num;
         else if (tile.wind) lbl.textContent = tile.wind[0];
         else if (tile.dragon) lbl.textContent = tile.dragon[0];
@@ -5118,6 +5343,7 @@ class GameController {
     }
     // Sync button text
     var fitBtn = document.getElementById('hand-fit-btn');
+    document.body.classList.toggle('hand-big', !this._fitMode);
     if (fitBtn) fitBtn.textContent = this._fitMode ? '⊟ Big' : '⊞ Fit';
   }
 
@@ -5184,6 +5410,20 @@ class GameController {
       const isActive = (this.gs.phase !== 'waiting' && this.gs.phase !== 'dealing') && (i === this.gs.currentPlayer);
       bubble.classList.toggle('active', isActive);
 
+      const nameEl = bubble.querySelector('.name');
+      if (nameEl) nameEl.textContent = this.gs.players[i].name || PLAYER_NAMES[i] || ('Player ' + (i + 1));
+      const numEl = bubble.querySelector('.player-number');
+      if (numEl) numEl.textContent = i === 1 ? 'YOU' : `PLAYER ${i + 1}`;
+      const avatarEl = bubble.querySelector('.bubble-avatar');
+      const avatar = this.gs.players[i].avatar;
+      if (avatarEl && avatar) {
+        avatarEl.className = 'bubble-avatar';
+        if (String(avatar).startsWith('data:') || String(avatar).includes('/')) avatarEl.style.backgroundImage = 'url(' + avatar + ')';
+        else avatarEl.style.backgroundImage = 'url(assets/avatar-' + avatar + '.jpg)';
+        avatarEl.style.backgroundSize = 'cover';
+        avatarEl.style.backgroundPosition = 'center';
+      }
+
       const scoreEl = document.getElementById(`score-${seat}`);
       if (scoreEl) scoreEl.textContent = this.gs.players[i].score.toLocaleString();
 
@@ -5204,14 +5444,14 @@ class GameController {
     const wind = this.gs.roundWind ? this.gs.roundWind.toUpperCase() : 'EAST';
     const subtitle = document.getElementById('header-subtitle');
     if (subtitle) {
-      subtitle.textContent = `ROUND: 1/4 | ${wind} WINDS | TILES LEFT: ${this.gs.wall.length}`;
+      subtitle.textContent = `ROUND: 1/4 | ${wind} WINDS | TILES LEFT: ${wallCount}`;
     }
   }
 
   updateTurnIndicator() {
     const el = document.getElementById('turn-indicator');
     const isYourTurn = this.gs.currentPlayer === 1;
-    const name = PLAYER_NAMES[this.gs.currentPlayer];
+    const name = (this.gs.players[this.gs.currentPlayer] && this.gs.players[this.gs.currentPlayer].name) || PLAYER_NAMES[this.gs.currentPlayer];
     el.textContent = isYourTurn ? 'Your Turn' : `${name}'s Turn`;
     el.classList.toggle('your-turn', isYourTurn);
   }
@@ -5282,7 +5522,7 @@ class GameController {
 
   discardSelected() {
     if (this.gs.selectedTileIndex < 0) return;
-    if (this.mpMode) { this.mpSend({type:'discard',tileIndex:this.gs.selectedTileIndex}); this.gs.selectedTileIndex=-1; return; }
+    if (this.mpMode) { const tile = this.gs.players[1].hand[this.gs.selectedTileIndex]; this.mpSend({type:'discard',tileIndex:this.gs.selectedTileIndex,tileId:tile ? tile.id : undefined}); this.gs.selectedTileIndex=-1; return; }
     this.discardTile(1, this.gs.selectedTileIndex);
   }
 
@@ -5861,8 +6101,10 @@ class GameController {
       if (dBtn) dBtn.classList.add('active');
       if (sBtn) sBtn.classList.remove('active');
       this._discardZoomMode = 'default';
-      // Spawn meld tiles near their player zones
-      this.spawnMeldTilesForZoom();
+      // Default zoom keeps exposed melds in their normal inline hand positions.
+      // Separate zoom meld copies are only used for By Suit sorting.
+      this.clearRevealedMelds(false);
+      this.setBaseMeldVisibility(true);
     } else {
       // Zoom back out to normal
       this.renderer.animateCameraTo([0, 9, 13], [0, 0, 0], 500);
@@ -5876,6 +6118,7 @@ class GameController {
       var allDiscards = this.gs.players.map(function(p) { return p.discards; });
       this.renderer.animateDiscardsToPositions(allDiscards, 'player');
       this.clearRevealedMelds(true);
+      this.setBaseMeldVisibility(true);
       this._discardZoomMode = null;
     }
   }
@@ -5888,10 +6131,12 @@ class GameController {
     this._revealedMeldMeshes = [];
     // Player zones matching discard renderDiscards positions
     var playerPositions = {
-      0: { x: 5.0, z: 0, along: 'z' },    // East
-      1: { x: 0, z: 4.8, along: 'x' },     // South
-      2: { x: -5.0, z: 0, along: 'z' },    // West
-      3: { x: 0, z: -4.8, along: 'x' }     // North
+      // Keep zoom meld orientation consistent with discard/player sides.
+      // Labels are offset away from the tile column so they don't sit underneath meld tiles/walls.
+      0: { x: 5.0, z: 0, along: 'z', rotY: -Math.PI / 2, labelDX: 0.78, labelDZ: 0 },    // East
+      1: { x: 0, z: 4.8, along: 'x', rotY: 0, labelDX: 0, labelDZ: 0.78 },               // South
+      2: { x: -5.0, z: 0, along: 'z', rotY: Math.PI / 2, labelDX: -0.78, labelDZ: 0 },    // West
+      3: { x: 0, z: -4.8, along: 'x', rotY: Math.PI, labelDX: 0, labelDZ: -0.78 }         // North
     };
     var meldTight = 0.36;
     var groupGap = 0.18;
@@ -5902,6 +6147,7 @@ class GameController {
       // Melds
       for (var mi = 0; mi < p.melds.length; mi++) {
         var meld = p.melds[mi];
+        var groupStart = offset;
         for (var ti = 0; ti < meld.tiles.length; ti++) {
           var isFD = meld.concealed && (ti === 0 || ti === meld.tiles.length - 1);
           var mesh = isFD ? this.renderer.create3DTile({}, true) : this.renderer.create3DTile(meld.tiles[ti], false);
@@ -5909,6 +6155,7 @@ class GameController {
           if (pos.along === 'x') { mx = pos.x + offset; mz = pos.z; }
           else { mx = pos.x; mz = pos.z + offset; }
           mesh.position.set(mx, 0.01, mz);
+          mesh.rotation.y = pos.rotY || 0;
           if (isFD) mesh.rotation.x = Math.PI;
           mesh.scale.set(0.70, 0.70, 0.70);
           this.renderer.scene.add(mesh);
@@ -5917,16 +6164,27 @@ class GameController {
           mesh._playerIdx = pi;
           offset += meldTight;
         }
+        var label = this.renderer.createMeldLabelMesh(meld.type, 0.78);
+        var groupMid = groupStart + ((meld.tiles.length - 1) * meldTight) / 2;
+        if (pos.along === 'x') label.position.set(pos.x + groupMid + (pos.labelDX || 0), 0.025, pos.z + (pos.labelDZ || 0));
+        else label.position.set(pos.x + (pos.labelDX || 0), 0.025, pos.z + groupMid + (pos.labelDZ || 0));
+        label.rotation.y = pos.rotY || 0;
+        this.renderer.scene.add(label);
+        this._revealedMeldMeshes.push(label);
+        label._homePos = label.position.clone();
+        label._playerIdx = pi;
         offset += groupGap;
       }
       // Flowers
       if (p.flowers.length > 0 && p.melds.length > 0) offset += groupGap;
+      var flowerStart = offset;
       for (var fi = 0; fi < p.flowers.length; fi++) {
         var fMesh = this.renderer.create3DTile(p.flowers[fi], false);
         var fx, fz;
         if (pos.along === 'x') { fx = pos.x + offset; fz = pos.z; }
         else { fx = pos.x; fz = pos.z + offset; }
         fMesh.position.set(fx, 0.01, fz);
+        fMesh.rotation.y = pos.rotY || 0;
         fMesh.scale.set(0.70, 0.70, 0.70);
         this.renderer.scene.add(fMesh);
         this._revealedMeldMeshes.push(fMesh);
@@ -5934,26 +6192,30 @@ class GameController {
         fMesh._playerIdx = pi;
         offset += meldTight;
       }
+      if (p.flowers.length > 0) {
+        var fLabel = this.renderer.createMeldLabelMesh('flowers', 0.70);
+        var flowerMid = flowerStart + ((p.flowers.length - 1) * meldTight) / 2;
+        if (pos.along === 'x') fLabel.position.set(pos.x + flowerMid + (pos.labelDX || 0), 0.025, pos.z + (pos.labelDZ || 0));
+        else fLabel.position.set(pos.x + (pos.labelDX || 0), 0.025, pos.z + flowerMid + (pos.labelDZ || 0));
+        fLabel.rotation.y = pos.rotY || 0;
+        this.renderer.scene.add(fLabel);
+        this._revealedMeldMeshes.push(fLabel);
+        fLabel._homePos = fLabel.position.clone();
+        fLabel._playerIdx = pi;
+      }
     }
   }
 
   // ========== ZOOM VIEW: Default = discards by player + melds near player ==========
   showDefaultZoomView() {
-    // Animate discards back to player zones
+    // Rebuild discards from authoritative state so Default returns exactly to
+    // original player discard zones after By Suit sorting, not stale centered positions.
     var allDiscards = this.gs.players.map(function(p) { return p.discards; });
-    this.renderer.animateDiscardsToPositions(allDiscards, 'player');
-    // Animate meld tiles back to their home positions (near player)
-    if (this._revealedMeldMeshes) {
-      var now = performance.now();
-      for (var i = 0; i < this._revealedMeldMeshes.length; i++) {
-        var m = this._revealedMeldMeshes[i];
-        var home = m._homePos || m.position.clone();
-        this.renderer.discardTileAnims.push({
-          mesh: m, from: m.position.clone(), to: home,
-          fromRotY: m.rotation.y, toRotY: 0, start: now, duration: 300
-        });
-      }
-    }
+    this.renderer.renderDiscards(allDiscards);
+    if (this.gs.lastDiscard) this.renderer.highlightLastDiscard(this.gs.lastDiscard.id);
+    // Default view uses normal/base melds inline with player hands.
+    this.clearRevealedMelds(false);
+    this.setBaseMeldVisibility(true);
     var totalD = allDiscards.reduce(function(s,a){return s+a.length;},0);
     var ar = window.innerWidth / window.innerHeight;
     var zY = Math.max(8, Math.min(18, (7 + totalD * 0.18) / Math.min(1, ar)));
@@ -5963,6 +6225,9 @@ class GameController {
 
   // ========== ZOOM VIEW: By Suit = everything sorted by suit ==========
   showSuitZoomView() {
+    // By Suit needs movable revealed meld meshes; hide base inline melds to avoid duplicates.
+    if (!this._revealedMeldMeshes || this._revealedMeldMeshes.length === 0) this.spawnMeldTilesForZoom();
+    this.setBaseMeldVisibility(false);
     var suitOrder = { bamboo: 0, dots: 1, characters: 2, winds: 3, dragons: 4, flowers: 5 };
     // Collect all tiles: discards (have meshes in discardMeshes) + revealed melds
     var allItems = [];
@@ -6006,8 +6271,12 @@ class GameController {
         sortable.push({ tile: dd[ddi], type: 'discard', meshIdx: discardIdx++ });
       }
     }
-    for (var rmi = 0; rmi < this._revealedMeldMeshes.length && rmi < meldItems.length; rmi++) {
-      sortable.push({ tile: meldItems[rmi], type: 'meld', meshRef: this._revealedMeldMeshes[rmi] });
+    var revealedTileMeshes = (this._revealedMeldMeshes || []).filter(function(m) {
+      if (m.userData && m.userData.isMeldLabel) { m.visible = false; return false; }
+      return true;
+    });
+    for (var rmi = 0; rmi < revealedTileMeshes.length && rmi < meldItems.length; rmi++) {
+      sortable.push({ tile: meldItems[rmi], type: 'meld', meshRef: revealedTileMeshes[rmi] });
     }
 
     sortable.sort(function(a, b) {
@@ -6397,6 +6666,127 @@ class GameController {
     PLAYER_EMOJIS[1] = kanjiMap[savedAvatar] || '陳';
   }
 
+  setupThemeStudio() {
+    const promptEl = document.getElementById('theme-prompt');
+    const strip = document.getElementById('generated-strip');
+    const defaultPrompt = 'moonlit jade tea house, paper lanterns, sakura petals, cozy Cantonese mahjong night, paper and ink aesthetic';
+    const addThumb = (url, kind) => {
+      if (!strip) return;
+      const t = document.createElement('div');
+      t.className = 'generated-thumb';
+      t.title = kind;
+      t.style.backgroundImage = 'url(' + url + ')';
+      t.addEventListener('click', () => {
+        if (kind === 'background') this.applyBackground(url);
+        else if (kind === 'mat') this.applyMat(url);
+        else this.applyAvatarImage(url);
+      });
+      strip.prepend(t);
+    };
+    const gen = async (kind, btn) => {
+      const basePrompt = (promptEl && promptEl.value.trim()) || defaultPrompt;
+      const prompt = kind === 'avatar'
+        ? basePrompt + ', cute mahjong player avatar portrait, warm expressive animal character, square icon, no text'
+        : kind === 'mat'
+          ? basePrompt + ', seamless square mahjong table mat texture, subtle felt/fabric, low contrast, no text, no tiles'
+          : basePrompt + ', immersive 16:9 background, soft depth, no text, no UI';
+      if (btn) { btn.disabled = true; btn.textContent = 'Generating...'; }
+      try {
+        let url = null;
+        try {
+          const res = await fetch('/api/generate-image', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ kind, prompt }) });
+          if (res.ok) { const data = await res.json(); url = data.url; }
+        } catch (_) {}
+        if (!url) url = this.createProceduralThemeAsset(kind, prompt);
+        if (kind === 'background') { this.applyBackground(url); localStorage.setItem('mj_bg', url); }
+        else if (kind === 'mat') { this.applyMat(url); localStorage.setItem('mj_mat', url); localStorage.setItem('mahjong-custom-mat', url); }
+        else { this.applyAvatarImage(url); localStorage.setItem('mj_avatar_custom', url); }
+        addThumb(url, kind);
+        this.showToast((url.startsWith('data:') ? 'Procedural ' : 'AI ') + kind + ' applied!');
+        return url;
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = btn.dataset.label || btn.textContent; }
+      }
+    };
+    const bind = (id, kind) => {
+      const b = document.getElementById(id); if (!b) return;
+      b.dataset.label = b.textContent;
+      b.addEventListener('click', () => gen(kind, b));
+    };
+    bind('gen-bg-btn', 'background');
+    bind('gen-mat-btn', 'mat');
+    bind('gen-avatar-btn', 'avatar');
+    const full = document.getElementById('gen-full-theme-btn');
+    if (full) { full.dataset.label = full.textContent; full.addEventListener('click', async () => { full.disabled = true; full.textContent = 'Generating set...'; try { await gen('background'); await gen('mat'); await gen('avatar'); this.setAmbience(true); } finally { full.disabled = false; full.textContent = full.dataset.label; } }); }
+    document.getElementById('ambient-toggle')?.addEventListener('click', () => this.setAmbience(!this._ambienceOn));
+    const savedAvatar = localStorage.getItem('mj_avatar_custom');
+    if (savedAvatar) setTimeout(() => this.applyAvatarImage(savedAvatar), 300);
+  }
+
+  createProceduralThemeAsset(kind, prompt) {
+    const c = document.createElement('canvas');
+    c.width = kind === 'background' ? 1280 : 768;
+    c.height = kind === 'background' ? 720 : 768;
+    const ctx = c.getContext('2d');
+    let hash = 0; for (let i = 0; i < prompt.length; i++) hash = (hash * 31 + prompt.charCodeAt(i)) >>> 0;
+    const rand = () => { hash = (hash * 1664525 + 1013904223) >>> 0; return hash / 4294967296; };
+    const hue = Math.floor(rand() * 360);
+    const bg = ctx.createLinearGradient(0, 0, c.width, c.height);
+    bg.addColorStop(0, `hsl(${hue},32%,24%)`); bg.addColorStop(.55, `hsl(${(hue+28)%360},38%,38%)`); bg.addColorStop(1, `hsl(${(hue+62)%360},30%,18%)`);
+    ctx.fillStyle = bg; ctx.fillRect(0,0,c.width,c.height);
+    for (let i=0;i<(kind==='avatar'?120:420);i++) {
+      const x=rand()*c.width,y=rand()*c.height,r=rand()*(kind==='avatar'?70:190)+8;
+      const g=ctx.createRadialGradient(x,y,0,x,y,r);
+      g.addColorStop(0,`hsla(${(hue+rand()*80)%360},70%,78%,${0.05+rand()*0.12})`); g.addColorStop(1,'rgba(255,255,255,0)');
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+    }
+    if (kind === 'mat') {
+      for (let i=0;i<2600;i++) { ctx.strokeStyle=`rgba(255,245,220,${0.025+rand()*0.045})`; ctx.lineWidth=.7; ctx.beginPath(); const x=rand()*c.width,y=rand()*c.height; ctx.moveTo(x,y); ctx.lineTo(x+rand()*18-9,y+rand()*18-9); ctx.stroke(); }
+      ctx.strokeStyle='rgba(255,240,200,.28)'; ctx.lineWidth=10; ctx.strokeRect(42,42,c.width-84,c.height-84);
+      ctx.strokeStyle='rgba(40,25,15,.18)'; ctx.lineWidth=3; ctx.strokeRect(78,78,c.width-156,c.height-156);
+    } else if (kind === 'avatar') {
+      ctx.fillStyle='rgba(255,246,226,.92)'; ctx.beginPath(); ctx.arc(c.width/2,c.height/2,220,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle=`hsl(${(hue+20)%360},45%,45%)`; ctx.beginPath(); ctx.arc(c.width/2,c.height/2+20,150,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='rgba(40,25,20,.85)'; ctx.beginPath(); ctx.arc(c.width/2-58,c.height/2-20,18,0,Math.PI*2); ctx.arc(c.width/2+58,c.height/2-20,18,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle='rgba(40,25,20,.75)'; ctx.lineWidth=12; ctx.beginPath(); ctx.arc(c.width/2,c.height/2+42,58,0.15*Math.PI,0.85*Math.PI); ctx.stroke();
+      ctx.font='bold 70px Georgia'; ctx.textAlign='center'; ctx.fillStyle='rgba(80,45,30,.72)'; ctx.fillText('🀄', c.width/2, c.height/2+190);
+    } else {
+      for (let i=0;i<34;i++) { ctx.fillStyle=`rgba(255,225,180,${0.04+rand()*0.08})`; ctx.beginPath(); ctx.ellipse(rand()*c.width, rand()*c.height, 20+rand()*90, 4+rand()*18, rand()*Math.PI, 0, Math.PI*2); ctx.fill(); }
+      ctx.fillStyle='rgba(10,8,8,.22)'; ctx.fillRect(0, c.height*.70, c.width, c.height*.30);
+    }
+    return c.toDataURL('image/jpeg', .86);
+  }
+
+  applyAvatarImage(url) {
+    ['#p-south .bubble-avatar', '.player-label .avatar'].forEach(sel => {
+      const el = document.querySelector(sel); if (!el) return;
+      el.className = sel.includes('bubble') ? 'bubble-avatar' : 'avatar';
+      el.style.backgroundImage = 'url(' + url + ')'; el.style.backgroundSize = 'cover'; el.style.backgroundPosition = 'center';
+    });
+    PLAYER_EMOJIS[1] = '🀄';
+  }
+
+  setAmbience(on) {
+    this._ambienceOn = on;
+    let layer = document.getElementById('ambience-layer');
+    if (!on) { if (layer) layer.remove(); return; }
+    if (!layer) { layer = document.createElement('div'); layer.id = 'ambience-layer'; layer.className = 'ambience-layer'; document.body.appendChild(layer); }
+    clearInterval(this._ambienceTimer);
+    const spawn = () => {
+      if (!this._ambienceOn || !layer) return;
+      const p = document.createElement('div'); p.className = 'ambience-petal';
+      p.textContent = Math.random() > .55 ? '✦' : (Math.random() > .5 ? '❀' : '•');
+      p.style.left = (Math.random()*100) + 'vw'; p.style.fontSize = (8 + Math.random()*16) + 'px';
+      p.style.color = Math.random() > .5 ? '#ffd7df' : '#fff1c8';
+      p.style.setProperty('--dx', ((Math.random()-.5)*55) + 'vw');
+      p.style.setProperty('--rot', ((Math.random()-.5)*720) + 'deg');
+      p.style.animationDuration = (9 + Math.random()*10) + 's';
+      layer.appendChild(p); setTimeout(() => p.remove(), 20000);
+    };
+    for (let i=0;i<10;i++) setTimeout(spawn, i*160);
+    this._ambienceTimer = setInterval(spawn, 900);
+  }
+
   applyBackground(bgVal) {
     var canvas = document.getElementById('game-canvas');
     if (!bgVal || bgVal === '#B89A6A') {
@@ -6469,10 +6859,16 @@ class GameController {
     floatDiv.appendChild(tileEl);
     const btns = document.createElement('div'); btns.className = 'float-buttons';
     const discardBtn = document.createElement('button'); discardBtn.className = 'float-btn discard-btn'; discardBtn.textContent = 'Discard';
-    discardBtn.addEventListener('click', () => { const p = this.gs.players[1]; p.discards.push(tile); this.gs.lastDiscard = tile; this.gs.lastDiscardPlayer = 1; this.gs.drawnTile = null; this.hideFloatingDrawnTile(); this.gs.sortHand(p.hand); this.renderAll(); this.checkForClaims(); });
+    discardBtn.addEventListener('click', () => {
+      if (this.mpMode) { this.mpSend({ type: 'discard', tileId: tile.id }); this.hideFloatingDrawnTile(); return; }
+      const p = this.gs.players[1]; p.discards.push(tile); this.gs.lastDiscard = tile; this.gs.lastDiscardPlayer = 1; this.gs.drawnTile = null; this.hideFloatingDrawnTile(); this.gs.sortHand(p.hand); this.renderAll(); this.checkForClaims();
+    });
     btns.appendChild(discardBtn);
     const keepBtn = document.createElement('button'); keepBtn.className = 'float-btn keep-btn'; keepBtn.textContent = 'Keep';
-    keepBtn.addEventListener('click', () => { this.gs.players[1].hand.push(tile); this.gs.drawnTile = tile; this._floatingDrawnTile = null; floatDiv.style.display = 'none'; floatDiv.innerHTML = ''; this.gs.sortHand(this.gs.players[1].hand); this.renderAll(); });
+    keepBtn.addEventListener('click', () => {
+      if (this.mpMode) { this.gs.players[1].hand.push(tile); this.gs.drawnTile = null; this.hideFloatingDrawnTile(); this.gs.sortHand(this.gs.players[1].hand); this.renderAll(); return; }
+      this.gs.players[1].hand.push(tile); this.gs.drawnTile = tile; this._floatingDrawnTile = null; floatDiv.style.display = 'none'; floatDiv.innerHTML = ''; this.gs.sortHand(this.gs.players[1].hand); this.renderAll();
+    });
     btns.appendChild(keepBtn); floatDiv.appendChild(btns);
   }
 
@@ -6707,6 +7103,26 @@ class GameController {
 
   // ========== MULTIPLAYER ==========
   showMPLobby() { document.getElementById('mp-overlay').style.display = 'block'; }
+
+  returnToMPLobbyAfterGame() {
+    // Clear stale ended-round presentation before waiting/starting the next round.
+    // The server remains authoritative; this only prevents the old board from
+    // appearing behind the lobby or during the next start transition.
+    this.hideModal();
+    this.hideFloatingDrawnTile();
+    this._lastMpState = null;
+    this.mpMode = false;
+    this.gs.reset();
+    this.gs.wall = [];
+    this.gs.deadWall = [];
+    this.gs.mpTilesLeft = 0;
+    this.gs.mpWallCounts = [0, 0, 0, 0];
+    this.gs.mpWallSlots = null;
+    this.renderAll();
+    this.showMPLobby();
+    this.mpSend({ type: 'restart' });
+  }
+
   closeMPLobby() { document.getElementById('mp-overlay').style.display = 'none'; if (this.mpClient) { if (this.mpClient.ws) this.mpClient.ws.close(); this.mpClient = null; } this.mpMode = false; }
 
   async mpConnect() {
@@ -6723,6 +7139,13 @@ class GameController {
   }
 
   mpSend(msg) { if (this.mpClient && this.mpClient.ws && this.mpClient.ws.readyState === WebSocket.OPEN) this.mpClient.ws.send(JSON.stringify(msg)); }
+
+  async mpReconnectSaved() {
+    const room = localStorage.getItem('mj_mp_room'); const seat = parseInt(localStorage.getItem('mj_mp_seat') || '-1', 10); const reconnectToken = localStorage.getItem('mj_mp_token');
+    if (!room || !reconnectToken || seat < 0) return false;
+    const name = localStorage.getItem('mj_name') || 'Player';
+    try { await this.mpConnect(); this.mpSend({ type: 'join', room, name, seat, reconnectToken }); return true; } catch (_) { return false; }
+  }
 
   async mpCreateRoom() {
     const name = localStorage.getItem('mj_name') || 'Host'; const avatar = localStorage.getItem('mj_avatar') || 'chen';
@@ -6743,6 +7166,8 @@ class GameController {
     switch (msg.type) {
       case 'room':
         this.mpClient.seatIdx = msg.you; this.mpClient.isHost = msg.isHost;
+        this.mpClient.room = msg.room; this.mpClient.reconnectToken = msg.reconnectToken;
+        if (msg.room && msg.reconnectToken) { localStorage.setItem('mj_mp_room', msg.room); localStorage.setItem('mj_mp_seat', String(msg.you)); localStorage.setItem('mj_mp_token', msg.reconnectToken); }
         document.getElementById('mp-code-display').textContent = msg.room;
         document.getElementById('mp-host-controls').style.display = msg.isHost ? 'block' : 'none';
         document.getElementById('mp-player-list').innerHTML = msg.players.map((p, i) =>
@@ -6758,10 +7183,23 @@ class GameController {
         break;
       case 'gameOver':
         this.mpMode = false;
+        this.gs.phase = 'ended';
+        this.gs.drawnTile = null;
+        this.gs.wall = [];
+        this.gs.mpTilesLeft = 0;
+        this.gs.mpWallCounts = [0, 0, 0, 0];
+        if (this._lastMpState) { this._lastMpState.phase = 'ended'; this._lastMpState.drawnTileId = null; this._lastMpState.tilesLeft = 0; this._lastMpState.wallCounts = [0, 0, 0, 0]; }
+        this.hideFloatingDrawnTile();
+        this.render3DScene();
+        this.updateWallInfo();
         const wn = msg.winner >= 0 ? (msg.winner === this.mpClient.seatIdx ? 'You' : msg.winnerName) : null;
-        if (msg.winner >= 0) this.showModal(msg.winner === this.mpClient.seatIdx ? '🎊 You Win!' : (wn+' Wins!'), '', 'Back to Lobby');
+        if (msg.winner >= 0) {
+          this.showConfetti();
+          const scoreText = msg.scoring ? `${msg.winType === 'tsumo' ? 'Self-draw' : 'Discard win'} · Base ${msg.scoring.basePoints} · Winner +${msg.scoring.totalWin}` : '';
+          this.showModal(msg.winner === this.mpClient.seatIdx ? '🎊 You Win!' : (wn+' Wins!'), scoreText, 'Back to Lobby');
+        }
         else this.showModal('🤝 Draw', 'No tiles remaining.', 'Back to Lobby');
-        document.getElementById('modal-btn').onclick = () => { this.hideModal(); this.showMPLobby(); this.mpSend({ type: 'restart' }); };
+        document.getElementById('modal-btn').onclick = () => this.returnToMPLobbyAfterGame();
         break;
       case 'chat': {
         const log = document.getElementById('mp-chat-log'); if (log) { log.innerHTML += '<div><b>'+msg.from+':</b> '+msg.text+'</div>'; log.scrollTop = log.scrollHeight; }
@@ -6789,18 +7227,37 @@ class GameController {
       const si = serverIdx(rp); const p = this.gs.players[rp];
       p.melds = state.melds[si] || []; p.flowers = state.flowers[si] || []; p.discards = state.discards[si] || [];
       p.score = state.scores[si] || 25000; p.name = state.playerNames[si] || ('Player '+si);
+      p.avatar = state.playerAvatars ? state.playerAvatars[si] : p.avatar;
       p.isAI = state.playerIsAI ? state.playerIsAI[si] : false;
-      if (si === mySeat) p.hand = state.hand || [];
+      if (si === mySeat) p.hand = state.drawnTileId != null ? (state.hand || []).filter(t => t.id !== state.drawnTileId) : (state.hand || []);
       else p.hand = new Array(state.handCounts ? state.handCounts[si]||0 : 0).fill({id:-1,suit:'back',type:'unknown'});
     }
     this.gs.currentPlayer = rotateIdx(state.currentPlayer); this.gs.phase = state.phase;
     this.gs.lastDiscard = state.lastDiscard;
     this.gs.lastDiscardPlayer = state.lastDiscardPlayer >= 0 ? rotateIdx(state.lastDiscardPlayer) : -1;
-    this.gs.selectedTileIndex = -1; this.gs.mpTilesLeft = state.tilesLeft;
+    this.gs.selectedTileIndex = -1; this.gs.mpTilesLeft = state.tilesLeft; this.gs.mpWallCounts = this.rotateWallCounts(state.wallCounts || null, mySeat); this.gs.mpWallSlots = this.rotateWallSlots(state.wallSlots || null, mySeat);
     if (state.drawnTileId != null && state.currentPlayer === mySeat) this.gs.drawnTile = (state.hand||[]).find(t => t.id === state.drawnTileId) || null;
     else this.gs.drawnTile = null;
     if (state.tilesLeft > 0 && (!this.gs.wall || this.gs.wall.length === 0)) this.gs.wall = new Array(state.tilesLeft).fill({id:-1,suit:'back'});
-    this.renderAll(); this.updateActionButtonsMP(state);
+    this.renderAll();
+    if (this.gs.drawnTile && state.currentPlayer === mySeat && state.phase === 'discard') this.showFloatingDrawnTile(this.gs.drawnTile);
+    else this.hideFloatingDrawnTile();
+    this.updateActionButtonsMP(state);
+  }
+
+  rotateWallCounts(counts, mySeat) {
+    if (!counts || counts.length !== 4) return null;
+    // Server order is east/south/west/north. Local renderer order is north/east/south/west.
+    const seatToServerWall = { 0: 0, 1: 1, 2: 2, 3: 3 };
+    const localRendererToRelativeSeat = [3, 0, 1, 2]; // north,east,south,west around local view
+    return localRendererToRelativeSeat.map(rel => counts[seatToServerWall[(mySeat + rel + 3) % 4]] || 0);
+  }
+
+  rotateWallSlots(slots, mySeat) {
+    if (!slots || slots.length !== 4) return null;
+    const seatToServerWall = { 0: 0, 1: 1, 2: 2, 3: 3 };
+    const localRendererToRelativeSeat = [3, 0, 1, 2];
+    return localRendererToRelativeSeat.map(rel => slots[seatToServerWall[(mySeat + rel + 3) % 4]] || []);
   }
 
   updateActionButtonsMP(state) {

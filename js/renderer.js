@@ -27,9 +27,8 @@ export function renderPlayerHand() {
   if (isDragging()) return;
 
   const tray = document.getElementById('hand-tray');
-  tray.innerHTML = '';
-
   const player = game.players[1];
+  const fragment = document.createDocumentFragment();
 
   player.hand.forEach((tile, i) => {
     const el = createTileElement(tile, false);
@@ -43,8 +42,11 @@ export function renderPlayerHand() {
     }
 
     el.addEventListener('pointerdown', (e) => onTilePointerDown(e, i));
-    tray.appendChild(el);
+    fragment.appendChild(el);
   });
+
+  tray.innerHTML = '';
+  tray.appendChild(fragment);
 }
 
 export function renderOpponentHands() {
@@ -55,19 +57,22 @@ export function renderOpponentHands() {
 
 export function renderOpponentHand(elementId, count, position) {
   const container = document.getElementById(elementId);
-  container.innerHTML = '';
+  const fragment = document.createDocumentFragment();
 
   for (let i = 0; i < count; i++) {
     const el = document.createElement('div');
     el.className = 'tile facedown';
     el.innerHTML = `<div class="tile-body">${getTileBackHTML()}</div>`;
-    container.appendChild(el);
+    fragment.appendChild(el);
   }
+
+  container.innerHTML = '';
+  container.appendChild(fragment);
 }
 
 export function renderDiscards() {
   const container = document.getElementById('discards-display');
-  container.innerHTML = '';
+  const fragment = document.createDocumentFragment();
 
   // Use append-only discardHistory for stable grid positions
   game.discardHistory.forEach((entry, i) => {
@@ -77,7 +82,7 @@ export function renderDiscards() {
     if (entry.claimed) {
       // Keep the slot but make it invisible (preserves grid positions)
       el.style.visibility = 'hidden';
-      container.appendChild(el);
+      fragment.appendChild(el);
       return;
     }
 
@@ -93,8 +98,11 @@ export function renderDiscards() {
       el.classList.add('last');
     }
     el.innerHTML = getTileSVG(tile);
-    container.appendChild(el);
+    fragment.appendChild(el);
   });
+
+  container.innerHTML = '';
+  container.appendChild(fragment);
 }
 
 export function renderMelds() {
@@ -107,7 +115,7 @@ export function renderMelds() {
 
   for (const player of game.players) {
     const container = document.getElementById(seatToElement[player.seat]);
-    container.innerHTML = '';
+    const fragment = document.createDocumentFragment();
 
     if (player.flowers.length > 0) {
       const flowerGroup = document.createElement('div');
@@ -118,7 +126,7 @@ export function renderMelds() {
         el.innerHTML = getTileSVG(tile);
         flowerGroup.appendChild(el);
       }
-      container.appendChild(flowerGroup);
+      fragment.appendChild(flowerGroup);
     }
 
     for (const meld of player.melds) {
@@ -140,8 +148,11 @@ export function renderMelds() {
 
         group.appendChild(el);
       }
-      container.appendChild(group);
+      fragment.appendChild(group);
     }
+
+    container.innerHTML = '';
+    container.appendChild(fragment);
   }
 }
 

@@ -1,6 +1,8 @@
 import { WINDS, DRAGONS, FLOWERS, SEASONS } from './constants.js';
 
-export let game = {
+// Game state - exported as const to prevent reassignment
+// Use resetGame() to clear/reset all properties
+export const game = {
   wall: [],
   deadWall: [],
   discardHistory: [], // append-only log: { tile, claimed: false }
@@ -28,34 +30,65 @@ export let game = {
   winType: null
 };
 
+// Event callbacks for state reset notifications
+const resetCallbacks = [];
+
+/**
+ * Register a callback to be called when the game is reset
+ * @param {Function} callback
+ */
+export function onGameReset(callback) {
+  resetCallbacks.push(callback);
+}
+
+/**
+ * Reset the game state by mutating the existing game object.
+ * This preserves live bindings in other modules that import the game object.
+ */
 export function resetGame() {
-  game = {
-    wall: [],
-    deadWall: [],
-    discardHistory: [],
-    players: [
-      { seat: 'east', hand: [], melds: [], flowers: [], discards: [], score: game.players[0].score, isAI: true },
-      { seat: 'south', hand: [], melds: [], flowers: [], discards: [], score: game.players[1].score, isAI: false },
-      { seat: 'west', hand: [], melds: [], flowers: [], discards: [], score: game.players[2].score, isAI: true },
-      { seat: 'north', hand: [], melds: [], flowers: [], discards: [], score: game.players[3].score, isAI: true }
-    ],
-    currentPlayer: 0,
-    dealerSeat: 0,
-    roundWind: 'East',
-    lastDiscard: null,
-    lastDiscardPlayer: -1,
-    drawnTile: null,
-    phase: 'waiting',
-    claimWindow: false,
-    possibleClaims: [],
-    selectedTileIndex: -1,
-    claimTimeoutId: null,
-    claimTimeRemaining: 10,
-    justClaimed: false,
-    kongInProgress: false,
-    pendingKongTile: null,
-    winType: null
-  };
+  // Preserve scores before clearing
+  const scores = game.players.map(p => p.score);
+
+  // Clear arrays in place (preserves references)
+  game.wall.length = 0;
+  game.deadWall.length = 0;
+  game.discardHistory.length = 0;
+  game.possibleClaims.length = 0;
+
+  // Rebuild players array with preserved scores
+  game.players.length = 0;
+  game.players.push(
+    { seat: 'east', hand: [], melds: [], flowers: [], discards: [], score: scores[0], isAI: true },
+    { seat: 'south', hand: [], melds: [], flowers: [], discards: [], score: scores[1], isAI: false },
+    { seat: 'west', hand: [], melds: [], flowers: [], discards: [], score: scores[2], isAI: true },
+    { seat: 'north', hand: [], melds: [], flowers: [], discards: [], score: scores[3], isAI: true }
+  );
+
+  // Reset primitive values
+  game.currentPlayer = 0;
+  game.dealerSeat = 0;
+  game.roundWind = 'East';
+  game.lastDiscard = null;
+  game.lastDiscardPlayer = -1;
+  game.drawnTile = null;
+  game.phase = 'waiting';
+  game.claimWindow = false;
+  game.selectedTileIndex = -1;
+  game.claimTimeoutId = null;
+  game.claimTimeRemaining = 10;
+  game.justClaimed = false;
+  game.kongInProgress = false;
+  game.pendingKongTile = null;
+  game.winType = null;
+
+  // Notify registered callbacks
+  for (const callback of resetCallbacks) {
+    try {
+      callback();
+    } catch (e) {
+      console.error('Error in reset callback:', e);
+    }
+  }
 }
 
 export function createTileSet() {
